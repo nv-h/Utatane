@@ -1,3 +1,6 @@
+Copyright (c) 2017, H.Saido,
+with Reserved Font Name Yasashica
+
 Copyright (c) 2017, Takahiro Minami (https://tmnm.tech),
 with Reserved Font Name Cica
 
@@ -14,11 +17,15 @@ This Font Software is licensed under the
   - Octicons : https://github.com/primer/octicons
   - IEC Power Symbols : https://unicodepowersymbol.com/
   - Powerline Symbols : https://github.com/powerline/powerline
-- Apache License 2.0
-  - Noto Emoji : https://github.com/googlei18n/noto-emoji
-- SIL Open Font License, Version 1.1
-  - Rounded Mgen+ : http://jikasei.me/font/rounded-mgenplus/
+- IPA Font License Agreement v1.0
+  - IPA Fonts : http://ipafont.ipa.go.jp/old/ipafont/download.html
+- M+ FONTS Licence
+  - M+ FONTS : http://mplus-fonts.osdn.jp/about.html#license
 
+- 07 YasashisaGothic
+  - complies with the above IPA Fonts and M+ FONTS licenses.
+- 07 YasashisaGothicBold
+  - complies with the above M+ FONTS licenses.
 
 These licenses are copied below, and is also available with a FAQ at:
 

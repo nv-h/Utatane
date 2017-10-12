@@ -1,86 +1,54 @@
-# プログラミング用フォント Cica
+# プログラミング用フォント Yasashica
 
-![on MacVim](screenshots/ss1.png)
+![on Windows Sublime](screenshots/ss1.png)
 
 ## ダウンロード
 
-[リリースページ](https://github.com/miiton/Cica/releases/latest)にビルド済みのフォントを配置しています。
+[リリースページ](https://github.com/nv-h/Yasashica/releases/latest)にビルド済みのフォントを配置しています。
 
 ## 概要
 
-Ricty生成スクリプトをフォークして生成したプログラミング用の等幅フォントです。
+Ricty生成スクリプトをフォークして生成したプログラミング用の等幅フォント[Cica](https://github.com/miiton/Cica)からさらにフォークしたフォントです。
 [Ubuntu Mono](http://font.ubuntu.com/) と
-[Rounded Mgen+](http://jikasei.me/font/rounded-mgenplus/) を合成して少し調整しています。
-[Noto Emoji](https://www.google.com/get/noto/) と
+[やさしさゴシック](http://www.fontna.com/blog/379/) と [やさしさゴシックボールド](http://www.fontna.com/blog/736/) を合成して少し調整しています。
 [NERDFonts](https://github.com/ryanoasis/nerd-fonts) を追加合成しています。
 
 ```
-o Cica
+o Yasashica
 |\
 * * NERDFonts (without Pomicons)
 |\
-* * Noto Emoji
-|\
 * * Ubuntu Mono
  \
-  * Rounded Mgen+
+  * やさしさゴシック
   |\
-  | * 源の角ゴシック
+  | * IPA Fonts
+  |\
+  | * M+ FONTS
   |
-  * Rounded M+
-  |
-  * M+ OUTLINE FONTS
+  * やさしさゴシックボールド
+   \
+    * M+ FONTS
 ```
+
+IPAフォントに置き換える場合 [IPAフォント](http://ossipedia.ipa.go.jp/ipafont/index.html)のページでIPAゴシックを入手してさい。
 
 ## Rictyからの変更点
 
 * 英数字に Ubutnu Mono を使用しています
-* それ以外の文字に Rounded Mgen+ ゴシック を使用しています
+* それ以外の文字に やさしさゴシック を使用しています
 * 非HiDPI（非Retina）のWindowsでも文字が欠けません
 * [Powelineパッチ](https://github.com/powerline/fontpatcher)適用済みです
 
 
 ## バリエーション
 
-| ファイル名             | 説明     |
-| ----                   | ----     |
-| Cica-Regular.ttf       | 通常     |
-| Cica-RegularItalic.ttf | 斜体     |
-| Cica-Bold.ttf          | 太字     |
-| Cica-BoldItalic.ttf    | 太字斜体 |
-
-※CicaEファミリーのPowerlineやDevIconのグリフは [pua.html](pua.html) で一覧が確認出来ます。
-
-## ビルド手順
-
-2017-10-08時点、Ubuntu 16.04 にて
-
-```sh
-sudo apt-get -y install fontforge unar
-git clone git@github.com:miiton/Cica.git
-wget http://font.ubuntu.com/download/ubuntu-font-family-0.83.zip
-unar ubuntu-font-family-0.83.zip
-cp ubuntu-font-family-0.83/UbuntuMono-R.ttf ./sourceFonts/
-cp ubuntu-font-family-0.83/UbuntuMono-B.ttf ./sourceFonts/
-wget https://osdn.jp/downloads/users/8/8598/rounded-mgenplus-20150602.7z
-unar rounded-mgenplus-20150602.7z
-cp rounded-mgenplus-20150602/rounded-mgenplus-1m-regular.ttf ./sourceFonts
-cp rounded-mgenplus-20150602/rounded-mgenplus-1m-bold.ttf ./sourceFonts
-wget https://github.com/googlei18n/noto-emoji/raw/master/fonts/NotoEmoji-Regular.ttf -O sourceFonts/NotoEmoji-Regular.ttf
-fontforge -lang=py -script cica.py
-```
-
-[fontforge のバージョンが古いと正常に動作しません #6](https://github.com/miiton/Cica/issues/6)
-
-```
-% fontforge --version
-
-Copyright (c) 2000-2012 by George Williams.
- Executable based on sources from 14:57 GMT 31-Jul-2012-ML.
- Library based on sources from 14:57 GMT 31-Jul-2012.
-fontforge 20120731
-libfontforge 20120731-ML
-```
+| ファイル名                  | 説明     |
+| ----                        | ----     |
+| Yasashica-Regular.ttf       | 通常     |
+| Yasashica-RegularItalic.ttf | 斜体     |
+| Yasashica-Bold.ttf          | 太字     |
+| Yasashica-BoldItalic.ttf    | 太字斜体 |
 
 
 # ライセンス

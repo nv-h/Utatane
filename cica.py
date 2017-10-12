@@ -22,105 +22,57 @@ SOURCE = './sourceFonts'
 DIST = './dist'
 LICENSE = open('./LICENSE.txt').read()
 COPYRIGHT = open('./COPYRIGHT.txt').read()
-VERSION = '2.0.2'
+VERSION = '1.0.0'
 
 fonts = [
     {
-         'family': 'Cica',
-         'name': 'Cica-Regular',
-         'filename': 'Cica-Regular.ttf',
+         'family': 'Yasashica',
+         'name': 'Yasashica-Regular',
+         'filename': 'Yasashica-Regular.ttf',
          'weight': 400,
          'weight_name': 'Regular',
          'style_name': 'Regular',
          'ubuntu_mono': 'UbuntuMono-R.ttf',
-         'mgen_plus': 'rounded-mgenplus-1m-regular.ttf',
+         'japanese': '07YasashisaGothic-R.ttf',
          'ubuntu_weight_reduce': 0,
-         'mgen_weight_add': 0,
+         'japanese_weight_add': 0,
          'italic': False,
      }, {
-         'family': 'Cica',
-         'name': 'Cica-RegularItalic',
-         'filename': 'Cica-RegularItalic.ttf',
+         'family': 'Yasashica',
+         'name': 'Yasashica-RegularItalic',
+         'filename': 'Yasashica-RegularItalic.ttf',
          'weight': 400,
          'weight_name': 'Regular',
          'style_name': 'Italic',
          'ubuntu_mono': 'UbuntuMono-R.ttf',
-         'mgen_plus': 'rounded-mgenplus-1m-regular.ttf',
+         'japanese': '07YasashisaGothic-R.ttf',
          'ubuntu_weight_reduce': 0,
-         'mgen_weight_add': 0,
+         'japanese_weight_add': 0,
          'italic': True,
     }, {
-        'family': 'Cica',
-        'name': 'Cica-Bold',
-        'filename': 'Cica-Bold.ttf',
+        'family': 'Yasashica',
+        'name': 'Yasashica-Bold',
+        'filename': 'Yasashica-Bold.ttf',
         'weight': 700,
         'weight_name': 'Bold',
          'style_name': 'Bold',
         'ubuntu_mono': 'UbuntuMono-B.ttf',
-        'mgen_plus': 'rounded-mgenplus-1m-bold.ttf',
+        'japanese': '07YasashisaGothic-B.ttf',
         'ubuntu_weight_reduce': 0,
-        'mgen_weight_add': 0,
+        'japanese_weight_add': 0,
         'italic': False,
     }, {
-        'family': 'Cica',
-        'name': 'Cica-BoldItalic',
-        'filename': 'Cica-BoldItalic.ttf',
+        'family': 'Yasashica',
+        'name': 'Yasashica-BoldItalic',
+        'filename': 'Yasashica-BoldItalic.ttf',
         'weight': 700,
         'weight_name': 'Bold',
         'style_name': 'Bold Italic',
         'ubuntu_mono': 'UbuntuMono-B.ttf',
-        'mgen_plus': 'rounded-mgenplus-1m-bold.ttf',
+        'japanese': '07YasashisaGothic-B.ttf',
         'ubuntu_weight_reduce': 0,
-        'mgen_weight_add': 0,
+        'japanese_weight_add': 0,
         'italic': True,
-#   }, {
-#       'family': 'Cica',
-#       'name': 'Cica-DemiLight',
-#       'filename': 'Cica-DemiLight.ttf',
-#       'weight': 300,
-#       'weight_name': 'DemiLight',
-#       'style_name': 'DemiLight',
-#       'ubuntu_mono': 'UbuntuMono-R.ttf',
-#       'mgen_plus': 'rounded-mgenplus-1m-light.ttf',
-#       'ubuntu_weight_reduce': 10,
-#       'mgen_weight_add': 20,
-#       'italic': False,
-#   }, {
-#       'family': 'Cica',
-#       'name': 'Cica-DemiLightItalic',
-#       'filename': 'Cica-DemiLightItalic.ttf',
-#       'weight': 300,
-#       'weight_name': 'DemiLight',
-#       'style_name': 'DemiLight Italic',
-#       'ubuntu_mono': 'UbuntuMono-R.ttf',
-#       'mgen_plus': 'rounded-mgenplus-1m-light.ttf',
-#       'ubuntu_weight_reduce': 10,
-#       'mgen_weight_add': 20,
-#       'italic': True,
-#   }, {
-#       'family': 'Cica',
-#       'name': 'Cica-Light',
-#       'filename': 'Cica-Light.ttf',
-#       'weight': 200,
-#       'weight_name': 'Light',
-#       'style_name': 'Light',
-#       'ubuntu_mono': 'UbuntuMono-R.ttf',
-#       'mgen_plus': 'rounded-mgenplus-1m-thin.ttf',
-#       'ubuntu_weight_reduce': 20,
-#       'mgen_weight_add': 10,
-#       'italic': False,
-#   }, {
-#       'family': 'Cica',
-#       'name': 'Cica-LightItalic',
-#       'filename': 'Cica-LightItalic.ttf',
-#       'weight': 200,
-#       'weight_name': 'Light',
-#       'style_name': 'Light Italic',
-#       'ubuntu_mono': 'UbuntuMono-R.ttf',
-#       'mgen_plus': 'rounded-mgenplus-1m-thin.ttf',
-#       'ubuntu_weight_reduce': 20,
-#       'mgen_weight_add': 10,
-#       'italic': True,
     }
 ]
 
@@ -128,7 +80,7 @@ def log(str):
     logger.debug(str)
 
 def remove_glyph_from_ubuntu(_font):
-    u"""Rounded Mgen+を採用したいグリフをUbuntuMonoから削除
+    u"""japaneseを採用したいグリフをUbuntuMonoから削除
     """
     log('remove_ambiguous() : %s' % _font.fontname)
 
@@ -150,7 +102,7 @@ def check_files():
             logger.error('%s not exists.' % f)
             err = 1
 
-        if not os.path.isfile('./sourceFonts/%s' % f.get('mgen_plus')):
+        if not os.path.isfile('./sourceFonts/%s' % f.get('japanese')):
             logger.error('%s not exists.' % f)
             err = 1
 
@@ -170,14 +122,14 @@ def set_os2_values(_font, _info):
     _font.os2_weight = weight
     _font.os2_width = 5
     _font.os2_fstype = 0
-    if style_name == 'Regular':
-        _font.os2_stylemap = 64
-    elif style_name == 'Bold':
-        _font.os2_stylemap = 32
-    elif style_name == 'Italic':
-        _font.os2_stylemap = 1
-    elif style_name == 'Bold Italic':
-        _font.os2_stylemap = 33
+    # if style_name == 'Regular':
+    #     _font.os2_stylemap = 64
+    # elif style_name == 'Bold':
+    #     _font.os2_stylemap = 32
+    # elif style_name == 'Italic':
+    #     _font.os2_stylemap = 1
+    # elif style_name == 'Bold Italic':
+    #     _font.os2_stylemap = 33
     _font.os2_vendor = 'TMNM'
     _font.os2_version = 1
     _font.os2_winascent = ASCENT
@@ -330,7 +282,7 @@ def build_font(_f):
     log('Generating %s ...' % _f.get('weight_name'))
     ubuntu = fontforge.open('./sourceFonts/%s' % _f.get('ubuntu_mono'))
     ubuntu = remove_glyph_from_ubuntu(ubuntu)
-    cica = fontforge.open('./sourceFonts/%s' % _f.get('mgen_plus'))
+    cica = fontforge.open('./sourceFonts/%s' % _f.get('japanese'))
     nerd = fontforge.open('./sourceFonts/nerd.ttf')
 
     for g in ubuntu.glyphs():
@@ -344,11 +296,11 @@ def build_font(_f):
         0x306e,
     ]
 
-    if _f.get('mgen_weight_add') != 0:
+    if _f.get('japanese_weight_add') != 0:
         for g in cica.glyphs():
-            # g.changeWeight(_f.get('mgen_weight_add'), 'auto', 0, 0, 'auto')
-            g.stroke("caligraphic", _f.get('mgen_weight_add'), _f.get('mgen_weight_add'), 45, 'removeinternal')
-            # g.stroke("circular", _f.get('mgen_weight_add'), 'butt', 'round', 'removeinternal')
+            # g.changeWeight(_f.get('japanese_weight_add'), 'auto', 0, 0, 'auto')
+            g.stroke("caligraphic", _f.get('japanese_weight_add'), _f.get('japanese_weight_add'), 45, 'removeinternal')
+            # g.stroke("circular", _f.get('japanese_weight_add'), 'butt', 'round', 'removeinternal')
 
 
     ignoring_center = [
@@ -387,7 +339,6 @@ def build_font(_f):
     cica = zenkaku_space(cica)
     cica = vertical_line_to_broken_bar(cica)
     cica = emdash_to_broken_dash(cica)
-    cica = add_notoemoji(cica)
     cica = add_smalltriangle(cica)
     # cica = add_powerline(cica)
 
@@ -444,19 +395,6 @@ def build_font(_f):
     nerd.close()
 
 
-def add_notoemoji(_f):
-    notoemoji = fontforge.open('./sourceFonts/NotoEmoji-Regular.ttf')
-    for g in notoemoji.glyphs():
-        if g.isWorthOutputting and g.encoding > 0x04f9:
-            g.transform((0.42,0,0,0.42,0,0))
-            g = align_to_center(g)
-            notoemoji.selection.select(g.encoding)
-            notoemoji.copy()
-            _f.selection.select(g.encoding)
-            _f.paste()
-    notoemoji.close()
-    return _f
-
 def add_devicons(_f):
     devicon = fontforge.open('./sourceFonts/devicon.ttf')
     current = 0xE160
@@ -505,7 +443,7 @@ def add_powerline(_f):
 
 def main():
     print('')
-    print('### Generating Cica started. ###')
+    print('### Generating Yasashica started. ###')
     check_files()
 
     for _f in fonts:
