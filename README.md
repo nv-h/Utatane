@@ -46,10 +46,9 @@ IPAフォントに置き換える場合 [IPAフォント](http://ossipedia.ipa.g
 | ファイル名                  | 説明     |
 | ----                        | ----     |
 | Yasashica-Regular.ttf       | 通常     |
-| Yasashica-RegularItalic.ttf | 斜体     |
 | Yasashica-Bold.ttf          | 太字     |
-| Yasashica-BoldItalic.ttf    | 太字斜体 |
 
+斜体はおかしくなるので未対応。
 
 # ライセンス
 
