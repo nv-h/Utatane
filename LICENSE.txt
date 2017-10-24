@@ -10,6 +10,7 @@ This Font Software is licensed under the
 - CC BY 4.0
   - Seti-UI + Custom : https://github.com/jesseweed/seti-ui
 - MIT Licenses
+  - Cica Generate Script : https://github.com/miiton/Cica
   - DevIcons : https://github.com/vorillaz/devicons
   - Powerline Extra Symbols : https://github.com/ryanoasis/powerline-extra-symbols
   - Font Awesome : https://github.com/FortAwesome/Font-Awesome
