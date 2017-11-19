@@ -1,4 +1,4 @@
-# プログラミング用フォント Yasashica
+# プログラミング用フォント Fusa
 
 ![on Windows Sublime](screenshots/ss1.png)
 
@@ -10,20 +10,16 @@
 
 Ricty生成スクリプトをフォークして生成したプログラミング用の等幅フォント[Cica](https://github.com/miiton/Cica)からさらにフォークしたフォントです。
 [Ubuntu Mono](http://font.ubuntu.com/) と
-[やさしさゴシック](http://www.fontna.com/blog/379/) と [やさしさゴシックボールド](http://www.fontna.com/blog/736/) を合成して少し調整しています。
+[フロップデザインフォント](https://www.flopdesign.com/freefont/flopdesignfont.html) を合成して少し調整しています。
 
 ```
-o Yasashica
+o Fusa
 |\
 * * Ubuntu Mono
  \
-  * やさしさゴシック
+  * FlopDesignFont
   |\
   | * IPA Fonts
-  |\
-  | * M+ FONTS
-  |
-  * やさしさゴシックボールド
    \
     * M+ FONTS
 ```
@@ -41,10 +37,8 @@ IPAフォントに置き換える場合 [IPAフォント](http://ossipedia.ipa.g
 
 | ファイル名                  | 説明     |
 | ----                        | ----     |
-| Yasashica-Regular.ttf       | 通常     |
-| Yasashica-Bold.ttf          | 太字     |
+| Fusa.ttf                    | 通常     |
 
-斜体はおかしくなるので未対応。
 
 # ライセンス
 

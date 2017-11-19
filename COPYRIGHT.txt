@@ -2,7 +2,7 @@ Copyright (c) 2017, H.Saido
 Copyright (c) 2017, Takahiro Minami (https://tmnm.tech)
 Copyright (c) 2012 M+ FONTS PROJECT
 Copyright (c) Information-technology Promotion Agency, Japan (IPA), 2003-2012.
-Copyright (c) fontna.com
+Copyright (C) 1998-2015 FLOP DESIGN
 
 This Font Software is licensed and copyrighted under the
 - Ubuntu Font Licence, Version 1.0
@@ -22,7 +22,5 @@ This Font Software is licensed and copyrighted under the
 - M+ FONTS Licence
   - M+ FONTS : http://mplus-fonts.osdn.jp/about.html#license
 
-- 07 YasashisaGothic
+- 01FLOPDESIGN font
   - complies with the above IPA Fonts and M+ FONTS licenses.
-- 07 YasashisaGothicBold
-  - complies with the above M+ FONTS licenses.

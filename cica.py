@@ -21,46 +21,47 @@ logger.addHandler(handler)
 # Win(Ascent, Descent)=(-170, -183)
 # hhea(height, width)=(-170, 183)
 
-# 日本語フォント
-# 905 x 119 = 1024(Em)
-# Win(Ascent, Descent)=(-24, 13)
-# hhea(height, width)=(-24, 168)
+# 01FLOPDESIGN
+# 880 x 120 = 1000(Em)
+# Win(Ascent, Descent)=(-3, -22)
+# hhea(height, width)=(-3, 110)
 
-WIDTH   = 1024
-ASCENT  = 905
+WIDTH   = 1000
+ASCENT  = 880
 DESCENT = 200
 
 SOURCE = './sourceFonts'
 DIST = './dist'
 LICENSE = open('./LICENSE.txt').read()
 COPYRIGHT = open('./COPYRIGHT.txt').read()
-VERSION = '1.0.2'
+VERSION = '1.0.0'
 
 fonts = [
     {
-         'family': 'Yasashica',
-         'name': 'Yasashica-Regular',
-         'filename': 'Yasashica-Regular.ttf',
+         'family': 'Fusa',
+         'name': 'Fusa',
+         'filename': 'Fusa.ttf',
          'weight': 400,
          'weight_name': 'Regular',
          'style_name': 'Regular',
          'ubuntu_mono': 'UbuntuMono-R.ttf',
-         'japanese': '07YasashisaGothic-R.ttf',
+         'japanese': 'FLOPDesignFont.ttf',
          'ubuntu_weight_reduce': 0,
-         'japanese_weight_add': 5,
+         'japanese_weight_add': 0,
          'italic': False,
-    }, {
-        'family': 'Yasashica',
-        'name': 'Yasashica-Bold',
-        'filename': 'Yasashica-Bold.ttf',
-        'weight': 700,
-        'weight_name': 'Bold',
-        'style_name': 'Bold',
-        'ubuntu_mono': 'UbuntuMono-B.ttf',
-        'japanese': '07YasashisaGothic-B.ttf',
-        'ubuntu_weight_reduce': 0,
-        'japanese_weight_add': 0,
-        'italic': False,
+    # boldは未対応
+    # }, {
+    #     'family': 'Fusa',
+    #     'name': 'Fusa-Bold',
+    #     'filename': 'Fusa-Bold.ttf',
+    #     'weight': 700,
+    #     'weight_name': 'Bold',
+    #     'style_name': 'Bold',
+    #     'ubuntu_mono': 'UbuntuMono-B.ttf',
+    #     'japanese': '07YasashisaGothic-B.ttf',
+    #     'ubuntu_weight_reduce': 0,
+    #     'japanese_weight_add': 0,
+    #     'italic': False,
     }
 ]
 
@@ -104,15 +105,6 @@ def modify_jpfont():
     pass
 
 def set_os2_values(_font, _info):
-    # style_name = _info.get('style_name')
-    # if style_name == 'Regular':
-    #     _font.os2_stylemap = 64
-    # elif style_name == 'Bold':
-    #     _font.os2_stylemap = 32
-    # elif style_name == 'Italic':
-    #     _font.os2_stylemap = 1
-    # elif style_name == 'Bold Italic':
-    #     _font.os2_stylemap = 33
     weight = _info.get('weight')
     _font.os2_weight = weight
     _font.os2_width = 5
@@ -161,107 +153,6 @@ def align_to_right(_g):
     left = width - (bb[2] - bb[0])
     _g.left_side_bearing = left
     _g.width = width
-
-
-def modify_nerd(_g):
-    align_left = [
-        0xe0b0, 0xe0b1, 0xe0b4, 0xe0b5, 0xe0b8, 0xe0b9, 0xe0bc,
-        0xe0bd, 0xe0c0, 0xe0c1, 0xe0c4, 0xe0c6, 0xe0c8, 0xe0cc, 0xe0cd,
-        0xe0d1, 0xe0d2,
-    ]
-    align_right = [
-        0xe0b2, 0xe0b3, 0xe0b6, 0xe0b7, 0xe0b7, 0xe0ba, 0xe0bb, 0xe0be,
-        0xe0bf, 0xe0c2, 0xe0c3, 0xe0c5, 0xe0c7, 0xe0ca, 0xe0ce, 0xe0d4,
-    ]
-    # Powerline
-    if _g.encoding >= 0xe0b0 and _g.encoding <= 0xe0d4:
-        _g.transform(psMat.translate(0, -55))
-        _g.width = WIDTH
-
-        if _g.encoding >= 0xe0b0 and _g.encoding <= 0xe0b7:
-            _g.transform(psMat.compose(psMat.scale(1.0, 0.982), psMat.translate(0, -1)))
-            if _g.encoding in align_right:
-                bb = _g.boundingBox()
-                left = WIDTH - (bb[2] - bb[0])
-                _g.left_side_bearing = left
-                _g.width = WIDTH
-            if _g.encoding in align_left:
-                _g.left_side_bearing = 0
-                _g.width = WIDTH
-
-        if _g.encoding >= 0xe0b8 and _g.encoding <= 0xe0bf:
-            _g.transform(psMat.compose(psMat.scale(0.8, 0.982), psMat.translate(0, -1)))
-            if _g.encoding in align_right:
-                bb = _g.boundingBox()
-                left = WIDTH - (bb[2] - bb[0])
-                _g.left_side_bearing = left
-                _g.width = WIDTH
-            if _g.encoding in align_left:
-                _g.left_side_bearing = 0
-                _g.width = WIDTH
-
-        if _g.encoding >= 0xe0c0 and _g.encoding <= 0xe0c3:
-            _g.transform(psMat.scale(0.7, 1.0))
-            if _g.encoding in align_right:
-                bb = _g.boundingBox()
-                left = WIDTH - (bb[2] - bb[0])
-                _g.left_side_bearing = left
-                _g.width = WIDTH
-            if _g.encoding in align_left:
-                _g.left_side_bearing = 0
-                _g.width = WIDTH
-        if _g.encoding >= 0xe0c4 and _g.encoding <= 0xe0c7:
-            if _g.encoding in align_right:
-                bb = _g.boundingBox()
-                left = WIDTH - (bb[2] - bb[0])
-                _g.left_side_bearing = left
-                _g.width = WIDTH
-            if _g.encoding in align_left:
-                _g.left_side_bearing = 0
-                _g.width = WIDTH
-        if _g.encoding == 0xe0c8 or _g.encoding == 0xe0ca:
-            _g.transform(psMat.scale(0.7, 1.0))
-            if _g.encoding in align_right:
-                bb = _g.boundingBox()
-                left = WIDTH - (bb[2] - bb[0])
-                _g.left_side_bearing = left
-                _g.width = WIDTH
-            if _g.encoding in align_left:
-                _g.left_side_bearing = 0
-                _g.width = WIDTH
-        if _g.encoding == 0xe0ce:
-            _g.transform(psMat.scale(0.8, 1.0))
-            bb = _g.boundingBox()
-            left = WIDTH - (bb[2] - bb[0])
-            _g.left_side_bearing = left
-            _g.width = WIDTH
-        if _g.encoding == 0xe0cf:
-            _g.transform(psMat.scale(0.9, 1.0))
-            _g = align_to_center(_g)
-        if _g.encoding == 0xe0d0:
-            _g = align_to_center(_g)
-        if _g.encoding == 0xe0d1:
-            _g.transform(psMat.compose(psMat.scale(1.0, 0.982), psMat.translate(0, -1)))
-            _g.left_side_bearing = 0
-            _g.width = WIDTH
-        if _g.encoding == 0xe0d2 or _g.encoding == 0xe0d4:
-            _g.transform(psMat.compose(psMat.scale(1.0, 0.982), psMat.translate(0, -1)))
-            if _g.encoding in align_right:
-                bb = _g.boundingBox()
-                left = WIDTH - (bb[2] - bb[0])
-                _g.left_side_bearing = left
-                _g.width = WIDTH
-            if _g.encoding in align_left:
-                _g.left_side_bearing = 0
-                _g.width = WIDTH
-    else:
-        _g.transform(psMat.translate(0, -55))
-        _g.width = WIDTH
-        _g = align_to_center(_g)
-
-    return _g
-
-
 
 def vertical_line_to_broken_bar(_f):
     _f.selection.select(0x00a6)
@@ -383,24 +274,18 @@ def build_font(_f):
                 g = align_to_center(g)
             ubuntu.selection.select(g.encoding)
             ubuntu.copy()
-            cica.selection.select(g.encoding)
-            cica.paste()
-
-    # for g in nerd.glyphs():
-    #     if g.encoding < 0xe0a0 or g.encoding > 0xf4ff:
-    #         continue
-    #     g = modify_nerd(g)
-    #     nerd.selection.select(g.encoding)
-    #     nerd.copy()
-    #     cica.selection.select(g.encoding)
-    #     cica.paste()
+            try:
+                cica.selection.select(g.encoding)
+                cica.paste()
+            except ValueError:
+                print "ValueError!"
 
     cica = fix_box_drawings(cica)
     cica = zenkaku_space(cica)
-    cica = vertical_line_to_broken_bar(cica)
+    # cica = vertical_line_to_broken_bar(cica)
     cica = emdash_to_broken_dash(cica)
     # cica = add_notoemoji(cica)
-    cica = add_smalltriangle(cica)
+    # cica = add_smalltriangle(cica)
 
     cica.ascent = ASCENT
     cica.descent = DESCENT
@@ -496,7 +381,7 @@ def add_devicons(_f):
 
 def main():
     print('')
-    print('### Generating Yasashica started. ###')
+    print('### Generating Fusa started. ###')
     check_files()
 
     for _f in fonts:
