@@ -27,6 +27,7 @@ logger.addHandler(handler)
 # hhea(height, width)=(-24, 168)
 
 WIDTH = 1024
+HEIGHT = 1024
 ASCENT = 820
 DESCENT = 204
 
@@ -34,7 +35,7 @@ SOURCE = './sourceFonts'
 DIST = './dist'
 LICENSE = open('./LICENSE.txt').read()
 COPYRIGHT = open('./COPYRIGHT.txt').read()
-VERSION = '1.0.3'
+VERSION = '1.0.4'
 
 fonts = [
     {
@@ -124,16 +125,16 @@ def set_os2_values(_font, _info):
     _font.os2_windescent = DESCENT
     _font.os2_windescent_add = False
 
-    _font.os2_typoascent = -150
-    _font.os2_typoascent_add = True
-    _font.os2_typodescent = 100
-    _font.os2_typodescent_add = True
+    _font.os2_typoascent = ASCENT
+    _font.os2_typoascent_add = False
+    _font.os2_typodescent = -DESCENT
+    _font.os2_typodescent_add = False
     _font.os2_typolinegap = 0
 
-    _font.hhea_ascent = -150
-    _font.hhea_ascent_add = True
-    _font.hhea_descent = 100
-    _font.hhea_descent_add = True
+    _font.hhea_ascent = ASCENT
+    _font.hhea_ascent_add = False
+    _font.hhea_descent = -DESCENT
+    _font.hhea_descent_add = False
     _font.hhea_linegap = 0
 
     """ panose definitions
@@ -369,9 +370,22 @@ def fix_box_drawings(_f):
 
 def build_font(_f):
     log('Generating %s ...' % _f.get('weight_name'))
+
     ubuntu = fontforge.open(SOURCE + '/%s' % _f.get('ubuntu_mono'))
     ubuntu = remove_glyph_from_ubuntu(ubuntu)
+    ubuntu.selection.all()
+    ubuntu.em = HEIGHT
+    ubuntu.ascent = ASCENT
+    ubuntu.descent = DESCENT
+    ubuntu.selection.none()
+
     cica = fontforge.open(SOURCE + '/%s' % _f.get('japanese'))
+    cica.selection.all()
+    cica.em = HEIGHT
+    cica.ascent = ASCENT
+    cica.descent = DESCENT
+    cica.selection.none()
+
     # nerd = fontforge.open(SOURCE + '/nerd.ttf')
 
     for g in ubuntu.glyphs():
@@ -435,8 +449,6 @@ def build_font(_f):
     # cica = add_notoemoji(cica)
     cica = add_smalltriangle(cica)
 
-    cica.ascent = ASCENT
-    cica.descent = DESCENT
     cica.upos = 45
     cica.fontname = _f.get('family')
     cica.familyname = _f.get('family')
