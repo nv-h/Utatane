@@ -34,7 +34,7 @@ SOURCE = './sourceFonts'
 DIST = './dist'
 LICENSE = open('./LICENSE.txt').read()
 COPYRIGHT = open('./COPYRIGHT.txt').read()
-VERSION = '1.0.2'
+VERSION = '1.0.3'
 
 fonts = [
     {
@@ -135,7 +135,38 @@ def set_os2_values(_font, _info):
     _font.hhea_descent = 100
     _font.hhea_descent_add = True
     _font.hhea_linegap = 0
-    _font.os2_panose = (2, 11, weight/100, 9, 2, 2, 3, 2, 2, 7)
+
+    """ panose definitions
+    refer: [The 'OS/2' table](https://developer.apple.com/fonts/TrueType-Reference-Manual/RM06/Chap6OS2.html)
+
+    * bFamilyType
+        - 2:  Text and Display
+    * bSerifStyle
+        - 11: Normal Sans
+    * bWeight
+        - 5:  Book
+        - 8:  Bold
+    * bProportion
+        - 9:  Monospaced
+    * bContrast
+        - 2:  None
+    * bStrokeVariation
+        - 2:  Gradual/Diagonal
+    * bArmStyle
+        - 3:  Straight Arms/Wedge
+    * bLetterform
+        - 2:  Normal/Contact
+    * bMidline
+        - 2:  Standard/Trimmed
+    * bXHeight
+        - 7:  Ducking/Large
+    """
+    style_name = _info.get('style_name')
+    if style_name == 'Bold':
+        _font.os2_panose = (2, 11, 8, 9, 2, 2, 3, 2, 2, 7)
+    else:
+        _font.os2_panose = (2, 11, 5, 9, 2, 2, 3, 2, 2, 7)
+
     return _font
 
 def align_to_center(_g):
