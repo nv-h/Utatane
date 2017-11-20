@@ -26,9 +26,9 @@ logger.addHandler(handler)
 # Win(Ascent, Descent)=(-24, 13)
 # hhea(height, width)=(-24, 168)
 
-WIDTH   = 1024
-ASCENT  = 905
-DESCENT = 200
+WIDTH = 1024
+ASCENT = 820
+DESCENT = 204
 
 SOURCE = './sourceFonts'
 DIST = './dist'
@@ -123,15 +123,17 @@ def set_os2_values(_font, _info):
     _font.os2_winascent_add = False
     _font.os2_windescent = DESCENT
     _font.os2_windescent_add = False
-    _font.os2_typoascent = ASCENT
-    _font.os2_typoascent_add = False
-    _font.os2_typodescent = -DESCENT
-    _font.os2_typodescent_add = False
+
+    _font.os2_typoascent = -150
+    _font.os2_typoascent_add = True
+    _font.os2_typodescent = 100
+    _font.os2_typodescent_add = True
     _font.os2_typolinegap = 0
-    _font.hhea_ascent = ASCENT
-    _font.hhea_ascent_add = False
-    _font.hhea_descent = -DESCENT
-    _font.hhea_descent_add = False
+
+    _font.hhea_ascent = -150
+    _font.hhea_ascent_add = True
+    _font.hhea_descent = 100
+    _font.hhea_descent_add = True
     _font.hhea_linegap = 0
     _font.os2_panose = (2, 11, weight/100, 9, 2, 2, 3, 2, 2, 7)
     return _font
