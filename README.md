@@ -28,7 +28,7 @@ o Yasashica
     * M+ FONTS
 ```
 
-IPAフォントに置き換える場合 [IPAフォント](http://ossipedia.ipa.go.jp/ipafont/index.html)のページでIPAゴシックを入手してさい。
+IPAフォントに置き換える場合 [IPAフォント](http://ossipedia.ipa.go.jp/ipafont/index.html) のページでIPAゴシックを入手してください。
 
 ## Rictyからの変更点
 
@@ -49,3 +49,14 @@ IPAフォントに置き換える場合 [IPAフォント](http://ossipedia.ipa.g
 # ライセンス
 
 * [LICENSE.txt](LICENSE.txt)
+
+# 謝辞
+
+Yasashicaフォントの合成にあたり[フォーク元のCicaフォント作成者](https://github.com/miiton)に感謝します。
+また、以下の素晴らしいフォントを作成してくださった方々もありがとうございます。ありがたく使わせていただきます。
+
+- [Ubuntu Font Family](http://font.ubuntu.com/)
+- [やさしさゴシック](http://www.fontna.com/blog/379/)
+- [やさしさゴシックボールド](http://www.fontna.com/blog/736/)
+- [M\+ FONTS](https://mplus-fonts.osdn.jp/)
+- [IPAフォント](http://ossipedia.ipa.go.jp/ipafont/index.html)
