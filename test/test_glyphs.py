@@ -4,6 +4,11 @@
 import unittest
 import fontforge
 
+
+REGULAR_FONT = 'Yasashica-Regular.ttf'
+BOLD_FONT = 'Yasashica-Bold.ttf'
+
+
 def check_overflow(ttfpath):
     f = fontforge.open(ttfpath)
     for g in f.glyphs():
@@ -24,25 +29,13 @@ class TestGlyphs(unittest.TestCase):
     def test_regular(self):
         """check_overflow for regular
         """
-        actual = check_overflow('./dist/Cica-Regular.ttf')
-        self.assertEqual(True, actual)
-
-    def test_regular_italic(self):
-        """check_overflow for regular
-        """
-        actual = check_overflow('./dist/Cica-RegularItalic.ttf')
+        actual = check_overflow(REGULAR_FONT)
         self.assertEqual(True, actual)
 
     def test_bold(self):
         """check_overflow for bold
         """
-        actual = check_overflow('./dist/Cica-Bold.ttf')
-        self.assertEqual(True, actual)
-
-    def test_bold_italic(self):
-        """check_overflow for bold italic
-        """
-        actual = check_overflow('./dist/Cica-BoldItalic.ttf')
+        actual = check_overflow(BOLD_FONT)
         self.assertEqual(True, actual)
 
 if __name__ == "__main__":
