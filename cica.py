@@ -28,8 +28,8 @@ logger.addHandler(handler)
 
 WIDTH = 1024
 HEIGHT = 1024
-ASCENT = 820
-DESCENT = 204
+ASCENT = 819
+DESCENT = 205
 
 SOURCE = './sourceFonts'
 DIST = './dist'
@@ -448,6 +448,22 @@ def build_font(_f):
     cica = emdash_to_broken_dash(cica)
     # cica = add_notoemoji(cica)
     cica = add_smalltriangle(cica)
+
+    ''' GUI上で以下を行うと消えていた文字が表示される。
+    ただし、コマンドで行う方法が不明。
+    消える文字は、'価'がわかっている。
+    * 自動ヒント(Ctrl+Shift+H)
+    * 重複処理(V) -> 重なりあう図形を結合(Ctrl+Shift+O)
+    * 座標を丸める(D) -> 整数に(Ctrl+Shift+_)
+    '''
+    # cica.selection.all()
+    # log('Adding auto-hint')
+    # cica.autoHint()
+    # log('Removing overlaps')
+    # cica.removeOverlap()
+    # log('Rounding coordinates ...')
+    # cica.round()
+    # cica.selection.none()
 
     cica.upos = 45
     cica.fontname = _f.get('family')
