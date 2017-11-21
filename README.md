@@ -1,6 +1,6 @@
 # プログラミング用フォント Yasashica
 
-![on Windows Sublime](screenshots/ss1.png)
+![on Windows](screenshots/ss1.png)
 
 ## ダウンロード
 
