@@ -41,12 +41,12 @@ sudo add-apt-repository ppa:fontforge/fontforge
 sudo apt install fontforge fonttools unar
 ```
 
-環境準備は以下で完了します。
+環境準備は適当な場所で以下を実行すると完了します。
 
 ```sh
 git clone git@github.com:nv-h/Yasashica.git
-wget http://font.ubuntu.com/download/ubuntu-font-family-0.83.zip
-unar ubuntu-font-family-0.83.zip
+wget https://assets.ubuntu.com/v1/fad7939b-ubuntu-font-family-0.83.zip
+unar fad7939b-ubuntu-font-family-0.83.zip
 cp ubuntu-font-family-0.83/UbuntuMono-R.ttf Yasashica/sourceFonts/
 cp ubuntu-font-family-0.83/UbuntuMono-B.ttf Yasashica/sourceFonts/
 wget https://github.com/nv-h/Yasashica/releases/download/Yasashica_v1.0.4/Yasashica_v1.0.4.7z
@@ -58,6 +58,7 @@ cp Yasashica_v1.0.4/07YasashisaBold/07やさしさゴシックボールド.ttf Y
 ビルドは以下のコマンドで行います。
 
 ```sh
+cd Yasashica
 fontforge -lang=py -script yasashica.py
 ```
 
