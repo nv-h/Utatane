@@ -1,26 +1,21 @@
 Copyright (c) 2017, H.Saido
 Copyright (c) 2017, Takahiro Minami (https://tmnm.tech)
-Copyright (c) 2012 M+ FONTS PROJECT
-Copyright (c) Information-technology Promotion Agency, Japan (IPA), 2003-2012.
-Copyright (c) fontna.com
 
 This Font Software is licensed and copyrighted under the
 - Ubuntu Font Licence, Version 1.0
   - Ubuntu Mono : http://font.ubuntu.com/
-- CC BY 4.0
-  - Seti-UI + Custom : https://github.com/jesseweed/seti-ui
-- MIT Licenses
-  - DevIcons : https://github.com/vorillaz/devicons
-  - Powerline Extra Symbols : https://github.com/ryanoasis/powerline-extra-symbols
-  - Font Awesome : https://github.com/FortAwesome/Font-Awesome
-  - Font Awesome Extension : https://github.com/AndreLZGava/font-awesome-extension
-  - Octicons : https://github.com/primer/octicons
-  - IEC Power Symbols : https://unicodepowersymbol.com/
-  - Powerline Symbols : https://github.com/powerline/powerline
+
+Copyright (c) Information-technology Promotion Agency, Japan (IPA), 2003-2012.
+
 - IPA Font License Agreement v1.0
   - IPA Fonts : http://ipafont.ipa.go.jp/old/ipafont/download.html
+
+Copyright (c) 2012 M+ FONTS PROJECT
+
 - M+ FONTS Licence
   - M+ FONTS : http://mplus-fonts.osdn.jp/about.html#license
+
+Copyright (c) fontna.com
 
 - 07 YasashisaGothic
   - complies with the above IPA Fonts and M+ FONTS licenses.

@@ -30,6 +30,37 @@ o Yasashica
 
 IPAフォントに置き換える場合 [IPAフォント](http://ossipedia.ipa.go.jp/ipafont/index.html) のページでIPAゴシックを入手してください。
 
+## ビルド
+
+Ubuntu 16.04 (WSL)で動作確認しています。
+
+fontforgeとfonttoolsが必要です。fontforgeはppaの現時点での最新版(20170731)を使用しています(多分古いやつでも大丈夫だと思いますが)。
+
+```sh
+sudo add-apt-repository ppa:fontforge/fontforge
+sudo apt install fontforge fonttools unar
+```
+
+環境準備は以下で完了します。
+
+```sh
+git clone git@github.com:nv-h/Yasashica.git
+wget http://font.ubuntu.com/download/ubuntu-font-family-0.83.zip
+unar ubuntu-font-family-0.83.zip
+cp ubuntu-font-family-0.83/UbuntuMono-R.ttf Yasashica/sourceFonts/
+cp ubuntu-font-family-0.83/UbuntuMono-B.ttf Yasashica/sourceFonts/
+wget https://github.com/nv-h/Yasashica/releases/download/Yasashica_v1.0.4/Yasashica_v1.0.4.7z
+unar Yasashica_v1.0.4.7z
+cp Yasashica_v1.0.4/07Yasashisa/07やさしさゴシック.ttf Yasashica/sourceFonts/07YasashisaGothic-R.ttf
+cp Yasashica_v1.0.4/07YasashisaBold/07やさしさゴシックボールド.ttf Yasashica/sourceFonts/07YasashisaGothic-B.ttf
+```
+
+ビルドは以下のコマンドで行います。
+
+```sh
+fontforge -lang=py -script cica.py
+```
+
 ## Rictyからの変更点
 
 * 英数字に Ubutnu Mono を使用しています
