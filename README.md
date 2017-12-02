@@ -58,7 +58,7 @@ cp Yasashica_v1.0.4/07YasashisaBold/07やさしさゴシックボールド.ttf Y
 ビルドは以下のコマンドで行います。
 
 ```sh
-fontforge -lang=py -script cica.py
+fontforge -lang=py -script yasashica.py
 ```
 
 ## Rictyからの変更点
