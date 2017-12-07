@@ -53,6 +53,8 @@ COPYRIGHT = open('./COPYRIGHT.txt').read()
 # 出力をデコるときに使う文字
 DECO_CHAR = '-'
 
+DEBUG = True
+
 fonts = [
     {
          'family': FONTNAME,
@@ -94,15 +96,20 @@ def indent_print(_str):
     print('++ ' + _str)
 
 
+def printPdfSample(_font, _pdfname):
+    fontforge.printSetup('pdf-file')
+    _font.printSample('fontdisplay', 20, '', _pdfname)
+
+
 def check_files():
     err = 0
     for f in fonts:
-        if not os.path.isfile(SOURCE + '/%s' % f.get('latin')):
-            print('%s not exists.' % f)
+        if not os.path.isfile(SOURCE + '/{}'.format(f.get('latin'))):
+            print('{} not exists.'.format(f))
             err = 1
 
-        if not os.path.isfile(SOURCE + '/%s' % f.get('japanese')):
-            print('%s not exists.' % f)
+        if not os.path.isfile(SOURCE + '/{}'.format(f.get('japanese'))):
+            print('{} not exists.'.format(f))
             err = 1
 
     if err > 0:
@@ -164,7 +171,7 @@ def set_os2_values(_font, _info):
 
     return _font
 
-def fixCoordinates(_font, _g):
+def fix_coordinates(_font, _g):
     '''round and remove overlaps
     '''
     _font.selection.select(_g)
@@ -174,20 +181,23 @@ def fixCoordinates(_font, _g):
 
     return _font
 
-def setWidth(_font, _g):
-    if _g.width > WIDTH*3/4:
-        _g.width = WIDTH
+def set_width(_font, _g, _width=None):
+    if _width is not None:
+        _g.width = _width
     else:
-        _g.width = WIDTH/2
+        if _g.width > WIDTH//2:
+            _g.width = WIDTH
+        else:
+            _g.width = WIDTH//2
 
-    _font = fixCoordinates(_font, _g)
+    _font = fix_coordinates(_font, _g)
 
     return _font
 
 def align_to_center(_font, _g):
-    _font = setWidth(_font, _g)
+    _font = set_width(_font, _g)
     _g.left_side_bearing = _g.right_side_bearing = (_g.left_side_bearing + _g.right_side_bearing)/2
-    _font = setWidth(_font, _g)
+    _font = set_width(_font, _g)
 
     return _font
 
@@ -196,16 +206,18 @@ def vertical_line_to_broken_bar(_font):
     _font.copy()
     _font.selection.select(0x007c) # | VERTICAL LINE
     _font.paste()
-    _font = fixCoordinates(_font, 0x007c)
+    _font = fix_coordinates(_font, 0x007c)
     return _font
 
 def emdash_to_broken_dash(_font):
+    # FIXME: 点になる
     _font.selection.select(0x006c) # l LATIN SMALL LETTER L
     _font.copy()
     _font.selection.select(0x2014) # — EM DASH
     _font.pasteInto()
     _font.intersect()
-    _font = fixCoordinates(_font, 0x2014)
+    _font = fix_coordinates(_font, 0x2014)
+
     return _font
 
 def zenkaku_space(_font):
@@ -219,13 +231,10 @@ def zenkaku_space(_font):
     _font.pasteInto()
     _font.intersect()
 
-    for g in _font.selection.byGlyphs:
-        g.width = WIDTH # 強制的に全角幅にする
-        _font = setWidth(_font, g)
-
     return _font
 
 def add_smalltriangle(_font):
+    # FIXME: 動いてない？
     _font.selection.select(0x25bc) # ▼ BLACK DOWN-POINTING TRIANGLE
     _font.copy()
     _font.selection.select(0x25be) # ▾ BLACK DOWN-POINTING SMALL TRIANGLE
@@ -238,13 +247,13 @@ def add_smalltriangle(_font):
 
     for g in _font.glyphs():
         if g.encoding == 0x25be or g.encoding == 0x25b8:
-            g.width = WIDTH/2
-            _font = setWidth(_font, g)
+            _font = set_width(_font, g, WIDTH//2)
+            _font = align_to_center(_font, g)
 
     return _font
 
 
-def setHeight(_font):
+def set_height(_font):
     _font.selection.all()
     _font.em = HEIGHT
     _font.ascent = ASCENT
@@ -253,7 +262,7 @@ def setHeight(_font):
     return _font
 
 
-def postProcess(_font):
+def post_process(_font):
     '''座標値などをいい感じに処理する。
     removeOverlap()を実行しないと文字が消えることがある。
     refer: http://www.rs.tus.ac.jp/yyusa/ricty/ricty_generator.sh
@@ -261,7 +270,7 @@ def postProcess(_font):
     indent_print('post processing ...')
     for g in _font.glyphs():
         if g.isWorthOutputting:
-            _font = fixCoordinates(_font, g)
+            _font = fix_coordinates(_font, g)
             _font.selection.select(g)
             _font.autoHint()
             _font.autoInstr()
@@ -272,14 +281,14 @@ def postProcess(_font):
 def modify_and_save_latin(_f, _savepath):
     deco_print('modify latin : {}'.format(_f.get('latin')))
 
-    latin = fontforge.open(SOURCE + '/{}'.format(_f.get('latin')))
-    latin = setHeight(latin)
+    latin_font = fontforge.open(SOURCE + '/{}'.format(_f.get('latin')))
+    latin_font = set_height(latin_font)
 
-    for g in latin.glyphs():
+    for g in latin_font.glyphs():
         if not g.isWorthOutputting:
             # 不要っぽいやつは消しちゃう
-            latin.selection.select(g)
-            latin.clear()
+            latin_font.selection.select(g)
+            latin_font.clear()
 
         if _f.get('italic'):
             # FIXME: 動作確認未
@@ -292,24 +301,32 @@ def modify_and_save_latin(_f, _savepath):
 
         if g.encoding in RULED_LINES:
             # 罫線とかは日本語のを使う
-            latin.selection.select(g)
-            latin.clear()
+            latin_font.selection.select(g)
+            latin_font.clear()
         elif g.encoding == 0x2026:
             # … HORIZONTAL ELLIPSIS (use jp font's)
-            latin.selection.select(g)
-            latin.clear()
+            latin_font.selection.select(g)
+            latin_font.clear()
         else:
-            latin = setWidth(latin, g)
+            # そのままだと若干ずれるのでセンターに寄せる
+            # latin_font = set_width(latin_font, g)
+            latin_font = align_to_center(latin_font, g)
 
-    latin.save(_savepath)
-    latin.close()
+    latin_font.save(_savepath)
+    latin_font.close()
 
 
 def modify_and_save_jp(_f, _savepath):
     deco_print('modify jp : {}'.format(_f.get('japanese')))
 
     jp_font = fontforge.open(SOURCE + '/{}'.format(_f.get('japanese')))
-    jp_font = setHeight(jp_font)
+
+    # 日本語フォントをいじる処理は、マージ後に行うと機能しない
+    # 設定が足りていないので認識していない？
+    jp_font = zenkaku_space(jp_font)
+    jp_font = add_smalltriangle(jp_font)
+
+    jp_font = set_height(jp_font)
 
     ignoring_center_list = [
         0x3001, 0x3002, 0x3008, 0x3009, 0x300a, 0x300b, 0x300c, 0x300d,
@@ -323,11 +340,12 @@ def modify_and_save_jp(_f, _savepath):
         [、]    [。]    [〈]    [〉]    [《]    [》]    [「]    [」]
         [『]    [』]    [【]    [】]    [〔]    [〕]    [〖]    [〗]
         [〘]    [〙]    [〚]    [〛]    [〝]    [〞]    [〟]
-        [゙]    [゚]    [゛]    [゜]
-        [（]    [）]    [゙，]    [゚．]    [［]    [］]    [｛]    [｝]
+        [○゙]    [○゚]    [゛]    [゜]
+         ^^      ^^ この2つは幅を持たないので便宜的に○を表示している
+        [（]    [）]    [，]    [．]    [［]    [］]    [｛]    [｝]  ここのカッコ類は不要かも
     '''
 
-    # 罫線とかは右とか左に寄ってたりするので、無効にしておく
+    # 罫線とかは右とか左に寄ってたりするので、無効にしておく(もしかしたらずれてる？)
     ignoring_center_list.extend(RULED_LINES)
 
     for g in jp_font.glyphs():
@@ -352,7 +370,10 @@ def modify_and_save_jp(_f, _savepath):
             # FIXME: 動作確認未
             g.transform(psMat.skew(0.25))
 
-        jp_font = setWidth(jp_font, g)
+        if g.encoding in ignoring_center_list:
+            jp_font = set_width(jp_font, g)
+        else:
+            jp_font = align_to_center(jp_font, g)
 
     jp_font.save(_savepath)
     jp_font.close()
@@ -372,7 +393,7 @@ def appendAllSFNTName(_font, _lang_code, _f):
     return _font
 
 
-def fixAvgCharWidth(_src_ttf, _dst_ttf):
+def fix_AvgCharWidth(_src_ttf, _dst_ttf):
     '''AvgCharWidthがおかしくなるので、元のフォントの値に書き換える
     require: `sudo apt install fonttools`
 
@@ -382,13 +403,13 @@ def fixAvgCharWidth(_src_ttf, _dst_ttf):
 
     # 元のフォントからxAvgCharWidth読み出し
     src_root, _ = os.path.splitext(_src_ttf)
-    os.system('ttx  -t OS/2 ' + _src_ttf)
+    os.system('ttx -t OS/2 ' + _src_ttf)
     src_tree = ET.parse(src_root + '.ttx')
     src_AvgCharWidth = src_tree.find('OS_2').find('xAvgCharWidth').get('value')
 
     # 作成したフォントへxAvgCharWidthを設定
     dst_root, _ = os.path.splitext(_dst_ttf)
-    os.system('ttx  -t OS/2 ' + _dst_ttf)
+    os.system('ttx -t OS/2 ' + _dst_ttf)
     dst_tree = ET.parse(dst_root + '.ttx')
     dst_tree.find('OS_2').find('xAvgCharWidth').set('value', '{}'.format(src_AvgCharWidth))
     dst_tree.write(dst_root + '.ttx', 'utf-8', True)
@@ -411,7 +432,7 @@ def build_font(_f):
     deco_print('merge modified {} and modified {}'.format(_f.get('latin'), _f.get('japanese')))
 
     target_font = fontforge.font()
-    target_font = setHeight(target_font)
+    target_font = set_height(target_font)
 
     target_font.upos = 45
     target_font.fontname = _f.get('family')
@@ -421,26 +442,25 @@ def build_font(_f):
 
     target_font = set_os2_values(target_font, _f)
 
-    target_font = appendAllSFNTName(target_font, 0x411, _f) # 0x411は日本語らしい
-    target_font = appendAllSFNTName(target_font, 0x409, _f) # 0x409は英語らしい
+    target_font = appendAllSFNTName(target_font, 0x411, _f) # 0x411は日本語
+    target_font = appendAllSFNTName(target_font, 0x409, _f) # 0x409は英語
 
     target_font.mergeFonts(EN_TEMP)
-    # os.remove(EN_TEMP)
+    # os.remove(EN_TEMP) # デバッグ時コメントアウトするとマージ前のフォントを確認できる
     target_font.mergeFonts(JP_TEMP)
-    # os.remove(JP_TEMP)
+    # os.remove(JP_TEMP) # デバッグ時コメントアウトするとマージ前のフォントを確認できる
 
     target_font = vertical_line_to_broken_bar(target_font)
-    target_font = emdash_to_broken_dash(target_font)
-    target_font = zenkaku_space(target_font)
-    target_font = add_smalltriangle(target_font)
+    # target_font = emdash_to_broken_dash(target_font) # あまり必要性を感じないので削除
+    # 全角をいじるのはマージ前に行う
 
-    target_font = postProcess(target_font)
+    target_font = post_process(target_font)
 
-    fontpath = DIST + '/%s' % _f.get('filename')
+    fontpath = DIST + '/{}'.format(_f.get('filename'))
     target_font.generate(fontpath)
     target_font.close()
 
-    fixAvgCharWidth(SOURCE + '/%s' % _f.get('japanese'), fontpath)
+    fix_AvgCharWidth(SOURCE + '/{}'.format(_f.get('japanese')), fontpath)
 
     deco_print('Generate {} completed.'.format(_f.get('name')))
 
