@@ -29,7 +29,7 @@ JAPANESE_REGULAR_FONT = '07YasashisaGothic-R.ttf'
 JAPANESE_BOLD_FONT = '07YasashisaGothic-B.ttf'
 
 # 幅は日本語に合わせる(縮小より拡大のほうがきれいになりそうなので)
-EN_WIDTH = 1000
+LATIN_WIDTH = 1000 # 未使用
 JP_WIDTH = 1024
 WIDTH = JP_WIDTH
 
@@ -38,10 +38,23 @@ ASCENT = 819
 DESCENT = 205
 HEIGHT = ASCENT + DESCENT
 
+LATIN_ASCENT = 800
+LATIN_DESCENT = 200 # 未使用
+JP_ASCENT = 905
+JP_DESCENT = 119
+
 # Italic時の傾き
-SKEW_RATIO = 0.25
+SKEW_MAT = psMat.skew(0.25)
 # 罫線(日本語の方を採用するやつ)
 RULED_LINES = list(xrange(0x2500, 0x2600))
+
+# 日本語フォントの縮小率
+JP_A_RAT = (LATIN_ASCENT/JP_ASCENT) # 高さの比でいいはず
+JP_REDUCTION_MAT = psMat.scale(JP_A_RAT, JP_A_RAT)
+# descent位置がずれてもいいなら下記を使う。
+JP_REDUCTION_FIX_MAT = psMat.translate(WIDTH*(1-JP_A_RAT)/2, -WIDTH*(1-JP_A_RAT)/2)
+# descent位置が合わないと気持ち悪いので下記を使う。
+JP_REDUCTION_FIX_MAT_NOHEIGHT = psMat.translate(WIDTH*(1-JP_A_RAT)/2, 0.0)
 
 SOURCE = './sourceFonts'
 DIST = './dist'
@@ -96,9 +109,9 @@ def indent_print(_str):
     print('++ ' + _str)
 
 
-def printPdfSample(_font, _pdfname):
+def print_pdf(_font, _path):
     fontforge.printSetup('pdf-file')
-    _font.printSample('fontdisplay', 20, '', _pdfname)
+    _font.printSample('fontdisplay', 20, '', _path)
 
 
 def check_files():
@@ -171,42 +184,11 @@ def set_os2_values(_font, _info):
 
     return _font
 
-def fix_coordinates(_font, _g):
-    '''round and remove overlaps
-    '''
-    _font.selection.select(_g)
-    _font.round()
-    _font.removeOverlap()
-    _font.round()
-
-    return _font
-
-def set_width(_font, _g, _width=None):
-    if _width is not None:
-        _g.width = _width
-    else:
-        if _g.width > WIDTH//2:
-            _g.width = WIDTH
-        else:
-            _g.width = WIDTH//2
-
-    _font = fix_coordinates(_font, _g)
-
-    return _font
-
-def align_to_center(_font, _g):
-    _font = set_width(_font, _g)
-    _g.left_side_bearing = _g.right_side_bearing = (_g.left_side_bearing + _g.right_side_bearing)/2
-    _font = set_width(_font, _g)
-
-    return _font
-
 def vertical_line_to_broken_bar(_font):
     _font.selection.select(0x00a6) # ¦ BROKEN BAR
     _font.copy()
     _font.selection.select(0x007c) # | VERTICAL LINE
     _font.paste()
-    _font = fix_coordinates(_font, 0x007c)
     return _font
 
 def emdash_to_broken_dash(_font):
@@ -216,7 +198,6 @@ def emdash_to_broken_dash(_font):
     _font.selection.select(0x2014) # — EM DASH
     _font.pasteInto()
     _font.intersect()
-    _font = fix_coordinates(_font, 0x2014)
 
     return _font
 
@@ -247,8 +228,9 @@ def add_smalltriangle(_font):
 
     for g in _font.glyphs():
         if g.encoding == 0x25be or g.encoding == 0x25b8:
-            _font = set_width(_font, g, WIDTH//2)
-            _font = align_to_center(_font, g)
+            g.width = WIDTH//2
+            g.left_side_bearing = g.right_side_bearing = (g.left_side_bearing + g.right_side_bearing)/2
+            g.width = WIDTH//2
 
     return _font
 
@@ -267,13 +249,15 @@ def post_process(_font):
     removeOverlap()を実行しないと文字が消えることがある。
     refer: http://www.rs.tus.ac.jp/yyusa/ricty/ricty_generator.sh
     '''
-    indent_print('post processing ...')
-    for g in _font.glyphs():
-        if g.isWorthOutputting:
-            _font = fix_coordinates(_font, g)
-            _font.selection.select(g)
-            _font.autoHint()
-            _font.autoInstr()
+    indent_print('post processing ... (It takes a few minutes.)')
+
+    _font.selection.all()
+    _font.round()
+    _font.removeOverlap()
+    _font.round()
+    _font.autoHint()
+    _font.autoInstr()
+    _font.selection.none()
 
     return _font
 
@@ -292,7 +276,7 @@ def modify_and_save_latin(_f, _savepath):
 
         if _f.get('italic'):
             # FIXME: 動作確認未
-            g.transform(psMat.skew(SKEW_RATIO))
+            g.transform(SKEW_MAT)
 
         if _f.get('latin_weight_reduce') != 0:
             # FIXME: 動作確認未
@@ -307,10 +291,6 @@ def modify_and_save_latin(_f, _savepath):
             # … HORIZONTAL ELLIPSIS (use jp font's)
             latin_font.selection.select(g)
             latin_font.clear()
-        else:
-            # そのままだと若干ずれるのでセンターに寄せる
-            # latin_font = set_width(latin_font, g)
-            latin_font = align_to_center(latin_font, g)
 
     latin_font.save(_savepath)
     latin_font.close()
@@ -322,31 +302,11 @@ def modify_and_save_jp(_f, _savepath):
     jp_font = fontforge.open(SOURCE + '/{}'.format(_f.get('japanese')))
 
     # 日本語フォントをいじる処理は、マージ後に行うと機能しない
-    # 設定が足りていないので認識していない？
+    # 設定が足りていないかもしれないが詳細不明。
     jp_font = zenkaku_space(jp_font)
     jp_font = add_smalltriangle(jp_font)
 
     jp_font = set_height(jp_font)
-
-    ignoring_center_list = [
-        0x3001, 0x3002, 0x3008, 0x3009, 0x300a, 0x300b, 0x300c, 0x300d,
-        0x300e, 0x300f, 0x3010, 0x3011, 0x3014, 0x3015, 0x3016, 0x3017,
-        0x3018, 0x3019, 0x301a, 0x301b, 0x301d, 0x301e, 0x301f,
-        0x3099, 0x309a, 0x309b, 0x309c,
-        0xff08, 0xff09, 0xff0c, 0xff0e, 0xFF3B, 0xFF3D, 0xFF5B, 0xFF5D,
-    ]
-    '''センタリング無効の人たち
-         --      --      --      --      --      --      --      --
-        [、]    [。]    [〈]    [〉]    [《]    [》]    [「]    [」]
-        [『]    [』]    [【]    [】]    [〔]    [〕]    [〖]    [〗]
-        [〘]    [〙]    [〚]    [〛]    [〝]    [〞]    [〟]
-        [○゙]    [○゚]    [゛]    [゜]
-         ^^      ^^ この2つは幅を持たないので便宜的に○を表示している
-        [（]    [）]    [，]    [．]    [［]    [］]    [｛]    [｝]  ここのカッコ類は不要かも
-    '''
-
-    # 罫線とかは右とか左に寄ってたりするので、無効にしておく(もしかしたらずれてる？)
-    ignoring_center_list.extend(RULED_LINES)
 
     for g in jp_font.glyphs():
 
@@ -364,16 +324,16 @@ def modify_and_save_jp(_f, _savepath):
             g.stroke("caligraphic", _f.get('japanese_weight_add'), _f.get('japanese_weight_add'), 45, 'removeinternal')
             # g.stroke("circular", _f.get('japanese_weight_add'), 'butt', 'round', 'removeinternal')
 
-        g.transform((0.91,0,0,0.91,0,0))
+        # いい塩梅で縮小
+        g.transform(JP_REDUCTION_MAT)
+        # 縮小して左に寄った分と上に寄った分を復帰
+        g.transform(JP_REDUCTION_FIX_MAT_NOHEIGHT)
+        # 幅が等幅でないやつがいたら修正
+        g.width = WIDTH if g.width > WIDTH//2 else WIDTH//2
 
         if _f.get('italic'):
             # FIXME: 動作確認未
-            g.transform(psMat.skew(0.25))
-
-        if g.encoding in ignoring_center_list:
-            jp_font = set_width(jp_font, g)
-        else:
-            jp_font = align_to_center(jp_font, g)
+            g.transform(SKEW_MAT)
 
     jp_font.save(_savepath)
     jp_font.close()
@@ -400,6 +360,8 @@ def fix_AvgCharWidth(_src_ttf, _dst_ttf):
     refer: https://ja.osdn.net/projects/mplus-fonts/lists/archive/dev/2011-July/000619.html
     '''
     import xml.etree.ElementTree as ET
+
+    deco_print('fix AvgCharWidth: {} to {}'.format(_src_ttf, _dst_ttf))
 
     # 元のフォントからxAvgCharWidth読み出し
     src_root, _ = os.path.splitext(_src_ttf)
@@ -446,9 +408,9 @@ def build_font(_f):
     target_font = appendAllSFNTName(target_font, 0x409, _f) # 0x409は英語
 
     target_font.mergeFonts(EN_TEMP)
-    # os.remove(EN_TEMP) # デバッグ時コメントアウトするとマージ前のフォントを確認できる
+    if not DEBUG: os.remove(EN_TEMP)
     target_font.mergeFonts(JP_TEMP)
-    # os.remove(JP_TEMP) # デバッグ時コメントアウトするとマージ前のフォントを確認できる
+    if not DEBUG: os.remove(JP_TEMP)
 
     target_font = vertical_line_to_broken_bar(target_font)
     # target_font = emdash_to_broken_dash(target_font) # あまり必要性を感じないので削除
@@ -457,6 +419,8 @@ def build_font(_f):
     target_font = post_process(target_font)
 
     fontpath = DIST + '/{}'.format(_f.get('filename'))
+    if DEBUG: print_pdf(target_font, fontpath + '.pdf')
+
     target_font.generate(fontpath)
     target_font.close()
 

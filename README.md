@@ -34,7 +34,7 @@ IPAフォントに置き換える場合 [IPAフォント](http://ossipedia.ipa.g
 
 Ubuntu 16.04 (WSL)で動作確認しています。
 
-fontforgeとfonttoolsが必要です。fontforgeはppaの現時点での最新版(20170731)を使用しています(多分古いやつでも大丈夫だと思いますが)。
+fontforgeとfonttoolsが必要です。fontforgeはppaの現時点での最新版(20170731)を使用しています。
 
 ```sh
 sudo add-apt-repository ppa:fontforge/fontforge
