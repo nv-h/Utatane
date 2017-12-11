@@ -1,9 +1,9 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 from __future__ import division
 from __future__ import print_function
-from __future__ import unicode_literals
+# from __future__ import unicode_literals # Windowsで文字化けするのでコメントアウト
 
 import fontforge
 import psMat
@@ -66,7 +66,7 @@ COPYRIGHT = open('./COPYRIGHT.txt').read()
 # 出力をデコるときに使う文字
 DECO_CHAR = '-'
 
-DEBUG = True
+DEBUG = False
 
 fonts = [
     {
@@ -111,7 +111,11 @@ def indent_print(_str):
 
 def print_pdf(_font, _path):
     fontforge.printSetup('pdf-file')
-    _font.printSample('fontdisplay', 20, '', _path)
+    _font.printSample('fontdisplay', 18, '', _path)
+
+
+def unicode_utf16_be(_str):
+    return unicode(_str, 'utf-8').encode('utf-16-be')
 
 
 def check_files():
@@ -215,7 +219,6 @@ def zenkaku_space(_font):
     return _font
 
 def add_smalltriangle(_font):
-    # FIXME: 動いてない？
     _font.selection.select(0x25bc) # ▼ BLACK DOWN-POINTING TRIANGLE
     _font.copy()
     _font.selection.select(0x25be) # ▾ BLACK DOWN-POINTING SMALL TRIANGLE
@@ -236,11 +239,9 @@ def add_smalltriangle(_font):
 
 
 def set_height(_font):
-    _font.selection.all()
     _font.em = HEIGHT
     _font.ascent = ASCENT
     _font.descent = DESCENT
-    _font.selection.none()
     return _font
 
 
@@ -249,7 +250,7 @@ def post_process(_font):
     removeOverlap()を実行しないと文字が消えることがある。
     refer: http://www.rs.tus.ac.jp/yyusa/ricty/ricty_generator.sh
     '''
-    indent_print('post processing ... (It takes a few minutes.)')
+    indent_print('post processing ... (This may take a few minutes.)')
 
     _font.selection.all()
     _font.round()
@@ -339,21 +340,33 @@ def modify_and_save_jp(_f, _savepath):
     jp_font.close()
 
 
-def appendAllSFNTName(_font, _lang_code, _f):
-    _font.appendSFNTName(_lang_code, 0, COPYRIGHT)
-    _font.appendSFNTName(_lang_code, 1, _f.get('family'))
-    _font.appendSFNTName(_lang_code, 2, _f.get('style_name'))
-    _font.appendSFNTName(_lang_code, 4, _f.get('name'))
-    _font.appendSFNTName(_lang_code, 5, "Version " + VERSION)
-    _font.appendSFNTName(_lang_code, 6, _f.get('family') + "-" + _f.get('weight_name'))
-    _font.appendSFNTName(_lang_code, 13, LICENSE)
-    _font.appendSFNTName(_lang_code, 16, _f.get('family'))
-    _font.appendSFNTName(_lang_code, 17, _f.get('style_name'))
+def set_sfnt_names(_font, _f):
+    _font.appendSFNTName('English (US)', 'Copyright',        COPYRIGHT)
+    _font.appendSFNTName('English (US)', 'Family',           _f.get('family'))
+    _font.appendSFNTName('English (US)', 'SubFamily',        _f.get('style_name'))
+    _font.appendSFNTName('English (US)', 'Fullname',         _f.get('name'))
+    _font.appendSFNTName('English (US)', 'Version',          'Version ' + VERSION)
+    _font.appendSFNTName('English (US)', 'PostScriptName',   _f.get('name'))
+    _font.appendSFNTName('English (US)', 'Preferred Family', _f.get('family'))
+    _font.appendSFNTName('English (US)', 'Preferred Styles', _f.get('style_name'))
+    _font.appendSFNTName('Japanese',     'Preferred Family', _f.get('family'))
+    _font.appendSFNTName('Japanese',     'Preferred Styles', _f.get('style_name'))
 
     return _font
 
 
-def fix_AvgCharWidth(_src_ttf, _dst_ttf):
+def set_gasp_table(_font):
+    _font.gasp_version = 1
+    _font.gasp = (
+        (8, ('antialias',)),
+        (13, ('antialias', 'symmetric-smoothing',)),
+        (65535, ('gridfit', 'antialias', 'symmetric-smoothing', 'gridfit+smoothing',)),
+    )
+
+    return _font
+
+
+def fix_xAvgCharWidth(_src_ttf, _dst_ttf):
     '''AvgCharWidthがおかしくなるので、元のフォントの値に書き換える
     require: `sudo apt install fonttools`
 
@@ -361,29 +374,27 @@ def fix_AvgCharWidth(_src_ttf, _dst_ttf):
     '''
     import xml.etree.ElementTree as ET
 
-    deco_print('fix AvgCharWidth: {} to {}'.format(_src_ttf, _dst_ttf))
+    deco_print('fix xAvgCharWidth: {} to {}'.format(_src_ttf, _dst_ttf))
 
     # 元のフォントからxAvgCharWidth読み出し
     src_root, _ = os.path.splitext(_src_ttf)
-    os.system('ttx -t OS/2 ' + _src_ttf)
+    os.system('ttx -f -t OS/2 ' + _src_ttf)
     src_tree = ET.parse(src_root + '.ttx')
     src_AvgCharWidth = src_tree.find('OS_2').find('xAvgCharWidth').get('value')
 
     # 作成したフォントへxAvgCharWidthを設定
     dst_root, _ = os.path.splitext(_dst_ttf)
-    os.system('ttx -t OS/2 ' + _dst_ttf)
+    os.system('ttx -f -t OS/2 ' + _dst_ttf)
     dst_tree = ET.parse(dst_root + '.ttx')
     dst_tree.find('OS_2').find('xAvgCharWidth').set('value', '{}'.format(src_AvgCharWidth))
     dst_tree.write(dst_root + '.ttx', 'utf-8', True)
 
     # 変更したやつを反映
-    os.system('ttx -m ' + _dst_ttf + ' ' + dst_root + '.ttx') # 同じフォント名があると#1が付加される
+    os.system('ttx -f -m ' + _dst_ttf + ' ' + dst_root + '.ttx')
 
     # 後片付け
-    os.remove(_dst_ttf)
-    os.rename(dst_root + '#1.ttf', _dst_ttf)
-    os.remove(src_root + '.ttx')
-    os.remove(dst_root + '.ttx')
+    if not DEBUG: os.remove(src_root + '.ttx')
+    if not DEBUG: os.remove(dst_root + '.ttx')
 
 
 def build_font(_f):
@@ -397,15 +408,14 @@ def build_font(_f):
     target_font = set_height(target_font)
 
     target_font.upos = 45
-    target_font.fontname = _f.get('family')
+    target_font.fontname   = _f.get('family')
     target_font.familyname = _f.get('family')
-    target_font.fullname = _f.get('name')
-    target_font.weight = _f.get('weight_name')
+    target_font.fullname   = _f.get('name')
+    target_font.weight     = _f.get('weight_name')
 
     target_font = set_os2_values(target_font, _f)
-
-    target_font = appendAllSFNTName(target_font, 0x411, _f) # 0x411は日本語
-    target_font = appendAllSFNTName(target_font, 0x409, _f) # 0x409は英語
+    target_font = set_sfnt_names(target_font, _f)
+    target_font = set_gasp_table(target_font)
 
     target_font.mergeFonts(EN_TEMP)
     if not DEBUG: os.remove(EN_TEMP)
@@ -424,7 +434,7 @@ def build_font(_f):
     target_font.generate(fontpath)
     target_font.close()
 
-    fix_AvgCharWidth(SOURCE + '/{}'.format(_f.get('japanese')), fontpath)
+    fix_xAvgCharWidth(SOURCE + '/{}'.format(_f.get('japanese')), fontpath)
 
     deco_print('Generate {} completed.'.format(_f.get('name')))
 
