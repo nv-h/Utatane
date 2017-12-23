@@ -5,8 +5,8 @@ import unittest
 import fontforge
 
 
-REGULAR_FONT = 'Yasashica-Regular.ttf'
-BOLD_FONT = 'Yasashica-Bold.ttf'
+REGULAR_FONT = 'Utatane-Regular.ttf'
+BOLD_FONT = 'Utatane-Bold.ttf'
 
 
 def check_overflow(ttfpath):

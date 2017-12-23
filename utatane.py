@@ -11,8 +11,8 @@ import os
 import sys
 import math
 
-VERSION = '1.0.5'
-FONTNAME = 'Yasashica'
+VERSION = '1.0.6'
+FONTNAME = 'Utatane'
 
 # Ubuntu Mono
 # 800 x 200 = 1000(Em)
@@ -79,7 +79,7 @@ fonts = [
          'latin': LATIN_REGULAR_FONT,
          'japanese': JAPANESE_REGULAR_FONT,
          'latin_weight_reduce': 0, # 0以外ではテストしていない
-         'japanese_weight_add': 0, # 0以外では動かない
+         'japanese_weight_add': 5, # ちょっと太くするとバランスがいい
          'italic': False, # trueは変になる
     },
     {
@@ -92,7 +92,7 @@ fonts = [
         'latin': LATIN_BOLD_FONT,
         'japanese': JAPANESE_BOLD_FONT,
         'latin_weight_reduce': 0, # 0以外ではテストしていない
-        'japanese_weight_add': 0, # 0以外では動かない
+        'japanese_weight_add': 5, # ちょっと太くするとバランスがいい
         'italic': False, # trueは変になる
     }
 ]

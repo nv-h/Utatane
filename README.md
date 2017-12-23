@@ -1,10 +1,10 @@
-# プログラミング用フォント Yasashica
+# プログラミング用フォント Utatane
 
 ![on Windows](screenshots/ss1.png)
 
 ## ダウンロード
 
-[リリースページ](https://github.com/nv-h/Yasashica/releases/latest)にビルド済みのフォントを配置しています。
+[リリースページ](https://github.com/nv-h/Utatane/releases/latest)にビルド済みのフォントを配置しています。
 
 ## 概要
 
@@ -13,7 +13,7 @@ Ricty生成スクリプトをフォークして生成したプログラミング
 [やさしさゴシック](http://www.fontna.com/blog/379/) と [やさしさゴシックボールド](http://www.fontna.com/blog/736/) を合成して少し調整しています。
 
 ```
-o Yasashica
+o Utatane
 |\
 * * Ubuntu Mono
  \
@@ -44,22 +44,22 @@ sudo apt install fontforge fonttools unar
 環境準備は適当な場所で以下を実行すると完了します。
 
 ```sh
-git clone git@github.com:nv-h/Yasashica.git
+git clone git@github.com:nv-h/Utatane.git
 wget https://assets.ubuntu.com/v1/fad7939b-ubuntu-font-family-0.83.zip
 unar fad7939b-ubuntu-font-family-0.83.zip
-cp ubuntu-font-family-0.83/UbuntuMono-R.ttf Yasashica/sourceFonts/
-cp ubuntu-font-family-0.83/UbuntuMono-B.ttf Yasashica/sourceFonts/
-wget https://github.com/nv-h/Yasashica/releases/download/Yasashica_v1.0.4/Yasashica_v1.0.4.7z
-unar Yasashica_v1.0.4.7z
-cp Yasashica_v1.0.4/07Yasashisa/07やさしさゴシック.ttf Yasashica/sourceFonts/07YasashisaGothic-R.ttf
-cp Yasashica_v1.0.4/07YasashisaBold/07やさしさゴシックボールド.ttf Yasashica/sourceFonts/07YasashisaGothic-B.ttf
+cp ubuntu-font-family-0.83/UbuntuMono-R.ttf Utatane/sourceFonts/
+cp ubuntu-font-family-0.83/UbuntuMono-B.ttf Utatane/sourceFonts/
+wget https://github.com/nv-h/Utatane/releases/download/Utatane_v1.0.6/Utatane_v1.0.6.7z
+unar Utatane_v1.0.6.7z
+cp Utatane_v1.0.6/07Yasashisa/07やさしさゴシック.ttf Utatane/sourceFonts/07YasashisaGothic-R.ttf
+cp Utatane_v1.0.6/07YasashisaBold/07やさしさゴシックボールド.ttf Utatane/sourceFonts/07YasashisaGothic-B.ttf
 ```
 
 ビルドは以下のコマンドで行います。
 
 ```sh
-cd Yasashica
-fontforge -lang=py -script yasashica.py
+cd Utatane
+fontforge -lang=py -script utatane.py
 ```
 
 ## Rictyからの変更点
@@ -73,8 +73,8 @@ fontforge -lang=py -script yasashica.py
 
 | ファイル名                  | 説明     |
 | ----                        | ----     |
-| Yasashica-Regular.ttf       | 通常     |
-| Yasashica-Bold.ttf          | 太字     |
+| Utatane-Regular.ttf         | 通常     |
+| Utatane-Bold.ttf            | 太字     |
 
 斜体はおかしくなるので未対応。
 
@@ -84,7 +84,7 @@ fontforge -lang=py -script yasashica.py
 
 # 謝辞
 
-Yasashicaフォントの合成にあたり[フォーク元のCicaフォント作成者](https://github.com/miiton)に感謝します。
+Utataneフォントの合成にあたり[フォーク元のCicaフォント作成者](https://github.com/miiton)に感謝します。
 また、以下の素晴らしいフォントを作成してくださった方々もありがとうございます。ありがたく使わせていただきます。
 
 - [Ubuntu Font Family](http://font.ubuntu.com/)
