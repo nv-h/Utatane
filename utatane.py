@@ -11,7 +11,7 @@ import os
 import sys
 import math
 
-VERSION = '1.0.6'
+VERSION = '1.0.7'
 FONTNAME = 'Utatane'
 
 # Ubuntu Mono
@@ -47,6 +47,8 @@ JP_DESCENT = 119
 SKEW_MAT = psMat.skew(0.25)
 # 罫線(日本語の方を採用するやつ)
 RULED_LINES = list(xrange(0x2500, 0x2600))
+# 半角カナとかの半角幅のやつ
+HALFWIDTH_CJK_KANA = list(xrange(0xFF61, 0xFF9F))
 
 # 日本語フォントの縮小率
 JP_A_RAT = (LATIN_ASCENT/JP_ASCENT) # 高さの比でいいはず
@@ -329,8 +331,11 @@ def modify_and_save_jp(_f, _savepath):
         g.transform(JP_REDUCTION_MAT)
         # 縮小して左に寄った分と上に寄った分を復帰
         g.transform(JP_REDUCTION_FIX_MAT_NOHEIGHT)
-        # 幅が等幅でないやつがいたら修正
-        g.width = WIDTH if g.width > WIDTH//2 else WIDTH//2
+        # 半角カナは半角へ、幅が等幅でないやつがいたら修正
+        if g.encoding in HALFWIDTH_CJK_KANA:
+            g.width = WIDTH//2
+        else:
+            g.width = WIDTH if g.width > WIDTH//2 else WIDTH//2
 
         if _f.get('italic'):
             # FIXME: 動作確認未
