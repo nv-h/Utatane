@@ -1,23 +1,25 @@
-Copyright (c) 2017, H.Saido
-Copyright (c) 2017, Takahiro Minami (https://tmnm.tech)
+Copyright (c) 2020, H.Saido,
+with Reserved Font Name Utatane
 
-This Font Software is licensed and copyrighted under the
+Copyright (c) 2017, Takahiro Minami (https://tmnm.tech),
+with Reserved Font Name Cica
+
+Copyright (C) 2002-2019 M+ FONTS PROJECT
+Copyright (C) 2019 Fontna.com
+Copyright (C) 2019 Kato Masashi
+with Reserved Font Name YasashisaGothicBold-V2(やさしさゴシックボールドV2)
+
+Copyright 2010,2011 Canonical Ltd.
+with Reserved Font Name Ubuntu
+
+This Font Software is licensed under the
 - Ubuntu Font Licence, Version 1.0
-  - Ubuntu Mono : http://font.ubuntu.com/
+  - Ubuntu Mono : https://design.ubuntu.com/font/
 
-Copyright (c) Information-technology Promotion Agency, Japan (IPA), 2003-2012.
-
-- IPA Font License Agreement v1.0
-  - IPA Fonts : http://ipafont.ipa.go.jp/old/ipafont/download.html
-
-Copyright (c) 2012 M+ FONTS PROJECT
+- MIT Licenses
+  - Utatane Generate Script (This repository)
+  - Cica Generate Script : https://github.com/miiton/Cica
 
 - M+ FONTS Licence
   - M+ FONTS : http://mplus-fonts.osdn.jp/about.html#license
-
-Copyright (c) fontna.com
-
-- 07 YasashisaGothic
-  - complies with the above IPA Fonts and M+ FONTS licenses.
-- 07 YasashisaGothicBold
-  - complies with the above M+ FONTS licenses.
+  - YasashisaGothicBold-V2 https://booth.pm/ja/items/1833993

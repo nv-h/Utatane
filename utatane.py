@@ -11,8 +11,8 @@ import os
 import sys
 import math
 
-VERSION = '1.0.7'
-FONTNAME = 'Utatane'
+VERSION = '1.0.8'
+FONTNAME = 'UtataneBeta'
 
 # Ubuntu Mono
 # 800 x 200 = 1000(Em)
@@ -21,27 +21,24 @@ FONTNAME = 'Utatane'
 LATIN_REGULAR_FONT = 'UbuntuMono-R.ttf'
 LATIN_BOLD_FONT = 'UbuntuMono-B.ttf'
 
-# 07やさしさゴシック
-# 905 x 119 = 1024(Em)
-# Win(Ascent, Descent)=(-24, 13)
-# hhea(height, width)=(-24, 168)
-JAPANESE_REGULAR_FONT = '07YasashisaGothic-R.ttf'
-JAPANESE_BOLD_FONT = '07YasashisaGothic-B.ttf'
+# やさしさゴシックボールドV2
+# 880 x 120 = 1000(Em)
+JAPANESE_FONT = 'YasashisaGothicBold-V2.ttf'
 
 # 幅は日本語に合わせる(縮小より拡大のほうがきれいになりそうなので)
 LATIN_WIDTH = 1000 # 未使用
-JP_WIDTH = 1024
+JP_WIDTH = 1000
 WIDTH = JP_WIDTH
 
-# Ubuntu monoから拡大して、高さが1024になるようにしてみた(要は適当)
-ASCENT = 819
-DESCENT = 205
+# Ubuntu mono と やさしさゴシックボールドV2 で同じ
+ASCENT = 800
+DESCENT = 200
 HEIGHT = ASCENT + DESCENT
 
 LATIN_ASCENT = 800
 LATIN_DESCENT = 200 # 未使用
-JP_ASCENT = 905
-JP_DESCENT = 119
+JP_ASCENT = 880
+JP_DESCENT = 120
 
 # Italic時の傾き
 SKEW_MAT = psMat.skew(0.25)
@@ -68,7 +65,7 @@ COPYRIGHT = open('./COPYRIGHT.txt').read()
 # 出力をデコるときに使う文字
 DECO_CHAR = '-'
 
-DEBUG = False
+DEBUG = True
 
 fonts = [
     {
@@ -79,9 +76,9 @@ fonts = [
          'weight_name': 'Regular',
          'style_name': 'Regular',
          'latin': LATIN_REGULAR_FONT,
-         'japanese': JAPANESE_REGULAR_FONT,
+         'japanese': JAPANESE_FONT,
          'latin_weight_reduce': 0, # 0以外ではテストしていない
-         'japanese_weight_add': 5, # ちょっと太くするとバランスがいい
+         'japanese_weight_add': -30, # 減らす(若干太めだが、違和感のない範囲にした)
          'italic': False, # trueは変になる
     },
     {
@@ -92,9 +89,9 @@ fonts = [
         'weight_name': 'Bold',
         'style_name': 'Bold',
         'latin': LATIN_BOLD_FONT,
-        'japanese': JAPANESE_BOLD_FONT,
+        'japanese': JAPANESE_FONT,
         'latin_weight_reduce': 0, # 0以外ではテストしていない
-        'japanese_weight_add': 5, # ちょっと太くするとバランスがいい
+        'japanese_weight_add': 0, # そのまま
         'italic': False, # trueは変になる
     }
 ]
@@ -138,7 +135,7 @@ def set_os2_values(_font, _info):
     _font.os2_weight = _info.get('weight')
     _font.os2_width = 5
     _font.os2_fstype = 0
-    _font.os2_vendor = 'HSAI' # 好きな4文字
+    _font.os2_vendor = 'nv-h' # 好きな4文字
     _font.os2_version = 4
     _font.os2_winascent = ASCENT
     _font.os2_winascent_add = False
@@ -314,23 +311,32 @@ def modify_and_save_jp(_f, _savepath):
     for g in jp_font.glyphs():
 
         if _f.get('japanese_weight_add') != 0:
-            '''
-            FIXME: エラーになる(未調査)
+            # 以下、細くなりすぎるので除外したいが、効かない(全体に効いてしまう)
+            # 〄
+            if g.encoding == 0x3004:
+                pass
+            # 制御文字
+            if 0x0872 <= g.encoding and g.encoding <= 0x0893:
+                pass
+            if g.encoding == 0x0895 or g.encoding == 0x896:
+                pass
+            # 太い丸数字と二重丸数字
+            if 0x08b2 <= g.encoding and g.encoding <= 0x08c6:
+                pass
+            if 0x09a3 <= g.encoding and g.encoding <= 0x091c:
+                pass
+            if 0x09b7 <= g.encoding and g.encoding <= 0x09c0:
+                pass
 
-            g.stroke("circular", _f.get('japanese_weight_add'), 'butt', 'round', 'removeinternal')
-            -> TypeError: Bad stroke flag list, must consist of strings only
-
-            g.stroke("circular", _f.get('japanese_weight_add'), 'butt', 'round', 'removeinternal')
-            -> TypeError: Bad stroke flag list, must consist of strings only
-            '''
-            # g.changeWeight(_f.get('japanese_weight_add'), 'auto', 0, 0, 'auto')
-            g.stroke("caligraphic", _f.get('japanese_weight_add'), _f.get('japanese_weight_add'), 45, 'removeinternal')
+            g.changeWeight(_f.get('japanese_weight_add'), 'CJK', 0, 0, 'auto')
+            # g.stroke("caligraphic", _f.get('japanese_weight_add'), _f.get('japanese_weight_add'), 45, 'removeinternal')
             # g.stroke("circular", _f.get('japanese_weight_add'), 'butt', 'round', 'removeinternal')
 
         # いい塩梅で縮小
         g.transform(JP_REDUCTION_MAT)
         # 縮小して左に寄った分と上に寄った分を復帰
         g.transform(JP_REDUCTION_FIX_MAT_NOHEIGHT)
+
         # 半角カナは半角へ、幅が等幅でないやつがいたら修正
         if g.encoding in HALFWIDTH_CJK_KANA:
             g.width = WIDTH//2

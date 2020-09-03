@@ -17,24 +17,16 @@ o Utatane
 |\
 * * Ubuntu Mono
  \
-  * やさしさゴシック
-  |\
-  | * IPA Fonts
-  |\
-  | * M+ FONTS
-  |
-  * やさしさゴシックボールド
+  * やさしさゴシックボールドV2
    \
     * M+ FONTS
 ```
 
-IPAフォントに置き換える場合 [IPAフォント](http://ossipedia.ipa.go.jp/ipafont/index.html) のページでIPAゴシックを入手してください。
-
 ## ビルド
 
-Ubuntu 16.04 (WSL)で動作確認しています。
+Ubuntu 18.04で動作確認しています。
 
-fontforgeとfonttoolsが必要です。fontforgeはppaの現時点での最新版(20170731)を使用しています。
+fontforgeとfonttoolsが必要です。fontforgeはppaの現時点での最新版(11:21 UTC 24-Sep-2017)を使用しています。
 
 ```sh
 sudo add-apt-repository ppa:fontforge/fontforge
@@ -44,15 +36,25 @@ sudo apt install fontforge fonttools unar
 環境準備は適当な場所で以下を実行すると完了します。
 
 ```sh
+# このリポジトリをクローン
 git clone git@github.com:nv-h/Utatane.git
+
+# Ubuntu fontをダウンロードして配置
 wget https://assets.ubuntu.com/v1/fad7939b-ubuntu-font-family-0.83.zip
 unar fad7939b-ubuntu-font-family-0.83.zip
 cp ubuntu-font-family-0.83/UbuntuMono-R.ttf Utatane/sourceFonts/
 cp ubuntu-font-family-0.83/UbuntuMono-B.ttf Utatane/sourceFonts/
-wget https://github.com/nv-h/Utatane/releases/download/Utatane_v1.0.6/Utatane_v1.0.6.7z
-unar Utatane_v1.0.6.7z
-cp Utatane_v1.0.6/07Yasashisa/07やさしさゴシック.ttf Utatane/sourceFonts/07YasashisaGothic-R.ttf
-cp Utatane_v1.0.6/07YasashisaBold/07やさしさゴシックボールド.ttf Utatane/sourceFonts/07YasashisaGothic-B.ttf
+
+# YasashisaGothicBold-V2をダウンロードして配置
+# ※パブリックなダウンロード元がないので、自分のリポジトリでホストしているものから抜き出し
+wget https://github.com/nv-h/Utatane/releases/download/Utatane_v1.0.8/Utatane_v1.0.8.7z
+unar Utatane_v1.0.8.7z
+cp Utatane_v1.0.8/07Yasashisa/YasashisaGothicBold-V2.otf Utatane/sourceFonts/
+
+# otfをttfに変換
+wget http://FontForge.sourceforge.net/cidmaps.tgz
+sudo tar xvf cidmaps.tgz -C /usr/share/fontforge/
+fontforge -script ./otf2ttf.pe sourceFonts/YasashisaGothicBold-V2.otf
 ```
 
 ビルドは以下のコマンドで行います。
@@ -65,7 +67,7 @@ fontforge -lang=py -script utatane.py
 ## Rictyからの変更点
 
 * 英数字に Ubutnu Mono を使用しています
-* それ以外の文字に やさしさゴシック を使用しています
+* それ以外の文字に やさしさゴシックボールドV2 を使用しています
 * 非HiDPI（非Retina）のWindowsでも文字が欠けません
 
 
@@ -80,7 +82,8 @@ fontforge -lang=py -script utatane.py
 
 # ライセンス
 
-* [LICENSE.txt](LICENSE.txt)
+フォント本体は、[Ubuntu Font License](https://ubuntu.com/legal/font-licence)で、生成スクリプトなどはMITライセンスとする。
+
 
 # 謝辞
 
@@ -88,7 +91,5 @@ Utataneフォントの合成にあたり[フォーク元のCicaフォント作�
 また、以下の素晴らしいフォントを作成してくださった方々もありがとうございます。ありがたく使わせていただきます。
 
 - [Ubuntu Font Family](http://font.ubuntu.com/)
-- [やさしさゴシック](http://www.fontna.com/blog/379/)
-- [やさしさゴシックボールド](http://www.fontna.com/blog/736/)
-- [M\+ FONTS](https://mplus-fonts.osdn.jp/)
-- [IPAフォント](http://ossipedia.ipa.go.jp/ipafont/index.html)
+- [やさしさゴシックボールドV2](https://booth.pm/ja/items/1833993)
+- [M+ FONTS](https://mplus-fonts.osdn.jp/)
