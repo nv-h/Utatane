@@ -12,7 +12,7 @@ import sys
 import math
 
 VERSION = '1.0.8'
-FONTNAME = 'UtataneBeta'
+FONTNAME = 'Utatane'
 
 # Ubuntu Mono
 # 800 x 200 = 1000(Em)
@@ -65,7 +65,7 @@ COPYRIGHT = open('./COPYRIGHT.txt').read()
 # 出力をデコるときに使う文字
 DECO_CHAR = '-'
 
-DEBUG = True
+DEBUG = False
 
 fonts = [
     {
