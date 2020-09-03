@@ -26,11 +26,19 @@ o Utatane
 
 Ubuntu 18.04で動作確認しています。
 
-fontforgeとfonttoolsが必要です。fontforgeはppaの現時点での最新版(11:21 UTC 24-Sep-2017)を使用しています。
+fontforgeとfonttoolsが必要です。fontforgeはppaの現時点での最新版(20200314)を使用しています。
+このfontforgeは以下の手順でビルドする必要があります。
 
 ```sh
-sudo add-apt-repository ppa:fontforge/fontforge
-sudo apt install fontforge fonttools unar
+sudo apt-get install libjpeg-dev libtiff5-dev libpng-dev libfreetype6-dev libgif-dev libgtk-3-dev libxml2-dev libpango1.0-dev libcairo2-dev libspiro-dev libuninameslist-dev python3-dev ninja-build cmake build-essential
+
+git clone https://github.com/fontforge/fontforge
+cd fontforge
+mkdir build && cd build
+cmake -GNinja ..
+ninja
+
+cd ../../
 ```
 
 環境準備は適当な場所で以下を実行すると完了します。
@@ -49,19 +57,15 @@ cp ubuntu-font-family-0.83/UbuntuMono-B.ttf Utatane/sourceFonts/
 # ※パブリックなダウンロード元がないので、自分のリポジトリでホストしているものから抜き出し
 wget https://github.com/nv-h/Utatane/releases/download/Utatane_v1.0.8/Utatane_v1.0.8.7z
 unar Utatane_v1.0.8.7z
-cp Utatane_v1.0.8/07Yasashisa/YasashisaGothicBold-V2.otf Utatane/sourceFonts/
-
-# otfをttfに変換
-wget http://FontForge.sourceforge.net/cidmaps.tgz
-sudo tar xvf cidmaps.tgz -C /usr/share/fontforge/
-fontforge -script ./otf2ttf.pe sourceFonts/YasashisaGothicBold-V2.otf
+cp Utatane_v1.0.8/07Yasashisa/YasashisaGothicBold-V2.ttf Utatane/sourceFonts/
 ```
 
 ビルドは以下のコマンドで行います。
 
 ```sh
 cd Utatane
-fontforge -lang=py -script utatane.py
+# さっきビルドしたfontforge
+../../fontforge/build/bin/fontforge -lang=py -script utatane.py
 ```
 
 ## Rictyからの変更点

@@ -43,9 +43,9 @@ JP_DESCENT = 120
 # Italic時の傾き
 SKEW_MAT = psMat.skew(0.25)
 # 罫線(日本語の方を採用するやつ)
-RULED_LINES = list(xrange(0x2500, 0x2600))
+RULED_LINES = list(range(0x2500, 0x2600))
 # 半角カナとかの半角幅のやつ
-HALFWIDTH_CJK_KANA = list(xrange(0xFF61, 0xFF9F))
+HALFWIDTH_CJK_KANA = list(range(0xFF61, 0xFF9F))
 
 # 日本語フォントの縮小率
 JP_A_RAT = (LATIN_ASCENT/JP_ASCENT) # 高さの比でいいはず
@@ -111,10 +111,6 @@ def indent_print(_str):
 def print_pdf(_font, _path):
     fontforge.printSetup('pdf-file')
     _font.printSample('fontdisplay', 18, '', _path)
-
-
-def unicode_utf16_be(_str):
-    return unicode(_str, 'utf-8').encode('utf-16-be')
 
 
 def check_files():
@@ -311,23 +307,6 @@ def modify_and_save_jp(_f, _savepath):
     for g in jp_font.glyphs():
 
         if _f.get('japanese_weight_add') != 0:
-            # 以下、細くなりすぎるので除外したいが、効かない(全体に効いてしまう)
-            # 〄
-            if g.encoding == 0x3004:
-                pass
-            # 制御文字
-            if 0x0872 <= g.encoding and g.encoding <= 0x0893:
-                pass
-            if g.encoding == 0x0895 or g.encoding == 0x896:
-                pass
-            # 太い丸数字と二重丸数字
-            if 0x08b2 <= g.encoding and g.encoding <= 0x08c6:
-                pass
-            if 0x09a3 <= g.encoding and g.encoding <= 0x091c:
-                pass
-            if 0x09b7 <= g.encoding and g.encoding <= 0x09c0:
-                pass
-
             g.changeWeight(_f.get('japanese_weight_add'), 'CJK', 0, 0, 'auto')
             # g.stroke("caligraphic", _f.get('japanese_weight_add'), _f.get('japanese_weight_add'), 45, 'removeinternal')
             # g.stroke("circular", _f.get('japanese_weight_add'), 'butt', 'round', 'removeinternal')
