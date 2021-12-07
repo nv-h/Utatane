@@ -11,8 +11,11 @@ import os
 import sys
 import math
 
-VERSION = '1.0.8'
-FONTNAME = 'Utatane'
+# FIXME: 原因不明だが、Sublime Text, Windows Terminalで日本語が太くなる
+#        VSCodeでは問題ない
+#        もしかしたらfontforgeのバージョンの問題かもしれない
+VERSION = '1.0.9'
+FONTNAME = 'Utatane_debug'
 
 # Ubuntu Mono
 # 800 x 200 = 1000(Em)
@@ -42,10 +45,28 @@ JP_DESCENT = 120
 
 # Italic時の傾き
 SKEW_MAT = psMat.skew(0.25)
-# 罫線(日本語の方を採用するやつ)
+# 罫線
 RULED_LINES = list(range(0x2500, 0x2600))
 # 半角カナとかの半角幅のやつ
 HALFWIDTH_CJK_KANA = list(range(0xFF61, 0xFF9F))
+# 全角文字
+FULLWIDTH_HIRAGANA_KATAKANA = list(range(0x3040, 0x30FF))
+FULLWIDTH_CJK_UNIFIED = list(range(0x4E00, 0x9FCF))
+FULLWIDTH_CJK_COMPATI = list(range(0xF900, 0xFAFF))
+FULLWIDTH_CJK_UNIFIED_EX_A = list(range(0x3400, 0x4DBF))
+FULLWIDTH_CJK_UNIFIED_EX_B = list(range(0x20000, 0x2A6DF))
+FULLWIDTH_CJK_UNIFIED_EX_C = list(range(0x2A700, 0x2B73F))
+FULLWIDTH_CJK_UNIFIED_EX_D = list(range(0x2B740, 0x2B81F))
+FULLWIDTH_CJK_COMPATI_SUPP = list(range(0x2F800, 0x2FA1F))
+
+FULLWIDTH_CODES = FULLWIDTH_HIRAGANA_KATAKANA + \
+    FULLWIDTH_CJK_UNIFIED + \
+    FULLWIDTH_CJK_COMPATI + \
+    FULLWIDTH_CJK_UNIFIED_EX_A + \
+    FULLWIDTH_CJK_UNIFIED_EX_B + \
+    FULLWIDTH_CJK_UNIFIED_EX_C + \
+    FULLWIDTH_CJK_UNIFIED_EX_D + \
+    FULLWIDTH_CJK_COMPATI_SUPP
 
 # 日本語フォントの縮小率
 JP_A_RAT = (LATIN_ASCENT/JP_ASCENT) # 高さの比でいいはず
@@ -269,6 +290,13 @@ def modify_and_save_latin(_f, _savepath):
             # 不要っぽいやつは消しちゃう
             latin_font.selection.select(g)
             latin_font.clear()
+            break
+
+        if g.encoding == 0x2026:
+            # … HORIZONTAL ELLIPSIS (use jp font's)
+            latin_font.selection.select(g)
+            latin_font.clear()
+            break
 
         if _f.get('italic'):
             # FIXME: 動作確認未
@@ -279,14 +307,6 @@ def modify_and_save_latin(_f, _savepath):
             # g.changeWeight(_f.get('latin_weight_reduce'), 'auto', 0, 0, 'auto')
             g.stroke("circular", _f.get('latin_weight_reduce'), 'butt', 'round', 'removeexternal')
 
-        if g.encoding in RULED_LINES:
-            # 罫線とかは日本語のを使う
-            latin_font.selection.select(g)
-            latin_font.clear()
-        elif g.encoding == 0x2026:
-            # … HORIZONTAL ELLIPSIS (use jp font's)
-            latin_font.selection.select(g)
-            latin_font.clear()
 
     latin_font.save(_savepath)
     latin_font.close()
@@ -305,6 +325,11 @@ def modify_and_save_jp(_f, _savepath):
     jp_font = set_height(jp_font)
 
     for g in jp_font.glyphs():
+        if g.encoding in RULED_LINES:
+            # 罫線とかは英字のを使う(ただし幅がおかしくなる？)
+            jp_font.selection.select(g)
+            jp_font.clear()
+            break
 
         if _f.get('japanese_weight_add') != 0:
             g.changeWeight(_f.get('japanese_weight_add'), 'CJK', 0, 0, 'auto')
@@ -316,11 +341,15 @@ def modify_and_save_jp(_f, _savepath):
         # 縮小して左に寄った分と上に寄った分を復帰
         g.transform(JP_REDUCTION_FIX_MAT_NOHEIGHT)
 
-        # 半角カナは半角へ、幅が等幅でないやつがいたら修正
         if g.encoding in HALFWIDTH_CJK_KANA:
+            # 半角カナは半角へ
             g.width = WIDTH//2
+        elif g.encoding in FULLWIDTH_CODES:
+            # 全角文字は全角へ
+            g.width = WIDTH
         else:
-            g.width = WIDTH if g.width > WIDTH//2 else WIDTH//2
+            # その他は何もしない
+            pass
 
         if _f.get('italic'):
             # FIXME: 動作確認未
