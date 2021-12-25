@@ -11,15 +11,15 @@ import os
 import sys
 import math
 
-VERSION = '1.1.0'
-FONTNAME = 'Utatane_beta'
+VERSION = '1.0.9'
+FONTNAME = 'Utatane'
 
 # Ubuntu Mono
 # 800 x 200 = 1000(Em)
 # Win(Ascent, Descent)=(-170, -183)
 # hhea(height, width)=(-170, 183)
-LATIN_REGULAR_FONT = 'UbuntuMono-R.ttf'
-LATIN_BOLD_FONT = 'UbuntuMono-B.ttf'
+LATIN_REGULAR_FONT = 'UbuntuMono-Regular_modify.ttf'
+LATIN_BOLD_FONT = 'UbuntuMono-Bold_modify.ttf'
 
 # やさしさゴシックボールドV2
 # レギュラー版は手動で embold -30 して、一部フォントを調整したもの
@@ -98,7 +98,7 @@ fonts = [
          'latin': LATIN_REGULAR_FONT,
          'japanese': JAPANESE_REGULAR_FONT,
          'latin_weight_reduce': 0, # 0以外ではテストしていない
-         'japanese_weight_add': 0,
+         'japanese_weight_add': 0, # 0以外の場合、めちゃくちゃ時間かかる
          'italic': False, # trueは変になる
     },
     {
@@ -111,7 +111,7 @@ fonts = [
         'latin': LATIN_BOLD_FONT,
         'japanese': JAPANESE_BOLD_FONT,
         'latin_weight_reduce': 0, # 0以外ではテストしていない
-        'japanese_weight_add': 0,
+        'japanese_weight_add': 0, # 0以外の場合、めちゃくちゃ時間かかる
         'italic': False, # trueは変になる
     }
 ]
@@ -285,14 +285,8 @@ def modify_and_save_latin(_f, _savepath):
     latin_font = set_height(latin_font)
 
     for g in latin_font.glyphs():
-        if not g.isWorthOutputting:
-            # 不要っぽいやつは消しちゃう
-            latin_font.selection.select(g)
-            latin_font.clear()
-            break
-
-        if g.encoding == 0x2026:
-            # … HORIZONTAL ELLIPSIS (use jp font's)
+        if (not g.isWorthOutputting) or (g.encoding == 0x2026):
+            # 不要っぽいやつ、… HORIZONTAL ELLIPSIS
             latin_font.selection.select(g)
             latin_font.clear()
             break
@@ -324,6 +318,12 @@ def modify_and_save_jp(_f, _savepath):
     jp_font = set_height(jp_font)
 
     for g in jp_font.glyphs():
+        if not g.isWorthOutputting:
+            # 不要っぽいやつは消しちゃう
+            latin_font.selection.select(g)
+            latin_font.clear()
+            break
+
         if _f.get('japanese_weight_add') != 0:
             g.changeWeight(_f.get('japanese_weight_add'), 'auto', 0, 0, 'auto')
             # g.stroke("caligraphic", _f.get('japanese_weight_add'), _f.get('japanese_weight_add'), 45, 'removeinternal')
@@ -339,6 +339,9 @@ def modify_and_save_jp(_f, _savepath):
             g.width = WIDTH//2
         elif g.encoding in FULLWIDTH_CODES:
             # 全角文字は全角へ
+            g.width = WIDTH
+        elif g.encoding in RULED_LINES:
+            # 罫線などは全角へ
             g.width = WIDTH
         else:
             # その他は何もしない
