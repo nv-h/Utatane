@@ -2,6 +2,8 @@
 
 ![on Windows](screenshots/ss1.png)
 
+（Color scheme は [gruvbox-material](https://github.com/sainnhe/gruvbox-material) を使用）
+
 ## ダウンロード
 
 [リリースページ](https://github.com/nv-h/Utatane/releases/latest)にビルド済みのフォントを配置しています。
