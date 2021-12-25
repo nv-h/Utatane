@@ -14,7 +14,7 @@ import math
 VERSION = '1.0.9'
 FONTNAME = 'Utatane'
 
-# Ubuntu Mono
+# Ubuntu Mono (罫線などを削除してあるものを使う)
 # 800 x 200 = 1000(Em)
 # Win(Ascent, Descent)=(-170, -183)
 # hhea(height, width)=(-170, 183)
@@ -320,8 +320,8 @@ def modify_and_save_jp(_f, _savepath):
     for g in jp_font.glyphs():
         if not g.isWorthOutputting:
             # 不要っぽいやつは消しちゃう
-            latin_font.selection.select(g)
-            latin_font.clear()
+            jp_font.selection.select(g)
+            jp_font.clear()
             break
 
         if _f.get('japanese_weight_add') != 0:
