@@ -11,11 +11,8 @@ import os
 import sys
 import math
 
-# FIXME: 原因不明だが、Sublime Text, Windows Terminalで日本語が太くなる
-#        VSCodeでは問題ない
-#        もしかしたらfontforgeのバージョンの問題かもしれない
-VERSION = '1.0.9'
-FONTNAME = 'Utatane_debug'
+VERSION = '1.1.0'
+FONTNAME = 'Utatane_beta'
 
 # Ubuntu Mono
 # 800 x 200 = 1000(Em)
@@ -25,8 +22,10 @@ LATIN_REGULAR_FONT = 'UbuntuMono-R.ttf'
 LATIN_BOLD_FONT = 'UbuntuMono-B.ttf'
 
 # やさしさゴシックボールドV2
+# レギュラー版は手動で embold -30 して、一部フォントを調整したもの
 # 880 x 120 = 1000(Em)
-JAPANESE_FONT = 'YasashisaGothicBold-V2.ttf'
+JAPANESE_REGULAR_FONT = 'YasashisaGothicBold-V2_-30.ttf'
+JAPANESE_BOLD_FONT = 'YasashisaGothicBold-V2.ttf'
 
 # 幅は日本語に合わせる(縮小より拡大のほうがきれいになりそうなので)
 LATIN_WIDTH = 1000 # 未使用
@@ -45,7 +44,7 @@ JP_DESCENT = 120
 
 # Italic時の傾き
 SKEW_MAT = psMat.skew(0.25)
-# 罫線
+# 罫線素片、ブロック要素
 RULED_LINES = list(range(0x2500, 0x2600))
 # 半角カナとかの半角幅のやつ
 HALFWIDTH_CJK_KANA = list(range(0xFF61, 0xFF9F))
@@ -97,9 +96,9 @@ fonts = [
          'weight_name': 'Regular',
          'style_name': 'Regular',
          'latin': LATIN_REGULAR_FONT,
-         'japanese': JAPANESE_FONT,
+         'japanese': JAPANESE_REGULAR_FONT,
          'latin_weight_reduce': 0, # 0以外ではテストしていない
-         'japanese_weight_add': -30, # 減らす(若干太めだが、違和感のない範囲にした)
+         'japanese_weight_add': 0,
          'italic': False, # trueは変になる
     },
     {
@@ -110,9 +109,9 @@ fonts = [
         'weight_name': 'Bold',
         'style_name': 'Bold',
         'latin': LATIN_BOLD_FONT,
-        'japanese': JAPANESE_FONT,
+        'japanese': JAPANESE_BOLD_FONT,
         'latin_weight_reduce': 0, # 0以外ではテストしていない
-        'japanese_weight_add': 0, # そのまま
+        'japanese_weight_add': 0,
         'italic': False, # trueは変になる
     }
 ]
@@ -248,7 +247,7 @@ def add_smalltriangle(_font):
     for g in _font.glyphs():
         if g.encoding == 0x25be or g.encoding == 0x25b8:
             g.width = WIDTH//2
-            g.left_side_bearing = g.right_side_bearing = (g.left_side_bearing + g.right_side_bearing)/2
+            g.left_side_bearing = g.right_side_bearing = int((g.left_side_bearing + g.right_side_bearing)/2)
             g.width = WIDTH//2
 
     return _font
@@ -325,14 +324,8 @@ def modify_and_save_jp(_f, _savepath):
     jp_font = set_height(jp_font)
 
     for g in jp_font.glyphs():
-        if g.encoding in RULED_LINES:
-            # 罫線とかは英字のを使う(ただし幅がおかしくなる？)
-            jp_font.selection.select(g)
-            jp_font.clear()
-            break
-
         if _f.get('japanese_weight_add') != 0:
-            g.changeWeight(_f.get('japanese_weight_add'), 'CJK', 0, 0, 'auto')
+            g.changeWeight(_f.get('japanese_weight_add'), 'auto', 0, 0, 'auto')
             # g.stroke("caligraphic", _f.get('japanese_weight_add'), _f.get('japanese_weight_add'), 45, 'removeinternal')
             # g.stroke("circular", _f.get('japanese_weight_add'), 'butt', 'round', 'removeinternal')
 

@@ -34,7 +34,7 @@ sudo apt-get install libjpeg-dev libtiff5-dev libpng-dev libfreetype6-dev libgif
 
 git clone https://github.com/fontforge/fontforge
 cd fontforge
-git checkout refs/tags/20201107
+git checkout 20201107
 mkdir build && cd build
 cmake -GNinja ..
 ninja
@@ -53,13 +53,6 @@ wget https://assets.ubuntu.com/v1/fad7939b-ubuntu-font-family-0.83.zip
 unar fad7939b-ubuntu-font-family-0.83.zip
 cp ubuntu-font-family-0.83/UbuntuMono-R.ttf Utatane/sourceFonts/
 cp ubuntu-font-family-0.83/UbuntuMono-B.ttf Utatane/sourceFonts/
-
-# YasashisaGothicBold-V2をダウンロードして配置
-# ※パブリックなダウンロード元がないので、自分のリポジトリでホストしているものから抜き出し
-wget https://github.com/nv-h/Utatane/releases/download/Utatane_v1.0.8/Utatane_v1.0.8.7z
-unar Utatane_v1.0.8.7z
-# このttfファイルは、付属のotf2ttf.peスクリプトで元のotfファイルを変換したもの
-cp Utatane_v1.0.8/YasashisaGothicBold-V2/YasashisaGothicBold-V2.ttf Utatane/sourceFonts/
 ```
 
 ビルドは以下のコマンドで行います。
