@@ -42,22 +42,10 @@ ninja
 cd ../../
 ```
 
-環境準備は適当な場所で以下を実行すると完了します。
-
-```sh
-# このリポジトリをクローン
-git clone git@github.com:nv-h/Utatane.git
-
-# Ubuntu fontをダウンロードして配置
-wget https://assets.ubuntu.com/v1/fad7939b-ubuntu-font-family-0.83.zip
-unar fad7939b-ubuntu-font-family-0.83.zip
-cp ubuntu-font-family-0.83/UbuntuMono-R.ttf Utatane/sourceFonts/
-cp ubuntu-font-family-0.83/UbuntuMono-B.ttf Utatane/sourceFonts/
-```
-
 ビルドは以下のコマンドで行います。
 
 ```sh
+git clone git@github.com:nv-h/Utatane.git
 cd Utatane
 # さっきビルドしたfontforge
 ../fontforge/build/bin/fontforge -lang=py -script utatane.py
