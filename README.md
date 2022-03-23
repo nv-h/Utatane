@@ -26,31 +26,16 @@ o Utatane
 
 ## ビルド
 
-Ubuntu 20.04で動作確認しています。
-
-fontforgeとfonttoolsが必要です。fontforgeは現時点での最新版(20201107)を使用しています。
-このfontforgeは以下の手順でビルドする必要があります。
-
-```sh
-sudo apt-get install libjpeg-dev libtiff5-dev libpng-dev libfreetype6-dev libgif-dev libgtk-3-dev libxml2-dev libpango1.0-dev libcairo2-dev libspiro-dev libuninameslist-dev python3-dev ninja-build cmake build-essential gettext unar fonttools
-
-git clone https://github.com/fontforge/fontforge
-cd fontforge
-git checkout 20201107
-mkdir build && cd build
-cmake -GNinja ..
-ninja
-
-cd ../../
-```
+Windows 11、fontforge 20220308で動作確認しています。
+fontforgeは、[ここからダウンロード](https://fontforge.org/en-US/downloads/windows-dl/)してインストールします。
 
 ビルドは以下のコマンドで行います。
 
-```sh
+```ps1
 git clone git@github.com:nv-h/Utatane.git
 cd Utatane
-# さっきビルドしたfontforge
-../fontforge/build/bin/fontforge -lang=py -script utatane.py
+# デフォルトのインストール先なので必要に応じて変更
+& 'c:\Program Files (x86)\FontForgeBuilds\bin\fontforge' -lang=py -script .\utatane.py
 ```
 
 ## Rictyからの変更点
