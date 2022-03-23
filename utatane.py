@@ -11,7 +11,7 @@ import os
 import sys
 import math
 
-VERSION = '1.0.9'
+VERSION = '1.1.0'
 FONTNAME = 'Utatane'
 
 # Ubuntu Mono (罫線などを削除してあるものを使う)
@@ -26,6 +26,8 @@ LATIN_BOLD_FONT = 'UbuntuMono-Bold_modify.ttf'
 # 880 x 120 = 1000(Em)
 JAPANESE_REGULAR_FONT = 'YasashisaGothicBold-V2_-30.ttf'
 JAPANESE_BOLD_FONT = 'YasashisaGothicBold-V2.ttf'
+MPLUS_REGULAR_FONT = 'mplus-1m-regular.ttf'
+MPLUS_BOLD_FONT = 'mplus-1m-bold.ttf'
 
 # 幅は日本語に合わせる(縮小より拡大のほうがきれいになりそうなので)
 LATIN_WIDTH = 1000 # 未使用
@@ -79,8 +81,8 @@ SOURCE = './sourceFonts'
 DIST = './dist'
 JP_TEMP = './tmp/jp_font.sfd'
 EN_TEMP = './tmp/en_font.sfd'
-LICENSE = open('./LICENSE.txt').read()
-COPYRIGHT = open('./COPYRIGHT.txt').read()
+LICENSE = open('./LICENSE.txt', encoding='utf-8').read()
+COPYRIGHT = open('./COPYRIGHT.txt', encoding='utf-8').read()
 
 # 出力をデコるときに使う文字
 DECO_CHAR = '-'
@@ -89,17 +91,18 @@ DEBUG = False
 
 fonts = [
     {
-         'family': FONTNAME,
-         'name': FONTNAME + '-Regular',
-         'filename': FONTNAME + '-Regular.ttf',
-         'weight': 400, # レギュラー体の標準値らしい
-         'weight_name': 'Regular',
-         'style_name': 'Regular',
-         'latin': LATIN_REGULAR_FONT,
-         'japanese': JAPANESE_REGULAR_FONT,
-         'latin_weight_reduce': 0, # 0以外ではテストしていない
-         'japanese_weight_add': 0, # 0以外の場合、めちゃくちゃ時間かかる
-         'italic': False, # trueは変になる
+        'family': FONTNAME,
+        'name': FONTNAME + '-Regular',
+        'filename': FONTNAME + '-Regular.ttf',
+        'weight': 400, # レギュラー体の標準値らしい
+        'weight_name': 'Regular',
+        'style_name': 'Regular',
+        'latin': LATIN_REGULAR_FONT,
+        'japanese': JAPANESE_REGULAR_FONT,
+        'mplus': MPLUS_REGULAR_FONT,
+        'latin_weight_reduce': 0, # 0以外ではテストしていない
+        'japanese_weight_add': 0, # 0以外の場合、めちゃくちゃ時間かかる
+        'italic': False, # trueは変になる
     },
     {
         'family': FONTNAME,
@@ -110,6 +113,7 @@ fonts = [
         'style_name': 'Bold',
         'latin': LATIN_BOLD_FONT,
         'japanese': JAPANESE_BOLD_FONT,
+        'mplus': MPLUS_BOLD_FONT,
         'latin_weight_reduce': 0, # 0以外ではテストしていない
         'japanese_weight_add': 0, # 0以外の場合、めちゃくちゃ時間かかる
         'italic': False, # trueは変になる
@@ -141,6 +145,10 @@ def check_files():
             err = 1
 
         if not os.path.isfile(SOURCE + '/{}'.format(f.get('japanese'))):
+            print('{} not exists.'.format(f))
+            err = 1
+
+        if not os.path.isfile(SOURCE + '/{}'.format(f.get('mplus'))):
             print('{} not exists.'.format(f))
             err = 1
 
@@ -268,7 +276,6 @@ def post_process(_font):
     indent_print('post processing ... (This may take a few minutes.)')
 
     _font.selection.all()
-    _font.round()
     _font.removeOverlap()
     _font.round()
     _font.autoHint()
@@ -309,6 +316,7 @@ def modify_and_save_jp(_f, _savepath):
     deco_print('modify jp : {}'.format(_f.get('japanese')))
 
     jp_font = fontforge.open(SOURCE + '/{}'.format(_f.get('japanese')))
+    mplus_font = fontforge.open(SOURCE + '/{}'.format(_f.get('mplus')))
 
     # 日本語フォントをいじる処理は、マージ後に行うと機能しない
     # 設定が足りていないかもしれないが詳細不明。
@@ -341,8 +349,11 @@ def modify_and_save_jp(_f, _savepath):
             # 全角文字は全角へ
             g.width = WIDTH
         elif g.encoding in RULED_LINES:
-            # 罫線などは全角へ
-            g.width = WIDTH
+            # 罫線などはM+へ置き換える
+            mplus_font.selection.select(g.encoding)
+            mplus_font.copy()
+            jp_font.selection.select(g.encoding)
+            jp_font.paste()
         else:
             # その他は何もしない
             pass
