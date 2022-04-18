@@ -394,7 +394,7 @@ def set_gasp_table(_font):
 
 def fix_xAvgCharWidth(_src_ttf, _dst_ttf):
     '''AvgCharWidthがおかしくなるので、元のフォントの値に書き換える
-    require: `sudo apt install fonttools`
+    require: `sudo apt install fonttools` or `sudo pip install fonttools`
 
     refer: https://ja.osdn.net/projects/mplus-fonts/lists/archive/dev/2011-July/000619.html
     '''
