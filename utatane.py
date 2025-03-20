@@ -161,20 +161,20 @@ def set_os2_values(_font, _info):
     _font.os2_fstype = 0
     _font.os2_vendor = 'nv-h' # 好きな4文字
     _font.os2_version = 4
-    _font.os2_winascent = ASCENT
+    _font.os2_winascent = JP_ASCENT
     _font.os2_winascent_add = False
-    _font.os2_windescent = DESCENT
+    _font.os2_windescent = JP_DESCENT
     _font.os2_windescent_add = False
 
-    _font.os2_typoascent = ASCENT
+    _font.os2_typoascent = JP_ASCENT
     _font.os2_typoascent_add = False
-    _font.os2_typodescent = -DESCENT
+    _font.os2_typodescent = -JP_DESCENT
     _font.os2_typodescent_add = False
     _font.os2_typolinegap = 0
 
-    _font.hhea_ascent = ASCENT
+    _font.hhea_ascent = JP_ASCENT
     _font.hhea_ascent_add = False
-    _font.hhea_descent = -DESCENT
+    _font.hhea_descent = -JP_DESCENT
     _font.hhea_descent_add = False
     _font.hhea_linegap = 0
 
@@ -263,8 +263,8 @@ def add_smalltriangle(_font):
 
 def set_height(_font):
     _font.em = HEIGHT
-    _font.ascent = ASCENT
-    _font.descent = DESCENT
+    _font.ascent = JP_ASCENT
+    _font.descent = JP_DESCENT
     return _font
 
 
