@@ -26,9 +26,9 @@ o Utatane
 
 ## ビルド
 
-Windows 11、fontforge 20220308で動作確認しています。
+Windows 11、fontforge 20230101で動作確認しています。
 fontforgeは、[ここからダウンロード](https://fontforge.org/en-US/downloads/windows-dl/)してインストールします。
-それから、fontToolsにも依存しているので`pip install fonttooles`にてインストールが必要です。
+それから、fontToolsにも依存しているので`pip install fonttools`などでインストールが必要です。
 
 ビルドは以下のコマンドで行います。
 

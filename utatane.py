@@ -11,7 +11,7 @@ import os
 import sys
 import math
 
-VERSION = '1.1.0'
+VERSION = '1.2.0'
 FONTNAME = 'Utatane'
 
 # Ubuntu Mono (罫線などを削除してあるものを使う)
@@ -439,7 +439,7 @@ def set_gasp_table(_font):
 
 def fix_xAvgCharWidth(_src_ttf, _dst_ttf):
     '''AvgCharWidthがおかしくなるので、元のフォントの値に書き換える
-    require: `sudo apt install fonttools` or `sudo pip install fonttools`
+    require: `sudo pip install fonttools` or `uv tool install fonttools`
 
     refer: https://ja.osdn.net/projects/mplus-fonts/lists/archive/dev/2011-July/000619.html
     '''
