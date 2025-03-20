@@ -26,6 +26,8 @@ LATIN_BOLD_FONT = 'UbuntuMono-Bold_modify.ttf'
 # 880 x 120 = 1000(Em)
 JAPANESE_REGULAR_FONT = 'YasashisaGothicBold-V2_-30.ttf'
 JAPANESE_BOLD_FONT = 'YasashisaGothicBold-V2.ttf'
+# M+ 1m 1.063a
+# 860 x 140 = 1000(Em)
 MPLUS_REGULAR_FONT = 'mplus-1m-regular.ttf'
 MPLUS_BOLD_FONT = 'mplus-1m-bold.ttf'
 
@@ -46,8 +48,11 @@ JP_DESCENT = 120
 
 # Italic時の傾き
 SKEW_MAT = psMat.skew(0.25)
-# 罫線素片、ブロック要素
+# 罫線素片
 RULED_LINES = list(range(0x2500, 0x257F+1))
+# ブロック要素 ▀▁▂▃▄▅▆▇█▉▊▋▌▍▎▏▐░▒▓▔▕▖▗▘▙▚▛▜▝▞▟
+BLOCK_ELEMENTS = list(range(0x2580, 0x259F+1))
+FULL_BLOCK_CODE = 0x2588
 # 半角カナとかの半角幅のやつ
 HALFWIDTH_CJK_KANA = list(range(0xFF61, 0xFF9F+1))
 # 全角文字
@@ -254,9 +259,9 @@ def add_smalltriangle(_font):
 
     for g in _font.glyphs():
         if g.encoding == 0x25be or g.encoding == 0x25b8:
-            g.width = WIDTH//2
+            g.width = int(WIDTH//2)
             g.left_side_bearing = g.right_side_bearing = int((g.left_side_bearing + g.right_side_bearing)/2)
-            g.width = WIDTH//2
+            g.width = int(WIDTH//2)
 
     return _font
 
@@ -292,8 +297,8 @@ def modify_and_save_latin(_f, _savepath):
     latin_font = set_height(latin_font)
 
     for g in latin_font.glyphs():
-        if (not g.isWorthOutputting) or (g.encoding == 0x2026):
-            # 不要っぽいやつ、… HORIZONTAL ELLIPSIS
+        if (not g.isWorthOutputting):
+            # 不要っぽいやつを削除
             latin_font.selection.select(g)
             latin_font.clear()
             break
@@ -316,14 +321,42 @@ def modify_and_save_jp(_f, _savepath):
     deco_print('modify jp : {}'.format(_f.get('japanese')))
 
     jp_font = fontforge.open(SOURCE + '/{}'.format(_f.get('japanese')))
-    mplus_font = fontforge.open(SOURCE + '/{}'.format(_f.get('mplus')))
 
     # 日本語フォントをいじる処理は、マージ後に行うと機能しない
     # 設定が足りていないかもしれないが詳細不明。
     jp_font = zenkaku_space(jp_font)
     jp_font = add_smalltriangle(jp_font)
-
     jp_font = set_height(jp_font)
+
+
+    mplus_font = fontforge.open(SOURCE + '/{}'.format(_f.get('mplus')))
+
+    for g in mplus_font.glyphs():
+        # 罫線はM+へ置き換えて半角にする(コンソール表示などで半角を期待されることが多かった)
+        if g.encoding in RULED_LINES:
+            # いったん半角幅中央が中心になるよう平行移動(左に250移動)
+            g.transform(psMat.translate(-WIDTH//4, 0))
+            # `█` FULL BLOCK との積にすることで半角化
+            mplus_font.selection.select(FULL_BLOCK_CODE)
+            mplus_font.copy()
+            jp_font.selection.select(g.encoding)
+            jp_font.paste()
+            mplus_font.selection.select(g.encoding)
+            mplus_font.copy()
+            jp_font.selection.select(g.encoding)
+            jp_font.pasteInto()
+            jp_font.intersect()
+
+
+        elif g.encoding in BLOCK_ELEMENTS:
+            # ブロック要素などはM+へ置き換えて幅もそのまま
+            mplus_font.selection.select(g.encoding)
+            mplus_font.copy()
+            jp_font.selection.select(g.encoding)
+            jp_font.paste()
+
+    mplus_font.close()
+
 
     for g in jp_font.glyphs():
         if not g.isWorthOutputting:
@@ -332,31 +365,43 @@ def modify_and_save_jp(_f, _savepath):
             jp_font.clear()
             break
 
+        # 太さ調整
         if _f.get('japanese_weight_add') != 0:
             g.changeWeight(_f.get('japanese_weight_add'), 'auto', 0, 0, 'auto')
             # g.stroke("caligraphic", _f.get('japanese_weight_add'), _f.get('japanese_weight_add'), 45, 'removeinternal')
             # g.stroke("circular", _f.get('japanese_weight_add'), 'butt', 'round', 'removeinternal')
 
-        # いい塩梅で縮小
-        g.transform(JP_REDUCTION_MAT)
-        # 縮小して左に寄った分と上に寄った分を復帰
-        g.transform(JP_REDUCTION_FIX_MAT_NOHEIGHT)
-
+        # 個別の拡大縮小処理
+        width = None
         if g.encoding in HALFWIDTH_CJK_KANA:
             # 半角カナは半角へ
-            g.width = WIDTH//2
+            g.transform(JP_REDUCTION_MAT)  # いい塩梅で縮小
+            g.transform(JP_REDUCTION_FIX_MAT_NOHEIGHT)  # 縮小して左に寄った分と上に寄った分を復帰
+            width = int(WIDTH//2)
         elif g.encoding in FULLWIDTH_CODES:
             # 全角文字は全角へ
-            g.width = WIDTH
+            g.transform(JP_REDUCTION_MAT)  # いい塩梅で縮小
+            g.transform(JP_REDUCTION_FIX_MAT_NOHEIGHT)  # 縮小して左に寄った分と上に寄った分を復帰
+            width = WIDTH
         elif g.encoding in RULED_LINES:
-            # 罫線などはM+へ置き換える
-            mplus_font.selection.select(g.encoding)
-            mplus_font.copy()
-            jp_font.selection.select(g.encoding)
-            jp_font.paste()
+            width = int(WIDTH//2)
+        elif g.encoding in BLOCK_ELEMENTS:
+            if g.encoding in [0x2591, 0x2592, 0x2593]:
+                width = int(WIDTH)  # M+で全角幅だったやつ
+            else:
+                width = int(WIDTH//2)
         else:
-            # その他は何もしない
-            pass
+            g.transform(JP_REDUCTION_MAT)  # いい塩梅で縮小
+            g.transform(JP_REDUCTION_FIX_MAT_NOHEIGHT)  # 縮小して左に寄った分と上に寄った分を復帰
+            if g.width > WIDTH * 0.7:
+                width = WIDTH
+            else:
+                width = int(WIDTH//2)
+
+        # 幅の微調整(微妙に幅が違うやつがいるので)
+        if g.width != width:
+            g.transform(psMat.translate((width - g.width)/2, 0))
+            g.width = width
 
         if _f.get('italic'):
             # FIXME: 動作確認未
