@@ -55,6 +55,37 @@ cd Utatane
 
 斜体はおかしくなるので未対応。
 
+## ディレクトリ構成
+
+```
+Utatane/
+├── utatane.py              # メインのフォント生成スクリプト
+├── sourceFonts/            # ソースフォントファイル
+├── dist/                   # 生成されたフォントの出力先
+├── tmp/                    # 一時ファイル保存先
+├── test/                   # テスト関連ファイル
+├── analysis/               # 文字幅分析スクリプト
+│   ├── README.md
+│   ├── analyze_mplus_widths.py
+│   ├── comprehensive_width_check.py
+│   └── ... (その他の分析スクリプト)
+├── docs/                   # 開発ドキュメント
+│   ├── README.md
+│   ├── width_improvements.md    # 文字幅改善提案
+│   ├── comprehensive_fix_proposal.md
+│   └── ... (その他のドキュメント)
+├── CLAUDE.md               # Claude Code向け開発ガイダンス
+└── README.md               # このファイル
+```
+
+## 開発者向け情報
+
+### 文字幅問題について
+M+ 1mフォントとの文字幅互換性に関する詳細な調査と改善提案は `docs/width_improvements.md` を参照してください。
+
+### 分析ツール
+文字幅の詳細分析を行うスクリプトは `analysis/` ディレクトリに格納されています。使用方法は `analysis/README.md` を参照してください。
+
 ## ライセンス
 
 フォント本体は、[Ubuntu Font License](https://ubuntu.com/legal/font-licence)で、生成スクリプトなどはMITライセンスとしています。
