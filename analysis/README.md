@@ -26,7 +26,7 @@
 全てのスクリプトは FontForge の Python 環境で実行する必要があります：
 
 ```bash
-~/work/fontforge/build/bin/fontforge -lang=py -script <script_name>.py
+../fontforge/build/bin/fontforge -lang=py -script <script_name>.py
 ```
 
 ## 依存関係

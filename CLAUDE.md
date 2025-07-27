@@ -34,7 +34,7 @@ Utataneは、Ubuntu MonoとやさしさゴシックボールドV2を合成した
 & 'c:\Program Files (x86)\FontForgeBuilds\bin\fontforge' -lang=py -script .\utatane.py
 
 # FontForge でフォント生成（Unix系、カスタムビルド版）
-~/work/fontforge/build/bin/fontforge -lang=py -script ./utatane.py
+../fontforge/build/bin/fontforge -lang=py -script ./utatane.py
 
 # FontForge でフォント生成（Unix系、標準版）
 fontforge -lang=py -script ./utatane.py
@@ -42,7 +42,7 @@ fontforge -lang=py -script ./utatane.py
 
 ### 重要な実行時の注意
 - `import fontforge`を含むPythonスクリプトは、必ず`fontforge -lang=py -script`で実行してください
-- 現在は`~/work/fontforge/build/bin/fontforge`に最新ソースコードでビルドした実行ファイルを使用
+- 現在は`../work/fontforge/build/bin/fontforge`に最新ソースコードでビルドした実行ファイルを使用
 
 ### 依存関係
 - FontForge がインストールされている必要があります
