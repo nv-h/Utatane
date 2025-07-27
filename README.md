@@ -71,8 +71,8 @@ Utatane/
 │   └── ... (その他の分析スクリプト)
 ├── docs/                   # 開発ドキュメント
 │   ├── README.md
-│   ├── width_improvements.md    # 文字幅改善提案
-│   ├── comprehensive_fix_proposal.md
+│   ├── character_width_comprehensive_analysis.md    # 文字幅問題包括的分析
+│   ├── font_processing_investigation_report.md     # フォント処理ライブラリ調査
 │   └── ... (その他のドキュメント)
 ├── CLAUDE.md               # Claude Code向け開発ガイダンス
 └── README.md               # このファイル
@@ -81,7 +81,7 @@ Utatane/
 ## 開発者向け情報
 
 ### 文字幅問題について
-M+ 1mフォントとの文字幅互換性に関する詳細な調査と改善提案は `docs/width_improvements.md` を参照してください。
+M+ 1mフォントとの文字幅互換性に関する詳細な調査と改善提案は `docs/character_width_comprehensive_analysis.md` を参照してください。
 
 ### 分析ツール
 文字幅の詳細分析を行うスクリプトは `analysis/` ディレクトリに格納されています。使用方法は `analysis/README.md` を参照してください。
