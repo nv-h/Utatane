@@ -10,8 +10,9 @@ import psMat
 import os
 import sys
 import math
+import datetime
 
-VERSION = '1.2.1'
+VERSION = '1.3.0'
 FONTNAME = 'Utatane'
 
 # Ubuntu Mono (罫線などを削除してあるものを使う)
@@ -52,6 +53,10 @@ SKEW_MAT = psMat.skew(0.25)
 RULED_LINES = list(range(0x2500, 0x257F+1))
 # ブロック要素 ▀▁▂▃▄▅▆▇█▉▊▋▌▍▎▏▐░▒▓▔▕▖▗▘▙▚▛▜▝▞▟
 BLOCK_ELEMENTS = list(range(0x2580, 0x259F+1))
+
+ROMAN_NUMERALS = list(range(0x2160, 0x217F+1))  # ローマ数字
+SPECIAL_PUNCTUATION = [0x2010, 0x2015]  # ‐ ― FIXME: これらは試験的に導入中
+
 FULL_BLOCK_CODE = 0x2588
 # 半角カナとかの半角幅のやつ
 HALFWIDTH_CJK_KANA = list(range(0xFF61, 0xFF9F+1))
@@ -94,6 +99,11 @@ DECO_CHAR = '-'
 
 DEBUG = False
 
+# 設定可能な罫線描画モードを実装予定
+BOX_DRAWING_MODE = "console_optimized"  # default (現在仕様)
+# BOX_DRAWING_MODE = "mplus_compatible"  # M+完全準拠
+# BOX_DRAWING_MODE = "user_defined"      # カスタム設定
+
 fonts = [
     {
         'family': FONTNAME,
@@ -131,6 +141,20 @@ def deco_print(_str):
     print(_str)
     print(DECO_CHAR*len(_str))
 
+def timestamped_log(message):
+    """タイムスタンプ付きログ"""
+    now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    print(f"{now} {message}")
+
+def precise_width_adjustment(glyph, target_width):
+    """より精密な文字幅調整"""
+    if glyph.width != target_width:
+        # Cicaスタイルの調整
+        glyph.width = target_width
+        bearing_avg = int((glyph.left_side_bearing + glyph.right_side_bearing) / 2)
+        glyph.left_side_bearing = glyph.right_side_bearing = bearing_avg
+    return glyph
+
 
 def indent_print(_str):
     print('')
@@ -166,6 +190,17 @@ def set_os2_values(_font, _info):
     _font.os2_fstype = 0
     _font.os2_vendor = 'nv-h' # 好きな4文字
     _font.os2_version = 4
+
+    # os2_stylemapの明示的設定
+    style_name = _info.get('style_name')
+    if style_name == 'Regular':
+        _font.os2_stylemap = 64      # Regular
+    elif style_name == 'Bold':
+        _font.os2_stylemap = 32      # Bold
+    elif style_name == 'Italic':
+        _font.os2_stylemap = 1       # Italic
+    elif style_name == 'Bold Italic':
+        _font.os2_stylemap = 33      # Bold + Italic
     _font.os2_winascent = ASCENT
     _font.os2_winascent_add = False
     _font.os2_windescent = DESCENT
@@ -378,6 +413,16 @@ def modify_and_save_jp(_f, _savepath):
             g.transform(JP_REDUCTION_MAT)  # いい塩梅で縮小
             g.transform(JP_REDUCTION_FIX_MAT_NOHEIGHT)  # 縮小して左に寄った分と上に寄った分を復帰
             width = int(WIDTH//2)
+        elif g.encoding in ROMAN_NUMERALS:
+            # ローマ数字は全角維持
+            g.transform(JP_REDUCTION_MAT)  # いい塩梅で縮小
+            g.transform(JP_REDUCTION_FIX_MAT_NOHEIGHT)  # 縮小して左に寄った分と上に寄った分を復帰
+            width = WIDTH
+        elif g.encoding in SPECIAL_PUNCTUATION:
+            # 特定句読点は全角維持
+            g.transform(JP_REDUCTION_MAT)  # いい塩梅で縮小
+            g.transform(JP_REDUCTION_FIX_MAT_NOHEIGHT)  # 縮小して左に寄った分と上に寄った分を復帰
+            width = WIDTH
         elif g.encoding in FULLWIDTH_CODES:
             # 全角文字は全角へ
             g.transform(JP_REDUCTION_MAT)  # いい塩梅で縮小
@@ -399,9 +444,8 @@ def modify_and_save_jp(_f, _savepath):
                 width = int(WIDTH//2)
 
         # 幅の微調整(微妙に幅が違うやつがいるので)
-        if g.width != width:
-            g.transform(psMat.translate((width - g.width)/2, 0))
-            g.width = width
+        if width is not None:
+            g = precise_width_adjustment(g, width)
 
         if _f.get('italic'):
             # FIXME: 動作確認未
