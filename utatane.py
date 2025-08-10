@@ -12,7 +12,7 @@ import sys
 import math
 import datetime
 
-VERSION = '1.3.0'
+VERSION = '1.3.1'
 FONTNAME = 'Utatane'
 
 # Ubuntu Mono (罫線などを削除してあるものを使う)
@@ -146,13 +146,30 @@ def timestamped_log(message):
     now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     print(f"{now} {message}")
 
-def precise_width_adjustment(glyph, target_width):
-    """より精密な文字幅調整"""
+def improved_width_adjustment(glyph, target_width):
+    """元の手法を拡張した安全な幅調整（ベアリング比率保持）"""
     if glyph.width != target_width:
-        # Cicaスタイルの調整
+        # 現在のベアリング比率を保持
+        total_bearing = glyph.left_side_bearing + glyph.right_side_bearing
+        if total_bearing > 0:
+            left_ratio = glyph.left_side_bearing / total_bearing
+        else:
+            # ベアリングがゼロまたは負の場合は均等分散
+            left_ratio = 0.5
+            
+        # 幅差分をベアリングに配分
+        width_diff = target_width - glyph.width
+        new_total_bearing = total_bearing + width_diff
+        
+        # 新しいベアリング値を計算（整数丸め）
+        new_left_bearing = int(new_total_bearing * left_ratio)
+        new_right_bearing = int(new_total_bearing * (1 - left_ratio))
+        
+        # メトリクスを直接設定（transformは使用しない）
+        glyph.left_side_bearing = new_left_bearing
+        glyph.right_side_bearing = new_right_bearing
         glyph.width = target_width
-        bearing_avg = int((glyph.left_side_bearing + glyph.right_side_bearing) / 2)
-        glyph.left_side_bearing = glyph.right_side_bearing = bearing_avg
+    
     return glyph
 
 
@@ -445,7 +462,7 @@ def modify_and_save_jp(_f, _savepath):
 
         # 幅の微調整(微妙に幅が違うやつがいるので)
         if width is not None:
-            g = precise_width_adjustment(g, width)
+            g = improved_width_adjustment(g, width)
 
         if _f.get('italic'):
             # FIXME: 動作確認未
@@ -508,8 +525,10 @@ def fix_xAvgCharWidth(_src_ttf, _dst_ttf):
     os.system('ttx -f -m ' + _dst_ttf + ' ' + dst_root + '.ttx')
 
     # 後片付け
-    if not DEBUG: os.remove(src_root + '.ttx')
-    if not DEBUG: os.remove(dst_root + '.ttx')
+    if not DEBUG:
+        os.remove(src_root + '.ttx')
+    if not DEBUG:
+        os.remove(dst_root + '.ttx')
 
 
 def build_font(_f):
@@ -533,9 +552,11 @@ def build_font(_f):
     target_font = set_gasp_table(target_font)
 
     target_font.mergeFonts(EN_TEMP)
-    if not DEBUG: os.remove(EN_TEMP)
+    if not DEBUG:
+        os.remove(EN_TEMP)
     target_font.mergeFonts(JP_TEMP)
-    if not DEBUG: os.remove(JP_TEMP)
+    if not DEBUG:
+        os.remove(JP_TEMP)
 
     target_font = vertical_line_to_broken_bar(target_font)
     # target_font = emdash_to_broken_dash(target_font) # あまり必要性を感じないので削除
@@ -544,7 +565,8 @@ def build_font(_f):
     target_font = post_process(target_font)
 
     fontpath = DIST + '/{}'.format(_f.get('filename'))
-    if DEBUG: print_pdf(target_font, fontpath + '.pdf')
+    if DEBUG:
+        print_pdf(target_font, fontpath + '.pdf')
 
     target_font.generate(fontpath)
     target_font.close()
