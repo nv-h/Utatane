@@ -69,6 +69,29 @@ ls -la bin/fontforge
 fontforge -lang=py -script ./utatane.py
 ```
 
+### グリフ形状比較ツール
+M+、やさしさゴシック、Utataneの3フォントでグリフ形状を詳細比較できます：
+
+```bash
+# 基本的な使い方（高影響グリフ32件）
+./glyph-compare.sh
+
+# カテゴリ指定
+./glyph-compare.sh --category control --category currency
+
+# 判定ロジック副作用の全184件
+./glyph-compare.sh --priority all
+
+# 特定グリフの詳細比較
+./glyph-compare.sh --unicode U+2400 --unicode U+20A9
+
+# テストファイルから選択
+./glyph-compare.sh --from-testfile --section "日本語文字（ひらがな・カタカナ・漢字）"
+
+# カテゴリ一覧
+./glyph-compare.sh --list-categories
+```
+
 ### 重要な実行時の注意
 - `import fontforge`を含むPythonスクリプトは、必ず`fontforge -lang=py -script`で実行してください
 - 現在は`./fontforge/build/bin/fontforge`にサブモジュールの最新ソースコードでビルドした実行ファイルを使用
@@ -76,6 +99,7 @@ fontforge -lang=py -script ./utatane.py
 ### 依存関係
 - FontForge がサブモジュールとして含まれています（ビルドが必要）
 - `fonttools`パッケージ: `pip install fonttools`
+- `matplotlib`パッケージ: グリフ形状比較用（`uv add matplotlib`で自動インストール）
 - 生成されたフォントは`dist/`ディレクトリに保存されます
 
 ### テスト
@@ -113,7 +137,10 @@ FontForgeで生成されたフォントのxAvgCharWidthが不正になる問題�
   - `font_disp.txt`: フォント表示テスト用の文字セット（欧文、日本語、罫線、ブロック要素等）
   - `font_compare.py`: 統一フォント比較ツール（FontForge/matplotlib両対応）
   - `compare_fonts_fontforge.py`: FontForgeベースの詳細比較ツール（文字幅・配置可視化）
+  - `glyph_data_extractor.py`: グリフデータ抽出スクリプト（FontForge用）
+  - `glyph_visualizer.py`: グリフ可視化スクリプト（matplotlib用）
   - `test_glyphs.py`: フォント表示テストスクリプト
+- `glyph-compare.sh`: グリフ形状比較統合ツール（3フォント対応、PDF出力）
 
 ## 生成されるフォント
 - `Utatane-Regular.ttf`: レギュラー体（Weight: 400）
