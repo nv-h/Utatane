@@ -28,13 +28,42 @@ Utataneは、Ubuntu MonoとやさしさゴシックボールドV2を合成した
 
 ## ビルドコマンド
 
+### FontForge のセットアップ
+このプロジェクトでは、FontForgeをサブモジュールとして含んでいます。初回セットアップ時は以下を実行：
+
+```bash
+# サブモジュールの初期化・取得
+git submodule update --init --recursive
+
+# FontForge のビルド
+cd fontforge
+
+# ビルド依存関係の確認（Ubuntu/Debian系）
+# 以下パッケージがインストールされていることを確認：
+# libjpeg-dev libtiff5-dev libpng-dev libfreetype-dev libgif-dev 
+# libgtk-3-dev libxml2-dev libpango1.0-dev libcairo2-dev 
+# libspiro-dev libwoff-dev python3-dev ninja-build cmake build-essential gettext
+
+# ビルドディレクトリ作成・設定
+mkdir -p build
+cd build
+cmake -GNinja ..
+
+# ビルド実行（約5-10分）
+ninja
+
+# ビルド完了後、実行可能ファイルの確認
+ls -la bin/fontforge
+./bin/fontforge --version
+```
+
 ### フォント生成
 ```bash
 # FontForge でフォント生成（Windows）
 & 'c:\Program Files (x86)\FontForgeBuilds\bin\fontforge' -lang=py -script .\utatane.py
 
-# FontForge でフォント生成（Unix系、カスタムビルド版）
-../fontforge/build/bin/fontforge -lang=py -script ./utatane.py
+# FontForge でフォント生成（Unix系、サブモジュール版）
+./fontforge/build/bin/fontforge -lang=py -script ./utatane.py
 
 # FontForge でフォント生成（Unix系、標準版）
 fontforge -lang=py -script ./utatane.py
@@ -42,10 +71,10 @@ fontforge -lang=py -script ./utatane.py
 
 ### 重要な実行時の注意
 - `import fontforge`を含むPythonスクリプトは、必ず`fontforge -lang=py -script`で実行してください
-- 現在は`../work/fontforge/build/bin/fontforge`に最新ソースコードでビルドした実行ファイルを使用
+- 現在は`./fontforge/build/bin/fontforge`にサブモジュールの最新ソースコードでビルドした実行ファイルを使用
 
 ### 依存関係
-- FontForge がインストールされている必要があります
+- FontForge がサブモジュールとして含まれています（ビルドが必要）
 - `fonttools`パッケージ: `pip install fonttools`
 - 生成されたフォントは`dist/`ディレクトリに保存されます
 
@@ -79,6 +108,7 @@ FontForgeで生成されたフォントのxAvgCharWidthが不正になる問題�
 - `sourceFonts/`: ソースフォントファイル
 - `dist/`: 生成されたフォントの出力先
 - `tmp/`: 一時ファイル保存先
+- `fontforge/`: FontForgeのサブモジュール（最新版のソースコード）
 - `test/`: テスト関連ファイル
   - `font_disp.txt`: フォント表示テスト用の文字セット（欧文、日本語、罫線、ブロック要素等）
   - `font_compare.py`: 統一フォント比較ツール（FontForge/matplotlib両対応）
