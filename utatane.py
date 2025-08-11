@@ -31,6 +31,7 @@ JAPANESE_BOLD_FONT = 'YasashisaGothicBold-V2.ttf'
 # 860 x 140 = 1000(Em)
 MPLUS_REGULAR_FONT = 'mplus-1m-regular.ttf'
 MPLUS_BOLD_FONT = 'mplus-1m-bold.ttf'
+MPLUS_DESCENT = 140
 
 # 幅は日本語に合わせる
 LATIN_WIDTH = 1000 # 未使用
@@ -402,7 +403,7 @@ def modify_and_save_jp(_f, _savepath):
             jp_font.pasteInto()
             jp_font.intersect()
             # Utatane座標系に合わせて下移動
-            jp_font[g.encoding].transform(psMat.translate(0, -(200-140)))
+            jp_font[g.encoding].transform(psMat.translate(0, -(DESCENT-MPLUS_DESCENT)))
 
         elif (
             g.encoding in BLOCK_ELEMENTS or
@@ -416,7 +417,7 @@ def modify_and_save_jp(_f, _savepath):
             jp_font.selection.select(g.encoding)
             jp_font.paste()
             # Utatane座標系に合わせて下移動
-            jp_font[g.encoding].transform(psMat.translate(0, -(200-140)))
+            jp_font[g.encoding].transform(psMat.translate(0, -(DESCENT-MPLUS_DESCENT)))
 
     mplus_font.close()
 
@@ -447,8 +448,10 @@ def modify_and_save_jp(_f, _savepath):
         elif g.encoding in RULED_LINES:
             width = int(WIDTH//2)
         elif g.encoding in BLOCK_ELEMENTS:
+            # NOTE: M+で全角幅だったやつをいったん全角にしている
+            #       ░ LIGHT SHADE, ▒ MEDIUM SHADE, ▓ DARK SHADE
             if g.encoding in [0x2591, 0x2592, 0x2593]:
-                width = int(WIDTH)  # M+で全角幅だったやつ
+                width = int(WIDTH)
             else:
                 width = int(WIDTH//2)
         elif (
