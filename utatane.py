@@ -12,7 +12,7 @@ import sys
 import math
 import datetime
 
-VERSION = '1.3.1'
+VERSION = '1.3.2'
 FONTNAME = 'Utatane'
 
 # Ubuntu Mono (罫線などを削除してあるものを使う)
@@ -54,7 +54,8 @@ RULED_LINES = list(range(0x2500, 0x257F+1))
 # ブロック要素 ▀▁▂▃▄▅▆▇█▉▊▋▌▍▎▏▐░▒▓▔▕▖▗▘▙▚▛▜▝▞▟
 BLOCK_ELEMENTS = list(range(0x2580, 0x259F+1))
 
-ROMAN_NUMERALS = list(range(0x2160, 0x217F+1))  # ローマ数字
+ROMAN_NUMERALS = list(range(0x2160, 0x2188+1))  # ローマ数字
+ARROWS = list(range(0x2190, 0x21FF+1))  # 矢印
 SPECIAL_PUNCTUATION = [0x2010, 0x2015]  # ‐ ― FIXME: これらは試験的に導入中
 
 FULL_BLOCK_CODE = 0x2588
@@ -82,9 +83,11 @@ FULLWIDTH_CODES = FULLWIDTH_HIRAGANA_KATAKANA + \
 # 日本語フォントの縮小率
 JP_A_RAT = (LATIN_ASCENT/JP_ASCENT) # 高さの比でいいはず
 JP_REDUCTION_MAT = psMat.scale(JP_A_RAT, JP_A_RAT)
+
+# NOTE: JP_REDUCTION_FIX系は未使用にした
 # descent位置がずれてもいいなら下記を使う。
 JP_REDUCTION_FIX_MAT = psMat.translate(WIDTH*(1-JP_A_RAT)/2, -WIDTH*(1-JP_A_RAT)/2)
-# descent位置が合わないと気持ち悪いので下記を使う。
+# descent位置が合わないと気持ち悪い場合は下記を使う。
 JP_REDUCTION_FIX_MAT_NOHEIGHT = psMat.translate(WIDTH*(1-JP_A_RAT)/2, 0.0)
 
 SOURCE = './sourceFonts'
@@ -398,14 +401,22 @@ def modify_and_save_jp(_f, _savepath):
             jp_font.selection.select(g.encoding)
             jp_font.pasteInto()
             jp_font.intersect()
+            # Utatane座標系に合わせて下移動
+            jp_font[g.encoding].transform(psMat.translate(0, -(200-140)))
 
-
-        elif g.encoding in BLOCK_ELEMENTS:
+        elif (
+            g.encoding in BLOCK_ELEMENTS or
+            g.encoding in ROMAN_NUMERALS or
+            g.encoding in ARROWS or
+            g.encoding in SPECIAL_PUNCTUATION
+        ):
             # ブロック要素などはM+へ置き換えて幅もそのまま
             mplus_font.selection.select(g.encoding)
             mplus_font.copy()
             jp_font.selection.select(g.encoding)
             jp_font.paste()
+            # Utatane座標系に合わせて下移動
+            jp_font[g.encoding].transform(psMat.translate(0, -(200-140)))
 
     mplus_font.close()
 
@@ -428,22 +439,10 @@ def modify_and_save_jp(_f, _savepath):
         if g.encoding in HALFWIDTH_CJK_KANA:
             # 半角カナは半角へ
             g.transform(JP_REDUCTION_MAT)  # いい塩梅で縮小
-            g.transform(JP_REDUCTION_FIX_MAT_NOHEIGHT)  # 縮小して左に寄った分と上に寄った分を復帰
             width = int(WIDTH//2)
-        elif g.encoding in ROMAN_NUMERALS:
-            # ローマ数字は全角維持
-            g.transform(JP_REDUCTION_MAT)  # いい塩梅で縮小
-            g.transform(JP_REDUCTION_FIX_MAT_NOHEIGHT)  # 縮小して左に寄った分と上に寄った分を復帰
-            width = WIDTH
-        elif g.encoding in SPECIAL_PUNCTUATION:
-            # 特定句読点は全角維持
-            g.transform(JP_REDUCTION_MAT)  # いい塩梅で縮小
-            g.transform(JP_REDUCTION_FIX_MAT_NOHEIGHT)  # 縮小して左に寄った分と上に寄った分を復帰
-            width = WIDTH
         elif g.encoding in FULLWIDTH_CODES:
             # 全角文字は全角へ
             g.transform(JP_REDUCTION_MAT)  # いい塩梅で縮小
-            g.transform(JP_REDUCTION_FIX_MAT_NOHEIGHT)  # 縮小して左に寄った分と上に寄った分を復帰
             width = WIDTH
         elif g.encoding in RULED_LINES:
             width = int(WIDTH//2)
@@ -452,9 +451,16 @@ def modify_and_save_jp(_f, _savepath):
                 width = int(WIDTH)  # M+で全角幅だったやつ
             else:
                 width = int(WIDTH//2)
+        elif (
+            g.encoding in ROMAN_NUMERALS or
+            g.encoding in ARROWS or
+            g.encoding in SPECIAL_PUNCTUATION
+        ):
+            # ローマ数字は全角維持
+            g.transform(JP_REDUCTION_MAT)  # いい塩梅で縮小
+            width = WIDTH
         else:
             g.transform(JP_REDUCTION_MAT)  # いい塩梅で縮小
-            g.transform(JP_REDUCTION_FIX_MAT_NOHEIGHT)  # 縮小して左に寄った分と上に寄った分を復帰
             if g.width > WIDTH * 0.7:
                 width = WIDTH
             else:

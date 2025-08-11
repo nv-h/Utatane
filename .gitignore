@@ -6,4 +6,6 @@ Cica/*
 dist/*
 ubuntu-font-family-0.83*
 
+/uv.lock
+
 .serena

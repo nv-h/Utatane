@@ -91,16 +91,20 @@ cd ../..
 ```
 Utatane/
 ├── utatane.py              # メインのフォント生成スクリプト
+├── glyph-compare.sh        # グリフ形状比較統合ツール
 ├── sourceFonts/            # ソースフォントファイル
 ├── fontforge/              # FontForgeサブモジュール（最新版ソースコード）
 ├── dist/                   # 生成されたフォントの出力先
-├── tmp/                    # 一時ファイル保存先
+├── tmp/                    # 一時ファイル・PDF出力先
 ├── test/                   # テスト関連ファイル
+│   ├── font_disp.txt       # フォント表示テスト用文字セット
+│   ├── glyph_data_extractor.py   # グリフデータ抽出（FontForge用）
+│   ├── glyph_visualizer.py       # グリフ可視化（matplotlib用）
+│   └── ... (その他のテストスクリプト)
 ├── analysis/               # 文字幅分析スクリプト
 │   ├── README.md
-│   ├── analyze_mplus_widths.py
-│   ├── comprehensive_width_check.py
-│   └── ... (その他の分析スクリプト)
+│   ├── font_analysis.py
+│   └── ... (その他の分析スクリプトなど)
 ├── docs/                   # 開発ドキュメント
 │   ├── README.md
 │   ├── character_width_comprehensive_analysis.md    # 文字幅問題包括的分析
