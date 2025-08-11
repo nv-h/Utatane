@@ -90,13 +90,10 @@
   ```
 
 #### 特化ツール（固定フォント対応）
-- **`compare_with_noto_sans_mono.py`** - Noto Sans Mono CJK JPとの詳細比較分析
 - **`compare_with_noto_sans_mono_vf.py`** - Noto Sans Mono可変フォント版との比較
-- **`compare_cica_implementation.py`** - Cicaフォントとの実装比較
 - **`investigate_polars_usage.py`** - DataFrameでの罫線使用状況調査
 - **`investigate_yasashisa_gothic_influence.py`** - やさしさゴシックの影響調査
 - **`accurate_width_transformation_analysis.py`** - 幅変換の精度分析
-- **`analyze_judgment_logic_side_effects.py`** - 判定ロジックの副作用分析
 - **`detailed_noto_comparison_analysis.py`** - Noto詳細比較分析
 - **`trace_processing_path.py`** - 処理パスの追跡
 
