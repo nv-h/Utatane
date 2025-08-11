@@ -305,6 +305,7 @@ def find_available_fonts() -> Dict[str, str]:
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     patterns = [
         "dist/*.ttf",
+        "dist/*.otf",
         "dist/*/*.ttf", 
         "sourceFonts/*.ttf"
     ]
