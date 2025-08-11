@@ -3,174 +3,153 @@
 
 import fontforge
 
-def analyze_symbol_widths():
-    """記号類（○△②×✕等）の文字幅をM+と比較分析"""
+from typing import List, Optional
+
+def analyze_symbol_widths(font_selection: List[str] = None, categories: List[str] = None, 
+                        show_detailed_output: bool = True):
+    """記号類（○△②×✕等）の文字幅を複数フォント間で比較分析
     
-    mplus_path = './sourceFonts/mplus-1m-regular.ttf'
-    ubuntu_path = './sourceFonts/UbuntuMono-Regular_modify.ttf'
-    yasashisa_path = './sourceFonts/YasashisaGothicBold-V2_-30.ttf'
+    Args:
+        font_selection: 比較するフォント名のリスト。Noneの場合は ['mplus', 'ubuntu', 'yasashisa']
+        categories: 分析する記号カテゴリ。Noneの場合は全カテゴリ
+        show_detailed_output: 詳細な出力を表示するかどうか
+    """
+    from font_analysis_utils import (
+        create_analyzer_with_error_handling, 
+        ReportGenerator, 
+        FontAnalyzer
+    )
     
-    try:
-        mplus_font = fontforge.open(mplus_path)
-        ubuntu_font = fontforge.open(ubuntu_path)
-        yasashisa_font = fontforge.open(yasashisa_path)
-    except Exception as e:
-        print(f"フォントを開けませんでした: {e}")
+    if font_selection is None:
+        font_selection = ['mplus', 'ubuntu', 'yasashisa']
+    
+    # FontAnalyzer を初期化
+    analyzer = create_analyzer_with_error_handling(font_selection)
+    if not analyzer:
         return
     
-    print("記号類の文字幅分析（描画ずれ調査）")
-    print("=" * 70)
-    
-    # 問題となりやすい記号類を定義
-    symbol_categories = {
-        "幾何図形": [
-            0x25CB,  # ○ WHITE CIRCLE
-            0x25CF,  # ● BLACK CIRCLE
-            0x25B3,  # △ WHITE UP-POINTING TRIANGLE
-            0x25B2,  # ▲ BLACK UP-POINTING TRIANGLE
-            0x25A1,  # □ WHITE SQUARE
-            0x25A0,  # ■ BLACK SQUARE
-            0x25C7,  # ◇ WHITE DIAMOND
-            0x25C6,  # ◆ BLACK DIAMOND
-        ],
-        "囲み数字": [
-            0x2460,  # ① CIRCLED DIGIT ONE
-            0x2461,  # ② CIRCLED DIGIT TWO
-            0x2462,  # ③ CIRCLED DIGIT THREE
-            0x2463,  # ④ CIRCLED DIGIT FOUR
-            0x2464,  # ⑤ CIRCLED DIGIT FIVE
-            0x2468,  # ⑨ CIRCLED DIGIT NINE
-            0x2469,  # ⑩ CIRCLED DIGIT TEN
-        ],
-        "演算記号・×類": [
-            0x00D7,  # × MULTIPLICATION SIGN
-            0x2715,  # ✕ MULTIPLICATION X
-            0x00F7,  # ÷ DIVISION SIGN
-            0x00B1,  # ± PLUS-MINUS SIGN
-            0x2212,  # − MINUS SIGN
-            0x2213,  # ∓ MINUS-OR-PLUS SIGN
-        ],
-        "チェック・星印": [
-            0x2713,  # ✓ CHECK MARK
-            0x2714,  # ✔ HEAVY CHECK MARK
-            0x2717,  # ✗ BALLOT X
-            0x2718,  # ✘ HEAVY BALLOT X
-            0x2605,  # ★ BLACK STAR
-            0x2606,  # ☆ WHITE STAR
-        ],
-        "矢印": [
-            0x2190,  # ← LEFTWARDS ARROW
-            0x2191,  # ↑ UPWARDS ARROW
-            0x2192,  # → RIGHTWARDS ARROW
-            0x2193,  # ↓ DOWNWARDS ARROW
-            0x21D0,  # ⇐ LEFTWARDS DOUBLE ARROW
-            0x21D2,  # ⇒ RIGHTWARDS DOUBLE ARROW
-        ],
-        "その他記号": [
-            0x203B,  # ※ REFERENCE MARK
-            0x3012,  # 〒 POSTAL MARK
-            0x3013,  # 〓 GETA MARK
-            0x301C,  # 〜 WAVE DASH
-            0xFF5E,  # ～ FULLWIDTH TILDE
-            0x2026,  # … HORIZONTAL ELLIPSIS
-            0x22EF,  # ⋯ MIDLINE HORIZONTAL ELLIPSIS
-        ]
-    }
-    
-    all_mismatches = []
-    
-    for category, char_codes in symbol_categories.items():
-        print(f"\n【{category}】")
-        print(f"{'文字':<8} {'コード':<10} {'M+':<8} {'Ubuntu':<8} {'やさしさ':<10} {'状況':<15}")
-        print("-" * 70)
+    try:
+        print("記号類の文字幅分析（描画ずれ調査）")
+        print("=" * 70)
         
-        category_mismatches = []
+        # 各フォントの基本情報を表示
+        for font_name in font_selection:
+            ReportGenerator.print_font_info(analyzer, font_name)
         
-        for code in char_codes:
-            # 各フォントでの存在確認と幅取得
-            mplus_info = None
-            ubuntu_info = None
-            yasashisa_info = None
-            
-            if code in mplus_font and mplus_font[code].isWorthOutputting:
-                mplus_info = mplus_font[code].width
-            
-            if code in ubuntu_font and ubuntu_font[code].isWorthOutputting:
-                ubuntu_info = ubuntu_font[code].width
-            
-            if code in yasashisa_font and yasashisa_font[code].isWorthOutputting:
-                yasashisa_info = yasashisa_font[code].width
-            
-            # 結果整理
-            mplus_str = str(mplus_info) if mplus_info else "なし"
-            ubuntu_str = str(ubuntu_info) if ubuntu_info else "なし"
-            yasashisa_str = str(yasashisa_info) if yasashisa_info else "なし"
-            
-            # 状況判定
-            status = ""
-            fonts_with_char = []
-            widths = []
-            
-            if mplus_info:
-                fonts_with_char.append("M+")
-                widths.append(mplus_info)
-            if ubuntu_info:
-                fonts_with_char.append("Ubuntu")
-                widths.append(ubuntu_info)
-            if yasashisa_info:
-                fonts_with_char.append("やさしさ")
-                widths.append(yasashisa_info)
-            
-            if len(set(widths)) > 1:
-                status = "⚠️ 幅不統一"
-                category_mismatches.append({
-                    'code': code,
-                    'char': chr(code),
-                    'mplus': mplus_info,
-                    'ubuntu': ubuntu_info,
-                    'yasashisa': yasashisa_info,
-                    'fonts': fonts_with_char
-                })
-            elif len(fonts_with_char) == 1:
-                status = f"{fonts_with_char[0]}のみ"
-            elif len(fonts_with_char) == 0:
-                status = "全フォントになし"
-            else:
-                status = "統一済み"
-            
-            try:
-                char_display = chr(code)
-            except:
-                char_display = "[表示不可]"
-            
-            print(f"{char_display:<8} U+{code:04X}   {mplus_str:<8} {ubuntu_str:<8} {yasashisa_str:<10} {status}")
+        print("=" * 70)
         
-        if category_mismatches:
-            all_mismatches.extend(category_mismatches)
-            print(f"\n  ➤ {category}で{len(category_mismatches)}件の幅不統一を発見")
-    
-    # 総合結果
-    print("\n" + "=" * 70)
-    print("【総合結果：幅不統一の記号】")
-    
-    if all_mismatches:
-        print(f"\n合計 {len(all_mismatches)} 件の幅不統一を発見:")
+        # 記号カテゴリを取得
+        symbol_categories = FontAnalyzer.get_symbol_categories()
         
-        for mismatch in all_mismatches:
-            print(f"\nU+{mismatch['code']:04X} '{mismatch['char']}':")
-            if mismatch['mplus']:
-                print(f"  M+ 1m: {mismatch['mplus']}")
-            if mismatch['ubuntu']:
-                print(f"  Ubuntu Mono: {mismatch['ubuntu']}")
-            if mismatch['yasashisa']:
-                print(f"  やさしさゴシック: {mismatch['yasashisa']}")
-            print(f"  存在フォント: {', '.join(mismatch['fonts'])}")
-    else:
-        print("幅不統一の記号は見つかりませんでした。")
+        if categories:
+            # 指定されたカテゴリのみに絞り込み
+            symbol_categories = {k: v for k, v in symbol_categories.items() if k in categories}
+        
+        all_mismatches = []
+        
+        for category, char_codes in symbol_categories.items():
+            print(f"\n【{category}】")
+            
+            if show_detailed_output:
+                # ヘッダー行を動的に生成
+                header = f"{'文字':<8} {'コード':<10}"
+                for font_name in font_selection:
+                    header += f" {font_name:<8}"
+                header += f" {'状況':<15}"
+                print(header)
+                print("-" * len(header))
+            
+            category_mismatches = []
+            
+            for code in char_codes:
+                # 各フォントでの幅を取得
+                width_info = {}
+                widths = []
+                fonts_with_char = []
+                
+                for font_name in font_selection:
+                    width = analyzer.get_glyph_width(font_name, code)
+                    width_info[font_name] = width
+                    if width is not None:
+                        widths.append(width)
+                        fonts_with_char.append(font_name)
+                
+                # 状況判定
+                status = ""
+                if len(set(widths)) > 1:
+                    status = "⚠️ 幅不統一"
+                    category_mismatches.append({
+                        'code': code,
+                        'char': analyzer._format_char(code),
+                        'width_info': width_info,
+                        'fonts': fonts_with_char
+                    })
+                elif len(fonts_with_char) == 1:
+                    status = f"{fonts_with_char[0]}のみ"
+                elif len(fonts_with_char) == 0:
+                    status = "全フォントになし"
+                else:
+                    status = "統一済み"
+                
+                if show_detailed_output:
+                    char_display = analyzer._format_char(code)
+                    row = f"{char_display:<8} U+{code:04X}"
+                    
+                    for font_name in font_selection:
+                        width = width_info.get(font_name)
+                        width_str = str(width) if width else "なし"
+                        row += f"   {width_str:<8}"
+                    
+                    row += f" {status}"
+                    print(row)
+            
+            if category_mismatches:
+                all_mismatches.extend(category_mismatches)
+                print(f"\n  ➤ {category}で{len(category_mismatches)}件の幅不統一を発見")
+        
+        # 総合結果
+        print("\n" + "=" * 70)
+        print("【総合結果：幅不統一の記号】")
+        
+        if all_mismatches:
+            print(f"\n合計 {len(all_mismatches)} 件の幅不統一を発見:")
+            
+            for mismatch in all_mismatches:
+                print(f"\nU+{mismatch['code']:04X} '{mismatch['char']}':")
+                for font_name, width in mismatch['width_info'].items():
+                    if width is not None:
+                        print(f"  {font_name}: {width}")
+                print(f"  存在フォント: {', '.join(mismatch['fonts'])}")
+        else:
+            print("幅不統一の記号は見つかりませんでした。")
     
-    mplus_font.close()
-    ubuntu_font.close()
-    yasashisa_font.close()
+    finally:
+        analyzer.close_fonts()
 
 if __name__ == '__main__':
-    analyze_symbol_widths()
+    import sys
+    
+    # コマンドライン引数の処理
+    font_selection = None
+    categories = None
+    show_detailed = True
+    
+    # 簡単な引数解析
+    args = sys.argv[1:]
+    i = 0
+    while i < len(args):
+        if args[i] == '--fonts' and i + 1 < len(args):
+            font_selection = args[i + 1].split(',')
+            i += 2
+        elif args[i] == '--categories' and i + 1 < len(args):
+            categories = args[i + 1].split(',')
+            i += 2
+        elif args[i] == '--brief':
+            show_detailed = False
+            i += 1
+        else:
+            print(f"不明な引数: {args[i]}")
+            print("使用法: python analyze_symbols.py [--fonts font1,font2] [--categories cat1,cat2] [--brief]")
+            sys.exit(1)
+    
+    analyze_symbol_widths(font_selection, categories, show_detailed)
