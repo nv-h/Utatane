@@ -26,18 +26,49 @@ o Utatane
 
 ## ビルド
 
-Windows 11、fontforge 20230101で動作確認しています。
-fontforgeは、[ここからダウンロード](https://fontforge.org/en-US/downloads/windows-dl/)してインストールします。
-それから、fontToolsにも依存しているので`pip install fonttools`などでインストールが必要です。
+### 依存関係
+- FontForge（このリポジトリにサブモジュールとして含まれています）
+- fontTools: `pip install fonttools`
+- ビルドツール：cmake, ninja-build, build-essential
+- 開発ライブラリ：libjpeg-dev, libtiff5-dev, libpng-dev, libfreetype-dev, libgif-dev, libgtk-3-dev, libxml2-dev, libpango1.0-dev, libcairo2-dev, libspiro-dev, libwoff-dev, python3-dev, gettext
 
-ビルドは以下のコマンドで行います。
+### ビルド手順
 
-```ps1
+```bash
 git clone git@github.com:nv-h/Utatane.git
 cd Utatane
-# デフォルトのインストール先なので必要に応じて変更
+
+# サブモジュールの初期化・取得
+git submodule update --init --recursive
+
+# 必要な依存関係のインストール（Ubuntu/Debian系の場合）
+sudo apt-get install libjpeg-dev libtiff5-dev libpng-dev libfreetype-dev libgif-dev libgtk-3-dev libxml2-dev libpango1.0-dev libcairo2-dev libspiro-dev libwoff-dev python3-dev ninja-build cmake build-essential gettext
+
+# fontToolsのインストール
+pip install fonttools
+
+# FontForgeのビルド
+cd fontforge
+mkdir -p build
+cd build
+cmake -GNinja ..
+ninja
+
+# フォント生成
+cd ../..
+./fontforge/build/bin/fontforge -lang=py -script ./utatane.py
+```
+
+**Windows環境の場合:**
+```ps1
+# デフォルトのインストール先を使用する場合
 & 'c:\Program Files (x86)\FontForgeBuilds\bin\fontforge' -lang=py -script .\utatane.py
 ```
+
+### 生成確認
+生成が成功すると、`dist/`ディレクトリに以下のファイルが作成されます：
+- `Utatane-Regular.ttf` （約3MB）
+- `Utatane-Bold.ttf` （約3MB）
 
 ## Rictyからの変更点
 
@@ -61,6 +92,7 @@ cd Utatane
 Utatane/
 ├── utatane.py              # メインのフォント生成スクリプト
 ├── sourceFonts/            # ソースフォントファイル
+├── fontforge/              # FontForgeサブモジュール（最新版ソースコード）
 ├── dist/                   # 生成されたフォントの出力先
 ├── tmp/                    # 一時ファイル保存先
 ├── test/                   # テスト関連ファイル
