@@ -76,6 +76,253 @@ M+ 1m: 500 → Utatane: 1000（全角化）
 - **通貨記号**（7件）: 500→1000の全角化
 - **拡張文字**（118件）: 様々な判定ミス
 
+#### 詳細な影響グリフ一覧
+
+**問題**: M+フォントで半角幅（500）のグリフが、Utataneで全角幅（1000）に誤分類されている
+
+**原因**: `utatane.py:458`の判定ロジック `g.width > WIDTH * 0.7`
+- 日本語フォント縮小処理（`JP_REDUCTION_MAT`等）後に幅が700を超える
+- 本来は半角維持すべきグリフが全角化される
+
+##### IPA拡張（14件）
+
+| Unicode | 文字 | 文字名 |
+|---------|------|--------|
+| U+025D | ɝ | LATIN SMALL LETTER REVERSED OPEN E WITH HOOK |
+| U+026F | ɯ | LATIN SMALL LETTER TURNED M |
+| U+0270 | ɰ | LATIN SMALL LETTER TURNED M WITH LONG LEG |
+| U+0271 | ɱ | LATIN SMALL LETTER M WITH HOOK |
+| U+0276 | ɶ | LATIN LETTER SMALL CAPITAL OE |
+| U+0277 | ɷ | LATIN SMALL LETTER CLOSED OMEGA |
+| U+028D | ʍ | LATIN SMALL LETTER TURNED W |
+| U+0298 | ʘ | LATIN LETTER BILABIAL CLICK |
+| U+02A3 | ʣ | LATIN SMALL LETTER DZ DIGRAPH |
+| U+02A4 | ʤ | LATIN SMALL LETTER DEZH DIGRAPH |
+| U+02A5 | ʥ | LATIN SMALL LETTER DZ DIGRAPH WITH CURL |
+| U+02A6 | ʦ | LATIN SMALL LETTER TS DIGRAPH |
+| U+02A8 | ʨ | LATIN SMALL LETTER TC DIGRAPH WITH CURL |
+| U+02A9 | ʩ | LATIN SMALL LETTER FENG DIGRAPH |
+
+##### ギリシャ記号・コプト文字（8件）
+
+| Unicode | 文字 | 文字名 |
+|---------|------|--------|
+| U+03D2 | ϒ | GREEK UPSILON WITH HOOK SYMBOL |
+| U+03D3 | ϓ | GREEK UPSILON WITH ACUTE AND HOOK SYMBOL |
+| U+03D4 | ϔ | GREEK UPSILON WITH DIAERESIS AND HOOK SYMBOL |
+| U+03D6 | ϖ | GREEK PI SYMBOL |
+| U+03D8 | Ϙ | GREEK LETTER ARCHAIC KOPPA |
+| U+03DA | Ϛ | GREEK LETTER STIGMA |
+| U+03E0 | Ϡ | GREEK LETTER SAMPI |
+| U+03E1 | ϡ | GREEK SMALL LETTER SAMPI |
+
+##### 制御図記号（37件）
+
+| Unicode | 文字 | 文字名 |
+|---------|------|--------|
+| U+2400 | ␀ | SYMBOL FOR NULL |
+| U+2401 | ␁ | SYMBOL FOR START OF HEADING |
+| U+2402 | ␂ | SYMBOL FOR START OF TEXT |
+| U+2403 | ␃ | SYMBOL FOR END OF TEXT |
+| U+2404 | ␄ | SYMBOL FOR END OF TRANSMISSION |
+| U+2405 | ␅ | SYMBOL FOR ENQUIRY |
+| U+2406 | ␆ | SYMBOL FOR ACKNOWLEDGE |
+| U+2407 | ␇ | SYMBOL FOR BELL |
+| U+2408 | ␈ | SYMBOL FOR BACKSPACE |
+| U+2409 | ␉ | SYMBOL FOR HORIZONTAL TABULATION |
+| U+240A | ␊ | SYMBOL FOR LINE FEED |
+| U+240B | ␋ | SYMBOL FOR VERTICAL TABULATION |
+| U+240C | ␌ | SYMBOL FOR FORM FEED |
+| U+240D | ␍ | SYMBOL FOR CARRIAGE RETURN |
+| U+240E | ␎ | SYMBOL FOR SHIFT OUT |
+| U+240F | ␏ | SYMBOL FOR SHIFT IN |
+| U+2410 | ␐ | SYMBOL FOR DATA LINK ESCAPE |
+| U+2411 | ␑ | DEVICE CONTROL ONE |
+| U+2412 | ␒ | DEVICE CONTROL TWO |
+| U+2413 | ␓ | DEVICE CONTROL THREE |
+| U+2414 | ␔ | DEVICE CONTROL FOUR |
+| U+2415 | ␕ | NEGATIVE ACKNOWLEDGE |
+| U+2416 | ␖ | SYNCHRONOUS IDLE |
+| U+2417 | ␗ | END OF TRANSMISSION BLOCK |
+| U+2418 | ␘ | CANCEL |
+| U+2419 | ␙ | END OF MEDIUM |
+| U+241A | ␚ | SUBSTITUTE |
+| U+241B | ␛ | ESCAPE |
+| U+241C | ␜ | FILE SEPARATOR |
+| U+241D | ␝ | GROUP SEPARATOR |
+| U+241E | ␞ | RECORD SEPARATOR |
+| U+241F | ␟ | UNIT SEPARATOR |
+| U+2420 | ␠ | SPACE |
+| U+2421 | ␡ | DELETE |
+| U+2423 | ␣ | OPEN BOX |
+| U+2424 | ␤ | NEWLINE |
+| U+2425 | ␥ | DELETE FORM TWO |
+
+##### 通貨記号（7件）
+
+| Unicode | 文字 | 文字名 |
+|---------|------|--------|
+| U+20A8 | ₨ | RUPEE SIGN |
+| U+20A9 | ₩ | WON SIGN |
+| U+20AA | ₪ | NEW SHEQEL SIGN |
+| U+20AF | ₯ | DRACHMA SIGN |
+| U+20B0 | ₰ | GERMAN PENNY SIGN |
+| U+20B2 | ₲ | GUARANI SIGN |
+| U+20B3 | ₳ | AUSTRAL SIGN |
+
+##### 数学演算子（3件）
+
+| Unicode | 文字 | 文字名 |
+|---------|------|--------|
+| U+2225 | ∥ | PARALLEL TO |
+| U+2226 | ∦ | NOT PARALLEL TO |
+| U+223C | ∼ | TILDE OPERATOR |
+
+##### 拡張ラテンB（26件）
+
+| Unicode | 文字 | 文字名 |
+|---------|------|--------|
+| U+1E3E | Ḿ | LATIN CAPITAL LETTER M WITH ACUTE |
+| U+1E3F | ḿ | LATIN SMALL LETTER M WITH ACUTE |
+| U+1E40 | Ṁ | LATIN CAPITAL LETTER M WITH DOT ABOVE |
+| U+1E41 | ṁ | LATIN SMALL LETTER M WITH DOT ABOVE |
+| U+1E42 | Ṃ | LATIN CAPITAL LETTER M WITH DOT BELOW |
+| U+1E43 | ṃ | LATIN SMALL LETTER M WITH DOT BELOW |
+| U+1E88 | Ẉ | LATIN CAPITAL LETTER W WITH DOT BELOW |
+| U+1E89 | ẉ | LATIN SMALL LETTER W WITH DOT BELOW |
+| U+1ECC | Ọ | LATIN CAPITAL LETTER O WITH DOT BELOW |
+| U+1ECE | Ỏ | LATIN CAPITAL LETTER O WITH HOOK ABOVE |
+| U+1ED0 | Ố | LATIN CAPITAL LETTER O WITH CIRCUMFLEX AND ACUTE |
+| U+1ED2 | Ồ | LATIN CAPITAL LETTER O WITH CIRCUMFLEX AND GRAVE |
+| U+1ED4 | Ổ | LATIN CAPITAL LETTER O WITH CIRCUMFLEX AND HOOK ABOVE |
+| U+1ED6 | Ỗ | LATIN CAPITAL LETTER O WITH CIRCUMFLEX AND TILDE |
+| U+1ED8 | Ộ | LATIN CAPITAL LETTER O WITH CIRCUMFLEX AND DOT BELOW |
+| U+1EDA | Ớ | LATIN CAPITAL LETTER O WITH HORN AND ACUTE |
+| U+1EDC | Ờ | LATIN CAPITAL LETTER O WITH HORN AND GRAVE |
+| U+1EDE | Ở | LATIN CAPITAL LETTER O WITH HORN AND HOOK ABOVE |
+| U+1EE0 | Ỡ | LATIN CAPITAL LETTER O WITH HORN AND TILDE |
+| U+1EE2 | Ợ | LATIN CAPITAL LETTER O WITH HORN AND DOT BELOW |
+| U+1EE8 | Ứ | LATIN CAPITAL LETTER U WITH HORN AND ACUTE |
+| U+1EEA | Ừ | LATIN CAPITAL LETTER U WITH HORN AND GRAVE |
+| U+1EEC | Ử | LATIN CAPITAL LETTER U WITH HORN AND HOOK ABOVE |
+| U+1EEE | Ữ | LATIN CAPITAL LETTER U WITH HORN AND TILDE |
+| U+1EF0 | Ự | LATIN CAPITAL LETTER U WITH HORN AND DOT BELOW |
+| U+1EFA | Ỻ | LATIN CAPITAL LETTER MIDDLE-WELSH LL |
+
+##### その他の記号（11件）
+
+| 分類 | 件数 | 代表例 |
+|------|------|--------|
+| 一般句読点 | 3件 | ‿ ⁀ ⁓ |
+| 文字様記号 | 2件 | ℞ ℧ |
+| アルファベット表示形 | 3件 | ﬀ ﬃ ﬄ |
+| その他技術記号 | 1件 | ⏎ |
+| 不明グリフ | 2件 | [U+110150] [U+110151] |
+
+#### 実用性への影響評価
+
+**高影響**（32件）: IPA音標文字、ギリシャ記号、通貨記号、数学演算子
+- 学術文書、多言語対応、国際化で頻繁に使用
+- 文字間隔の問題が顕著に現れる
+
+**中影響**（37件）: 制御図記号
+- システム・デバッグ用途での表示崩れ  
+- エディタでの特殊文字表示に影響
+
+**低影響**（37件）: 拡張ラテン文字、合字、その他
+- 特定言語（ベトナム語等）への影響
+- 使用頻度は限定的
+
+#### 根本原因の詳細分析
+
+**問題の核心**: やさしさゴシックの文字幅がM+の判定を上書きしている
+
+**処理フローの問題**:
+1. **フォント読み込み順序**: やさしさゴシック → M+フォント
+2. **M+の限定的上書き**: 罫線・ブロック要素のみがM+で上書きされる
+3. **その他のグリフ**: IPA、ギリシャ、制御図記号等はやさしさゴシックのまま
+4. **else句での誤処理**: 特別分類に該当しないグリフが日本語処理を受ける
+
+**具体的な変換プロセス**:
+
+| 文字 | M+元幅 | やさしさ幅 | 縮小後幅 | 判定結果 | 最終幅 |
+|------|--------|------------|----------|----------|--------|
+| ɝ | 500 | 804 | 731 | >700 | 1000 |
+| ␀ | 500 | 1000 | 909 | >700 | 1000 |
+| ₩ | 500 | 1051 | 955 | >700 | 1000 |
+
+**計算式**: `やさしさ幅 × JP_A_RAT(0.909) > 700 → 全角化`
+
+**問題コードの場所**: `utatane.py:455-461`
+```python
+else:
+    g.transform(JP_REDUCTION_MAT)  # やさしさ幅 × 0.909
+    g.transform(JP_REDUCTION_FIX_MAT_NOHEIGHT)
+    if g.width > WIDTH * 0.7:  # 700超なら全角
+        width = WIDTH  # 1000
+    else:
+        width = int(WIDTH//2)  # 500
+```
+
+**なぜこれが問題か**:
+- M+で500幅のグリフが、やさしさゴシックの幅情報で判定される
+- 本来はM+の幅（500）を維持すべき
+- やさしさゴシックの幅は日本語文字用の設計値
+
+#### 業界標準フォント（Noto Sans Mono CJK）との比較
+
+**比較結果**: Noto Sans Mono CJK VFとの互換性分析
+
+**全体互換性**:
+- Noto ⇔ Utatane一致率: 90.5% (8,622グリフ中7,806グリフ)
+- M+ ⇔ Noto一致率: 92.0% (業界標準として高い一致率)
+- M+ ⇔ Utatane一致率: 96.8%
+
+**問題グリフでの比較**:
+- 3フォント共通グリフ: 28件（106件中）
+- 業界コンセンサス違反: **2件** ←最優先修正対象
+  - U+2423 ␣ (制御図): M+=Noto=500, Utatane=1000
+  - U+20A9 ₩ (通貨): M+=Noto=500, Utatane=1000
+
+**カテゴリ別分析**:
+- **拡張ラテン文字**: 19件すべてで3フォント不一致（最大の問題）
+- **数学演算子**: NotoとUtataneは一致（1000）、M+のみ異なる（500）
+- **合字**: 3フォントすべて異なる判定
+- **制御図記号**: 最も明確な業界標準違反
+
+**重要な発見**:
+1. **M+とNotoの高い一致率（92%）** → 業界標準として信頼できる
+2. **Utataneの独自判定が多数** → やさしさゴシック影響による誤判定
+3. **明確な修正対象の特定** → 2件の業界コンセンサス違反
+
+**現在のNoto互換性スコア**: 14.3%（問題グリフ範囲では大きな問題）
+
+#### M+とNoto間の設計思想比較（補足）
+
+**M+ ⇔ Noto互換性**: 92.0% (6,647グリフ中6,112グリフ一致)
+
+**主要な設計思想の違い**:
+
+| カテゴリ | M+方針 | Noto方針 | 差異パターン | 代表例 |
+|----------|--------|----------|--------------|--------|
+| **ブロック要素** | 半角(500) | 全角(1000) | 500→1000 | █ ▀ ▄ ▌ (29件) |
+| **拡張ラテン文字** | 半角(500) | 可変幅(600-750) | 500→742等 | Ọ Ớ Ự ベトナム語 |
+| **数学演算子** | 半角(500) | 全角(1000) | 500→1000 | ∅ √ ∥ ≈ ≠ (8件) |
+| **キリル文字** | 半角(500) | 可変幅(600-1000) | 500→800等 | Ю Щ Ш ロシア語 |
+| **記号・句読点** | 半角(500) | 全角(1000) | 500→1000 | ‖ † ‡ ‰ № |
+| **合字** | 半角(500) | 可変幅(600-930) | 500→643等 | ﬀ ﬁ ﬂ ﬃ ﬄ |
+
+**差異の性質**:
+- **言語固有の最適化**: 各言語の文字に適した幅設計
+- **用途別の判断**: 数学記号・ブロック要素の扱い方針
+- **基本ASCII互換**: 基本的な英数字・記号は両者とも一致
+
+**重要な結論**:
+1. **92%の高一致率** → M+とNotoは同じ設計思想を共有
+2. **差異は特定分野に限定** → 全体的な設計破綻ではない  
+3. **Utataneの106件は明らかに異常** → やさしさゴシック影響による誤判定
+4. **M+基準での修正が妥当** → 業界標準との整合性確保
+
 ---
 
 # Part 2: FontForgeメトリクス処理の根本的問題
