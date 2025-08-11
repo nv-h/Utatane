@@ -53,6 +53,9 @@ fontforge -lang=py -script ./utatane.py
 ```bash
 # フォント表示テスト（test/ディレクトリ内）
 python test/test_glyphs.py
+
+# フォントバージョン間比較（FontForgeベース）
+python test/font_compare.py --visual -f1 v1.2.1_Utatane-Regular -f2 v1.3.0_Utatane-Regular
 ```
 
 ## 重要な実装詳細
@@ -77,6 +80,10 @@ FontForgeで生成されたフォントのxAvgCharWidthが不正になる問題�
 - `dist/`: 生成されたフォントの出力先
 - `tmp/`: 一時ファイル保存先
 - `test/`: テスト関連ファイル
+  - `font_disp.txt`: フォント表示テスト用の文字セット（欧文、日本語、罫線、ブロック要素等）
+  - `font_compare.py`: 統一フォント比較ツール（FontForge/matplotlib両対応）
+  - `compare_fonts_fontforge.py`: FontForgeベースの詳細比較ツール（文字幅・配置可視化）
+  - `test_glyphs.py`: フォント表示テストスクリプト
 
 ## 生成されるフォント
 - `Utatane-Regular.ttf`: レギュラー体（Weight: 400）
