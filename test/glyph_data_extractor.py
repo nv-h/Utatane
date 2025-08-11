@@ -171,6 +171,34 @@ def get_glyph_selection(args):
             except ValueError:
                 print(f"警告: 不正なUnicode指定 '{unicode_str}' をスキップ")
     
+    # Unicode範囲指定の処理
+    if args.range:
+        for range_str in args.range:
+            try:
+                # U+XXXX-U+YYYY形式をパース
+                if '-' in range_str:
+                    start_str, end_str = range_str.split('-', 1)
+                    
+                    # 開始値
+                    if start_str.startswith('U+'):
+                        start_val = int(start_str[2:], 16)
+                    else:
+                        start_val = int(start_str, 16)
+                    
+                    # 終了値
+                    if end_str.startswith('U+'):
+                        end_val = int(end_str[2:], 16)
+                    else:
+                        end_val = int(end_str, 16)
+                    
+                    # 範囲内のすべてのコードポイントを追加
+                    for code in range(start_val, end_val + 1):
+                        selected_glyphs.add(code)
+                else:
+                    print(f"警告: 不正な範囲指定 '{range_str}' (ハイフンが必要)")
+            except (ValueError, IndexError):
+                print(f"警告: 不正な範囲指定 '{range_str}' をスキップ")
+    
     if args.chars:
         for char in args.chars:
             selected_glyphs.add(ord(char))
@@ -202,6 +230,8 @@ def main():
     parser.add_argument('--section', help='テストファイルの特定セクション')
     parser.add_argument('--unicode', action='append', metavar='U+XXXX',
                        help='Unicode指定（U+2400形式、複数指定可能）')
+    parser.add_argument('--range', action='append', metavar='U+XXXX-U+YYYY',
+                       help='Unicode範囲指定（U+2400-U+2425形式、複数指定可能）')
     parser.add_argument('--chars', help='文字直接指定')
     
     # 出力設定

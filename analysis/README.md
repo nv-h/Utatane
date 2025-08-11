@@ -23,6 +23,7 @@ FontForge の Python で実行してください。
 - symbols: 記号カテゴリ別の幅分析
 - mismatch: 幅パターンの不一致グリフ抽出（e.g. 500→1000）
 - diagnose: 単一フォントの診断（基本情報/分布/サンプル）
+- check-ranges: 特定Unicode範囲でのM+・やさしさゴシック幅比較（Ubuntu文字を除外）
 
 使用例:
 
@@ -46,6 +47,41 @@ FontForge の Python で実行してください。
 
   # 診断
   fontforge -lang=py -script analysis/font_analysis.py diagnose --font NotoSansMonoCJKjp-VF --max-samples 20
+
+  # 特定Unicode範囲での幅比較（Ubuntu除外）
+  fontforge -lang=py -script analysis/font_analysis.py check-ranges --ranges Control,Currency --show-chars --show-details
+
+## check-ranges コマンド詳細
+
+**目的**: M+のグリフ採用候補を特定するため、特定のUnicode範囲でM+・やさしさゴシックの幅を比較します。Ubuntuフォントに含まれる文字は除外して、M+またはやさしさゴシックにのみ存在する文字を対象とします。
+
+**対象範囲**（8範囲）:
+- Greek and Coptic (U+0370-U+03FF): ギリシャ文字・コプト文字
+- Control Pictures (U+2400-U+243F): 制御図記号
+- Currency Symbols (U+20A0-U+20CF): 通貨記号  
+- Mathematical Operators (U+2200-U+22FF): 数学演算子
+- Latin Extended-B (U+1E00-U+1EFF): 拡張ラテンB
+- General Punctuation (U+2000-U+206F): 一般句読点
+- Letterlike Symbols (U+2100-U+214F): 文字様記号
+- Alphabetic Presentation Forms (U+FB00-U+FB4F): アルファベット表記形
+
+**オプション**:
+- `--ranges NAME1,NAME2`: 範囲名の部分一致でフィルタ（例: Control,Currency）
+- `--show-chars`: 各幅パターンでの文字例を表示
+- `--show-details`: 詳細な文字一覧を表示
+- `--max-chars N`: 表示する文字数の上限（デフォルト: 50）
+
+**出力例**:
+```
+■ Control Pictures (U+2400-U+243F)
+  [M+= 500 | やさしさ=1000] 36文字
+  [M+= 500 | やさしさ= 670] 1文字
+【M+・やさしさ両方に存在】287文字
+【M+のみ存在】0文字  
+【やさしさのみ存在】227文字
+```
+
+**用途**: utatane.pyの判定ロジック（`g.width > WIDTH * 0.7`）で誤って全角化された文字を特定し、M+の半角幅を採用すべき候補を抽出します。
 
 ## 依存関係
 

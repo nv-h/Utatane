@@ -94,6 +94,7 @@ show_help() {
                         ipa, greek, control, currency, math, latin_ext_b, misc
   --priority LEVEL      優先度選択 (high: 32件, all: 184件)
   --unicode U+XXXX      Unicode指定（複数指定可能）
+  --range U+XXXX-U+YYYY Unicode範囲指定（複数指定可能）
   --chars CHARS         文字直接指定
   
 フォント指定オプション:
@@ -122,6 +123,12 @@ show_help() {
 
   # 特定のUnicode文字
   $0 --unicode U+2400 --unicode U+20A9
+
+  # Unicode範囲指定（制御図記号全体）
+  $0 --range U+2400-U+2425
+
+  # 複数範囲指定（制御図記号 + 通貨記号）
+  $0 --range U+2400-U+2425 --range U+20A8-U+20B3
 
   # 全184件のグリフ
   $0 --priority all
