@@ -121,14 +121,21 @@ def create_glyph_comparison_plot(data, output_pdf):
         'utatane': 'red'
     }
     
-    font_display_names = {
+    glyph_list = data['metadata']['glyph_list']
+    fonts_data = data['fonts']
+
+    # JSON に含まれる実フォント名を優先的に使用（指定パスのフォントが反映される）
+    default_display_names = {
         'mplus': 'M+ 1m Regular',
         'yasashisa': 'やさしさゴシック Bold V2',
         'utatane': 'Utatane Regular'
     }
-    
-    glyph_list = data['metadata']['glyph_list']
-    fonts_data = data['fonts']
+    font_display_names = {}
+    for key in ['mplus', 'yasashisa', 'utatane']:
+        try:
+            font_display_names[key] = fonts_data.get(key, {}).get('fontname') or default_display_names[key]
+        except Exception:
+            font_display_names[key] = default_display_names.get(key, key)
     
     # PDF出力の準備
     with PdfPages(output_pdf) as pdf_pages:
