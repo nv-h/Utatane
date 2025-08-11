@@ -86,138 +86,144 @@ M+ 1m: 500 → Utatane: 1000（全角化）
 
 ##### IPA拡張（14件）
 
-| Unicode | 文字 | 文字名 |
-|---------|------|--------|
-| U+025D | ɝ | LATIN SMALL LETTER REVERSED OPEN E WITH HOOK |
-| U+026F | ɯ | LATIN SMALL LETTER TURNED M |
-| U+0270 | ɰ | LATIN SMALL LETTER TURNED M WITH LONG LEG |
-| U+0271 | ɱ | LATIN SMALL LETTER M WITH HOOK |
-| U+0276 | ɶ | LATIN LETTER SMALL CAPITAL OE |
-| U+0277 | ɷ | LATIN SMALL LETTER CLOSED OMEGA |
-| U+028D | ʍ | LATIN SMALL LETTER TURNED W |
-| U+0298 | ʘ | LATIN LETTER BILABIAL CLICK |
-| U+02A3 | ʣ | LATIN SMALL LETTER DZ DIGRAPH |
-| U+02A4 | ʤ | LATIN SMALL LETTER DEZH DIGRAPH |
-| U+02A5 | ʥ | LATIN SMALL LETTER DZ DIGRAPH WITH CURL |
-| U+02A6 | ʦ | LATIN SMALL LETTER TS DIGRAPH |
-| U+02A8 | ʨ | LATIN SMALL LETTER TC DIGRAPH WITH CURL |
-| U+02A9 | ʩ | LATIN SMALL LETTER FENG DIGRAPH |
+| Unicode | 文字 |   M+ | やさしさ | v1.3.1 | Noto VF |
+| ------- | ---- | ---: | -------: | -----: | ------: |
+| U+025D  | ɝ    |  500 |      744 |   1000 |       - |
+| U+026F  | ɯ    |  500 |      783 |   1000 |       - |
+| U+0270  | ɰ    |  500 |      783 |   1000 |       - |
+| U+0271  | ɱ    |  500 |      783 |   1000 |       - |
+| U+0276  | ɶ    |  500 |      783 |   1000 |       - |
+| U+0277  | ɷ    |  500 |      761 |   1000 |       - |
+| U+028D  | ʍ    |  500 |      771 |   1000 |       - |
+| U+0298  | ʘ    |  500 |      738 |   1000 |       - |
+| U+02A3  | ʣ    |  500 |      958 |   1000 |       - |
+| U+02A4  | ʤ    |  500 |      950 |   1000 |       - |
+| U+02A5  | ʥ    |  500 |     1036 |   1000 |       - |
+| U+02A6  | ʦ    |  500 |      830 |   1000 |       - |
+| U+02A8  | ʨ    |  500 |      850 |   1000 |       - |
+| U+02A9  | ʩ    |  500 |      873 |   1000 |       - |
 
 ##### ギリシャ記号・コプト文字（8件）
 
-| Unicode | 文字 | 文字名 |
-|---------|------|--------|
-| U+03D2 | ϒ | GREEK UPSILON WITH HOOK SYMBOL |
-| U+03D3 | ϓ | GREEK UPSILON WITH ACUTE AND HOOK SYMBOL |
-| U+03D4 | ϔ | GREEK UPSILON WITH DIAERESIS AND HOOK SYMBOL |
-| U+03D6 | ϖ | GREEK PI SYMBOL |
-| U+03D8 | Ϙ | GREEK LETTER ARCHAIC KOPPA |
-| U+03DA | Ϛ | GREEK LETTER STIGMA |
-| U+03E0 | Ϡ | GREEK LETTER SAMPI |
-| U+03E1 | ϡ | GREEK SMALL LETTER SAMPI |
+| Unicode | 文字 |   M+ | やさしさ | v1.3.1 | Noto VF |
+| ------- | ---- | ---: | -------: | -----: | ------: |
+| U+03D2  | ϒ    |  500 |      735 |   1000 |       - |
+| U+03D3  | ϓ    |  500 |      885 |   1000 |       - |
+| U+03D4  | ϔ    |  500 |      735 |   1000 |       - |
+| U+03D6  | ϖ    |  500 |      815 |   1000 |       - |
+| U+03D8  | Ϙ    |  500 |      738 |   1000 |       - |
+| U+03DA  | Ϛ    |  500 |      818 |   1000 |       - |
+| U+03E0  | Ϡ    |  500 |      777 |   1000 |       - |
+| U+03E1  | ϡ    |  500 |      768 |   1000 |       - |
 
 ##### 制御図記号（37件）
 
-| Unicode | 文字 | 文字名 |
-|---------|------|--------|
-| U+2400 | ␀ | SYMBOL FOR NULL |
-| U+2401 | ␁ | SYMBOL FOR START OF HEADING |
-| U+2402 | ␂ | SYMBOL FOR START OF TEXT |
-| U+2403 | ␃ | SYMBOL FOR END OF TEXT |
-| U+2404 | ␄ | SYMBOL FOR END OF TRANSMISSION |
-| U+2405 | ␅ | SYMBOL FOR ENQUIRY |
-| U+2406 | ␆ | SYMBOL FOR ACKNOWLEDGE |
-| U+2407 | ␇ | SYMBOL FOR BELL |
-| U+2408 | ␈ | SYMBOL FOR BACKSPACE |
-| U+2409 | ␉ | SYMBOL FOR HORIZONTAL TABULATION |
-| U+240A | ␊ | SYMBOL FOR LINE FEED |
-| U+240B | ␋ | SYMBOL FOR VERTICAL TABULATION |
-| U+240C | ␌ | SYMBOL FOR FORM FEED |
-| U+240D | ␍ | SYMBOL FOR CARRIAGE RETURN |
-| U+240E | ␎ | SYMBOL FOR SHIFT OUT |
-| U+240F | ␏ | SYMBOL FOR SHIFT IN |
-| U+2410 | ␐ | SYMBOL FOR DATA LINK ESCAPE |
-| U+2411 | ␑ | DEVICE CONTROL ONE |
-| U+2412 | ␒ | DEVICE CONTROL TWO |
-| U+2413 | ␓ | DEVICE CONTROL THREE |
-| U+2414 | ␔ | DEVICE CONTROL FOUR |
-| U+2415 | ␕ | NEGATIVE ACKNOWLEDGE |
-| U+2416 | ␖ | SYNCHRONOUS IDLE |
-| U+2417 | ␗ | END OF TRANSMISSION BLOCK |
-| U+2418 | ␘ | CANCEL |
-| U+2419 | ␙ | END OF MEDIUM |
-| U+241A | ␚ | SUBSTITUTE |
-| U+241B | ␛ | ESCAPE |
-| U+241C | ␜ | FILE SEPARATOR |
-| U+241D | ␝ | GROUP SEPARATOR |
-| U+241E | ␞ | RECORD SEPARATOR |
-| U+241F | ␟ | UNIT SEPARATOR |
-| U+2420 | ␠ | SPACE |
-| U+2421 | ␡ | DELETE |
-| U+2423 | ␣ | OPEN BOX |
-| U+2424 | ␤ | NEWLINE |
-| U+2425 | ␥ | DELETE FORM TWO |
+| Unicode | 文字 |   M+ | やさしさ | v1.3.1 | Noto VF |
+| ------- | ---- | ---: | -------: | -----: | ------: |
+| U+2400  | ␀    |  500 |     1000 |   1000 |       - |
+| U+2401  | ␁    |  500 |     1000 |   1000 |       - |
+| U+2402  | ␂    |  500 |     1000 |   1000 |       - |
+| U+2403  | ␃    |  500 |     1000 |   1000 |       - |
+| U+2404  | ␄    |  500 |     1000 |   1000 |       - |
+| U+2405  | ␅    |  500 |     1000 |   1000 |       - |
+| U+2406  | ␆    |  500 |     1000 |   1000 |       - |
+| U+2407  | ␇    |  500 |     1000 |   1000 |       - |
+| U+2408  | ␈    |  500 |     1000 |   1000 |       - |
+| U+2409  | ␉    |  500 |     1000 |   1000 |       - |
+| U+240A  | ␊    |  500 |     1000 |   1000 |       - |
+| U+240B  | ␋    |  500 |     1000 |   1000 |       - |
+| U+240C  | ␌    |  500 |     1000 |   1000 |       - |
+| U+240D  | ␍    |  500 |     1000 |   1000 |       - |
+| U+240E  | ␎    |  500 |     1000 |   1000 |       - |
+| U+240F  | ␏    |  500 |     1000 |   1000 |       - |
+| U+2410  | ␐    |  500 |     1000 |   1000 |       - |
+| U+2411  | ␑    |  500 |     1000 |   1000 |       - |
+| U+2412  | ␒    |  500 |     1000 |   1000 |       - |
+| U+2413  | ␓    |  500 |     1000 |   1000 |       - |
+| U+2414  | ␔    |  500 |     1000 |   1000 |       - |
+| U+2415  | ␕    |  500 |     1000 |   1000 |       - |
+| U+2416  | ␖    |  500 |     1000 |   1000 |       - |
+| U+2417  | ␗    |  500 |     1000 |   1000 |       - |
+| U+2418  | ␘    |  500 |     1000 |   1000 |       - |
+| U+2419  | ␙    |  500 |     1000 |   1000 |       - |
+| U+241A  | ␚    |  500 |     1000 |   1000 |       - |
+| U+241B  | ␛    |  500 |     1000 |   1000 |       - |
+| U+241C  | ␜    |  500 |     1000 |   1000 |       - |
+| U+241D  | ␝    |  500 |     1000 |   1000 |       - |
+| U+241E  | ␞    |  500 |     1000 |   1000 |       - |
+| U+241F  | ␟    |  500 |     1000 |   1000 |       - |
+| U+2420  | ␠    |  500 |     1000 |   1000 |       - |
+| U+2421  | ␡    |  500 |     1000 |   1000 |       - |
+| U+2423  | ␣    |  500 |     1000 |   1000 |     500 |
+| U+2424  | ␤    |  500 |     1000 |   1000 |       - |
+| U+2425  | ␥    |  500 |      760 |   1000 |       - |
 
 ##### 通貨記号（7件）
 
-| Unicode | 文字 | 文字名 |
-|---------|------|--------|
-| U+20A8 | ₨ | RUPEE SIGN |
-| U+20A9 | ₩ | WON SIGN |
-| U+20AA | ₪ | NEW SHEQEL SIGN |
-| U+20AF | ₯ | DRACHMA SIGN |
-| U+20B0 | ₰ | GERMAN PENNY SIGN |
-| U+20B2 | ₲ | GUARANI SIGN |
-| U+20B3 | ₳ | AUSTRAL SIGN |
+| Unicode | 文字 |   M+ | やさしさ | v1.3.1 | Noto VF |
+| ------- | ---- | ---: | -------: | -----: | ------: |
+| U+20A8  | ₨    |  500 |     1056 |   1000 |       - |
+| U+20A9  | ₩    |  500 |     1051 |   1000 |     500 |
+| U+20AA  | ₪    |  500 |      871 |   1000 |       - |
+| U+20AF  | ₯    |  500 |     1260 |   1000 |       - |
+| U+20B0  | ₰    |  500 |     1043 |   1000 |       - |
+| U+20B2  | ₲    |  500 |      756 |   1000 |       - |
+| U+20B3  | ₳    |  500 |      725 |   1000 |       - |
 
 ##### 数学演算子（3件）
 
-| Unicode | 文字 | 文字名 |
-|---------|------|--------|
-| U+2225 | ∥ | PARALLEL TO |
-| U+2226 | ∦ | NOT PARALLEL TO |
-| U+223C | ∼ | TILDE OPERATOR |
+| Unicode | 文字 |   M+ | やさしさ | v1.3.1 | Noto VF |
+| ------- | ---- | ---: | -------: | -----: | ------: |
+| U+2225  | ∥    |  500 |      800 |   1000 |    1000 |
+| U+2226  | ∦    |  500 |      810 |   1000 |    1000 |
+| U+223C  | ∼    |  500 |      751 |   1000 |       - |
 
 ##### 拡張ラテンB（26件）
 
-| Unicode | 文字 | 文字名 |
-|---------|------|--------|
-| U+1E3E | Ḿ | LATIN CAPITAL LETTER M WITH ACUTE |
-| U+1E3F | ḿ | LATIN SMALL LETTER M WITH ACUTE |
-| U+1E40 | Ṁ | LATIN CAPITAL LETTER M WITH DOT ABOVE |
-| U+1E41 | ṁ | LATIN SMALL LETTER M WITH DOT ABOVE |
-| U+1E42 | Ṃ | LATIN CAPITAL LETTER M WITH DOT BELOW |
-| U+1E43 | ṃ | LATIN SMALL LETTER M WITH DOT BELOW |
-| U+1E88 | Ẉ | LATIN CAPITAL LETTER W WITH DOT BELOW |
-| U+1E89 | ẉ | LATIN SMALL LETTER W WITH DOT BELOW |
-| U+1ECC | Ọ | LATIN CAPITAL LETTER O WITH DOT BELOW |
-| U+1ECE | Ỏ | LATIN CAPITAL LETTER O WITH HOOK ABOVE |
-| U+1ED0 | Ố | LATIN CAPITAL LETTER O WITH CIRCUMFLEX AND ACUTE |
-| U+1ED2 | Ồ | LATIN CAPITAL LETTER O WITH CIRCUMFLEX AND GRAVE |
-| U+1ED4 | Ổ | LATIN CAPITAL LETTER O WITH CIRCUMFLEX AND HOOK ABOVE |
-| U+1ED6 | Ỗ | LATIN CAPITAL LETTER O WITH CIRCUMFLEX AND TILDE |
-| U+1ED8 | Ộ | LATIN CAPITAL LETTER O WITH CIRCUMFLEX AND DOT BELOW |
-| U+1EDA | Ớ | LATIN CAPITAL LETTER O WITH HORN AND ACUTE |
-| U+1EDC | Ờ | LATIN CAPITAL LETTER O WITH HORN AND GRAVE |
-| U+1EDE | Ở | LATIN CAPITAL LETTER O WITH HORN AND HOOK ABOVE |
-| U+1EE0 | Ỡ | LATIN CAPITAL LETTER O WITH HORN AND TILDE |
-| U+1EE2 | Ợ | LATIN CAPITAL LETTER O WITH HORN AND DOT BELOW |
-| U+1EE8 | Ứ | LATIN CAPITAL LETTER U WITH HORN AND ACUTE |
-| U+1EEA | Ừ | LATIN CAPITAL LETTER U WITH HORN AND GRAVE |
-| U+1EEC | Ử | LATIN CAPITAL LETTER U WITH HORN AND HOOK ABOVE |
-| U+1EEE | Ữ | LATIN CAPITAL LETTER U WITH HORN AND TILDE |
-| U+1EF0 | Ự | LATIN CAPITAL LETTER U WITH HORN AND DOT BELOW |
-| U+1EFA | Ỻ | LATIN CAPITAL LETTER MIDDLE-WELSH LL |
+| Unicode | 文字 |   M+ | やさしさ | v1.3.1 | Noto VF |
+| ------- | ---- | ---: | -------: | -----: | ------: |
+| U+1E3E  | Ḿ    |  500 |      805 |   1000 |     812 |
+| U+1E3F  | ḿ    |  500 |      783 |   1000 |     926 |
+| U+1E40  | Ṁ    |  500 |      805 |   1000 |       - |
+| U+1E41  | ṁ    |  500 |      783 |   1000 |       - |
+| U+1E42  | Ṃ    |  500 |      805 |   1000 |       - |
+| U+1E43  | ṃ    |  500 |      783 |   1000 |       - |
+| U+1E88  | Ẉ    |  500 |      911 |   1000 |       - |
+| U+1E89  | ẉ    |  500 |      771 |   1000 |       - |
+| U+1ECC  | Ọ    |  500 |      738 |   1000 |     742 |
+| U+1ECE  | Ỏ    |  500 |      738 |   1000 |     742 |
+| U+1ED0  | Ố    |  500 |      739 |   1000 |     742 |
+| U+1ED2  | Ồ    |  500 |      738 |   1000 |     742 |
+| U+1ED4  | Ổ    |  500 |      738 |   1000 |     742 |
+| U+1ED6  | Ỗ    |  500 |      738 |   1000 |     742 |
+| U+1ED8  | Ộ    |  500 |      738 |   1000 |     742 |
+| U+1EDA  | Ớ    |  500 |      820 |   1000 |     742 |
+| U+1EDC  | Ờ    |  500 |      820 |   1000 |     742 |
+| U+1EDE  | Ở    |  500 |      820 |   1000 |     742 |
+| U+1EE0  | Ỡ    |  500 |      820 |   1000 |     742 |
+| U+1EE2  | Ợ    |  500 |      820 |   1000 |     742 |
+| U+1EE8  | Ứ    |  500 |      766 |   1000 |     736 |
+| U+1EEA  | Ừ    |  500 |      766 |   1000 |     736 |
+| U+1EEC  | Ử    |  500 |      766 |   1000 |     736 |
+| U+1EEE  | Ữ    |  500 |      766 |   1000 |     736 |
+| U+1EF0  | Ự    |  500 |      766 |   1000 |     736 |
+| U+1EFA  | Ỻ    |  500 |      806 |   1000 |       - |
 
 ##### その他の記号（11件）
 
-| 分類 | 件数 | 代表例 |
-|------|------|--------|
-| 一般句読点 | 3件 | ‿ ⁀ ⁓ |
-| 文字様記号 | 2件 | ℞ ℧ |
-| アルファベット表示形 | 3件 | ﬀ ﬃ ﬄ |
-| その他技術記号 | 1件 | ⏎ |
-| 不明グリフ | 2件 | [U+110150] [U+110151] |
+| Unicode  | 文字       |   M+ | やさしさ | v1.3.1 | Noto VF |
+| -------- | ---------- | ---: | -------: | -----: | ------: |
+| U+203F   | ‿          |  500 |      898 |   1000 |       - |
+| U+2040   | ⁀          |  500 |      898 |   1000 |       - |
+| U+2053   | ⁓          |  500 |     1048 |   1000 |       - |
+| U+211E   | ℞          |  500 |      930 |   1000 |       - |
+| U+2127   | ℧          |  500 |      848 |   1000 |    1000 |
+| U+FB00   | ﬀ          |  500 |      796 |   1000 |     643 |
+| U+FB03   | ﬃ          |  500 |      956 |   1000 |     918 |
+| U+FB04   | ﬄ          |  500 |      956 |   1000 |     928 |
+| U+23CE   | ⏎          |  500 |     1000 |   1000 |    1000 |
+| U+110150 | [U+110150] |  500 |     1000 |   1000 |    1000 |
+| U+110151 | [U+110151] |  500 |     1000 |   1000 |    1000 |
 
 #### 実用性への影響評価
 
@@ -246,10 +252,10 @@ M+ 1m: 500 → Utatane: 1000（全角化）
 **具体的な変換プロセス**:
 
 | 文字 | M+元幅 | やさしさ幅 | 縮小後幅 | 判定結果 | 最終幅 |
-|------|--------|------------|----------|----------|--------|
-| ɝ | 500 | 804 | 731 | >700 | 1000 |
-| ␀ | 500 | 1000 | 909 | >700 | 1000 |
-| ₩ | 500 | 1051 | 955 | >700 | 1000 |
+| ---- | ------ | ---------- | -------- | -------- | ------ |
+| ɝ    | 500    | 804        | 731      | >700     | 1000   |
+| ␀    | 500    | 1000       | 909      | >700     | 1000   |
+| ₩    | 500    | 1051       | 955      | >700     | 1000   |
 
 **計算式**: `やさしさ幅 × JP_A_RAT(0.909) > 700 → 全角化`
 
@@ -303,14 +309,14 @@ else:
 
 **主要な設計思想の違い**:
 
-| カテゴリ | M+方針 | Noto方針 | 差異パターン | 代表例 |
-|----------|--------|----------|--------------|--------|
-| **ブロック要素** | 半角(500) | 全角(1000) | 500→1000 | █ ▀ ▄ ▌ (29件) |
-| **拡張ラテン文字** | 半角(500) | 可変幅(600-750) | 500→742等 | Ọ Ớ Ự ベトナム語 |
-| **数学演算子** | 半角(500) | 全角(1000) | 500→1000 | ∅ √ ∥ ≈ ≠ (8件) |
-| **キリル文字** | 半角(500) | 可変幅(600-1000) | 500→800等 | Ю Щ Ш ロシア語 |
-| **記号・句読点** | 半角(500) | 全角(1000) | 500→1000 | ‖ † ‡ ‰ № |
-| **合字** | 半角(500) | 可変幅(600-930) | 500→643等 | ﬀ ﬁ ﬂ ﬃ ﬄ |
+| カテゴリ           | M+方針    | Noto方針         | 差異パターン | 代表例           |
+| ------------------ | --------- | ---------------- | ------------ | ---------------- |
+| **ブロック要素**   | 半角(500) | 全角(1000)       | 500→1000     | █ ▀ ▄ ▌ (29件)   |
+| **拡張ラテン文字** | 半角(500) | 可変幅(600-750)  | 500→742等    | Ọ Ớ Ự ベトナム語 |
+| **数学演算子**     | 半角(500) | 全角(1000)       | 500→1000     | ∅ √ ∥ ≈ ≠ (8件)  |
+| **キリル文字**     | 半角(500) | 可変幅(600-1000) | 500→800等    | Ю Щ Ш ロシア語   |
+| **記号・句読点**   | 半角(500) | 全角(1000)       | 500→1000     | ‖ † ‡ ‰ №        |
+| **合字**           | 半角(500) | 可変幅(600-930)  | 500→643等    | ﬀ ﬁ ﬂ ﬃ ﬄ        |
 
 **差異の性質**:
 - **言語固有の最適化**: 各言語の文字に適した幅設計
