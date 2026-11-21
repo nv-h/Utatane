@@ -128,10 +128,24 @@ python test/font_compare.py --visual -f1 v1.2.1_Utatane-Regular -f2 v1.3.0_Utata
 `post_process()`関数で座標値の最適化を実行:
 - `removeOverlap()`: 重複する輪郭を削除
 - `round()`: 座標を整数値に丸める  
-- `autoHint()`, `autoInstr()`: ヒンティング情報を自動生成
+- `is_quadratic = True`: TrueType の2次曲線へ書き出し前に変換する（書き出し時の変換に任せると、ごく小さい輪郭ができて残るため）
+- `remove_degenerate_contours()`: 描画に寄与しない輪郭（点が2つ以下、または縦横2単位以下）を取り除く
+- TrueType のヒンティング命令は付けない（以前は3次曲線のまま `autoInstr()` を呼んでいて何も生成されておらず、配布フォントは命令なしだった。それに合わせている）。`--ttf-hinting`（または `TTF_HINTING = True`）で `autoHint()` / `autoInstr()` を実行して付けられる
+
+### 迷子の点（`remove_degenerate_contours()`）
+`YasashisaGothicBold-V2_-30.ttf` には、作成時の FontForge の Change Weight（-30）で残った1点だけの輪郭が約7万5千個あります（元の `YasashisaGothicBold-V2.ttf` には無い。同じ処理で再現する）。描画はされませんが、グリフの範囲を押し広げ、ファイルを大きくするため、和文の取り込み時と後処理で取り除いています。
 
 ### xAvgCharWidth修正（`fix_xAvgCharWidth()`）
 FontForgeで生成されたフォントのxAvgCharWidthが不正になる問題を、`ttx`コマンドを使用して修正します。`ttx`が失敗した場合はその場でエラーになります。
+
+### Windows（GDI）で欠けないための縮小（`fit_within_win_metrics()`）
+GDI は usWinAscent / usWinDescent（800 / 200）の外側を描かないため、その範囲からはみ出す入力可能な文字（ベトナム語の大文字など約400字）を、ベースラインと字面の中心を基準に等倍で縮めます。行の高さ（win の値）は変えません。
+- 縮めずに元の字形のまま生成するには、`utatane.py` の `FIT_WIN_METRICS` を `False` にするか、`--no-fit-win-metrics` を付けて実行します（例: `uv run fontforge -lang=py -script ./utatane.py --no-fit-win-metrics`）
+- はみ出しの一覧は `uv run python analysis/win_clipping_report.py`（`tmp/win-clip/win_clipping.html`）で確認できます
+
+### 版の比較（`analysis/compare_builds_report.py`）
+生成したフォントの版どうし（例: 変更前・今回・`--ttf-hinting` 版）を、GDI の描画（グレースケール / ClearType、サイズ別、差分つき）・ブラウザーの描画・字形が変わった文字で比べる HTML を作ります。
+`uv run python analysis/compare_builds_report.py --variant 変更前=<dir> --variant 今回=<dir> --output tmp/compare/compare.html`
 
 ### デバッグモード
 `DEBUG = True`に設定すると:

@@ -51,24 +51,36 @@ class TestGlyphs(unittest.TestCase):
                 ]
                 self.assertEqual([], wrong)
 
-    @unittest.expectedFailure
-    def test_outline_within_em(self):
-        """輪郭が em（1000）の枠に収まる
+    def test_within_win_metrics(self):
+        """輪郭が usWinAscent / usWinDescent の範囲に収まる（Windows の GDI で欠けない）
 
-        既知の不具合として失敗する: Ubuntu Mono の重ねアクセント付き大文字（U+1E08 など）は
-        高さが1000を超え、‱ ∭ ∰ ⨌ は幅が1000を超える。方針を決めて直したら expectedFailure を外す。
+        --no-fit-win-metrics で生成したフォントでは失敗する。
         """
         for name, font in self.fonts.items():
             with self.subTest(font=name):
-                limit = font.em
-                too_large = []
+                top, bottom = font.os2_winascent, font.os2_windescent
+                outside = []
                 for g in encoded_glyphs(font):
-                    x_min, y_min, x_max, y_max = g.boundingBox()
-                    if x_max - x_min > limit or y_max - y_min > limit:
-                        too_large.append(
-                            describe(g, f"{x_max - x_min:.0f} x {y_max - y_min:.0f}")
-                        )
-                self.assertEqual([], too_large)
+                    _, y_min, _, y_max = g.boundingBox()
+                    if y_max > top or y_min < -bottom:
+                        outside.append(describe(g, f"{y_min:.0f}〜{y_max:.0f}"))
+                self.assertEqual([], outside)
+
+    @unittest.expectedFailure
+    def test_outline_within_two_cells(self):
+        """輪郭の幅が全角（1000）に収まる
+
+        既知の不具合として失敗する: ‱ ∭ ∰ ⨌ は幅が1000を超える。
+        直したら expectedFailure を外す。
+        """
+        for name, font in self.fonts.items():
+            with self.subTest(font=name):
+                too_wide = []
+                for g in encoded_glyphs(font):
+                    x_min, _, x_max, _ = g.boundingBox()
+                    if x_max - x_min > font.em:
+                        too_wide.append(describe(g, f"{x_max - x_min:.0f}"))
+                self.assertEqual([], too_wide)
 
 
 if __name__ == "__main__":
