@@ -121,6 +121,8 @@ DEBUG = False
 FIT_WIN_METRICS = "--no-fit-win-metrics" not in sys.argv[1:]
 # 縮めた後の丸めやヒンティングで端が1〜2単位はみ出すので、範囲の内側に少し余裕を取る
 FIT_MARGIN = 4
+# これ以下の大きさ（縦横とも）の輪郭は描画に寄与しないので取り除く（16pxで約0.03px）
+DEGENERATE_SIZE = 2
 
 # 設定可能な罫線描画モードを実装予定
 BOX_DRAWING_MODE = "console_optimized"  # default (現在仕様)
@@ -197,6 +199,37 @@ def improved_width_adjustment(glyph, target_width):
         glyph.width = target_width
 
     return glyph
+
+
+def is_degenerate(contour):
+    """面積を持たない（点が2つ以下）か、縦横とも DEGENERATE_SIZE 以下のごく小さい輪郭か"""
+    if len(contour) <= 2:
+        return True
+    x_min, y_min, x_max, y_max = contour.boundingBox()
+    return max(x_max - x_min, y_max - y_min) <= DEGENERATE_SIZE
+
+
+def remove_degenerate_contours(glyph):
+    """描画に寄与しない輪郭を取り除き、取り除いた数を返す
+
+    YasashisaGothicBold-V2_-30.ttf には、作成時の FontForge の Change Weight（-30）で
+    残った1点だけの輪郭が約7万5千個ある。また removeOverlap() と round() でも、
+    ごく小さい輪郭ができることがある。描画はされないが、グリフの範囲を押し広げ、
+    ファイルも大きくする。
+    """
+    layer = glyph.foreground
+    if not any(is_degenerate(contour) for contour in layer):
+        return 0
+    kept = fontforge.layer()
+    kept.is_quadratic = layer.is_quadratic
+    removed = 0
+    for contour in layer:
+        if is_degenerate(contour):
+            removed += 1
+        else:
+            kept += contour
+    glyph.foreground = kept
+    return removed
 
 
 def unicode_mappings(glyph):
@@ -595,8 +628,17 @@ def post_process(_font):
     _font.selection.all()
     _font.removeOverlap()
     _font.round()
-    _font.autoHint()
-    _font.autoInstr()
+    # TrueType の2次曲線へ、書き出す前に変換しておく。書き出し時の変換に任せると、
+    # 3次曲線から2次曲線への変換でごく小さい輪郭ができ、掃除できないまま出力される。
+    _font.is_quadratic = True
+    _font.round()
+    # 重なりの除去・丸め・変換で、描画に寄与しない輪郭ができることがある
+    removed = sum(remove_degenerate_contours(g) for g in _font.glyphs())
+    indent_print(f"removed {removed} degenerate contours after removeOverlap/round")
+    # TrueType のヒンティング命令（autoHint / autoInstr）は付けない。
+    # これまでは3次曲線のまま autoInstr() を呼んでいたため何も生成されず、
+    # 配布フォントは命令なしだった。2次曲線にすると命令が付いて小さいサイズの
+    # 見た目が変わるので、従来どおり命令なしで出力する。
     _font.selection.none()
 
     return _font
@@ -711,12 +753,15 @@ def modify_and_save_jp(_f, _savepath, _latin_cap_height):
 
     mplus_font.close()
 
+    removed_contours = 0
     for g in jp_font.glyphs():
         if not g.isWorthOutputting():
             # 不要っぽいやつは消しちゃう
             jp_font.selection.select(g)
             jp_font.clear()
             continue
+
+        removed_contours += remove_degenerate_contours(g)
 
         # 太さ調整
         if _f.get("japanese_weight_add") != 0:
@@ -770,6 +815,7 @@ def modify_and_save_jp(_f, _savepath, _latin_cap_height):
             # FIXME: 動作確認未
             g.transform(SKEW_MAT)
 
+    indent_print(f"removed {removed_contours} degenerate contours")
     jp_font.save(_savepath)
     jp_font.close()
 
