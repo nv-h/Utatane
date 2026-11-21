@@ -3,6 +3,8 @@
 import datetime
 import math
 import os
+import shutil
+import subprocess
 import sys
 import unicodedata
 
@@ -359,17 +361,20 @@ def print_pdf(_font, _path):
 def check_files():
     err = 0
     for f in fonts:
-        if not os.path.isfile(SOURCE + '/{}'.format(f.get('latin'))):
-            print(f'{f} not exists.')
-            err = 1
+        for key in ('latin', 'japanese', 'mplus'):
+            path = SOURCE + '/' + f.get(key)
+            if not os.path.isfile(path):
+                print(f'{path} not exists.')
+                err = 1
 
-        if not os.path.isfile(SOURCE + '/{}'.format(f.get('japanese'))):
-            print(f'{f} not exists.')
-            err = 1
-
-        if not os.path.isfile(SOURCE + '/{}'.format(f.get('mplus'))):
-            print(f'{f} not exists.')
-            err = 1
+    # xAvgCharWidthの修正にfontToolsのttxを使う。フォント生成後に失敗しないよう先に確認する。
+    # 古いシムなど、見つかっても動かないttxがあるので実際に起動してみる。
+    ttx = shutil.which('ttx')
+    if ttx is None or subprocess.run([ttx, '--version'], capture_output=True, check=False).returncode != 0:
+        print(f'ttx (fontTools) が見つからないか、実行できません: {ttx}')
+        print('uv sync のあと、uv run 経由で実行してください:')
+        print('  uv run <fontforgeのパス> -lang=py -script ./utatane.py')
+        err = 1
 
     if err > 0:
         sys.exit(err)
@@ -703,9 +708,14 @@ def set_gasp_table(_font):
     return _font
 
 
+def run_ttx(*args):
+    """ttxを実行し、失敗したらその場で止める"""
+    subprocess.run([shutil.which('ttx'), *args], check=True)
+
+
 def fix_xAvgCharWidth(_src_ttf, _dst_ttf):
     '''AvgCharWidthがおかしくなるので、元のフォントの値に書き換える
-    require: `sudo pip install fonttools` or `uv tool install fonttools`
+    require: fontToolsのttx (`uv sync` でインストールし、`uv run` 経由で実行する)
 
     refer: https://ja.osdn.net/projects/mplus-fonts/lists/archive/dev/2011-July/000619.html
     '''
@@ -715,19 +725,19 @@ def fix_xAvgCharWidth(_src_ttf, _dst_ttf):
 
     # 元のフォントからxAvgCharWidth読み出し
     src_root, _ = os.path.splitext(_src_ttf)
-    os.system('ttx -f -t OS/2 ' + _src_ttf)
+    run_ttx('-f', '-t', 'OS/2', _src_ttf)
     src_tree = ET.parse(src_root + '.ttx')
     src_AvgCharWidth = src_tree.find('OS_2').find('xAvgCharWidth').get('value')
 
     # 作成したフォントへxAvgCharWidthを設定
     dst_root, _ = os.path.splitext(_dst_ttf)
-    os.system('ttx -f -t OS/2 ' + _dst_ttf)
+    run_ttx('-f', '-t', 'OS/2', _dst_ttf)
     dst_tree = ET.parse(dst_root + '.ttx')
     dst_tree.find('OS_2').find('xAvgCharWidth').set('value', f'{src_AvgCharWidth}')
     dst_tree.write(dst_root + '.ttx', 'utf-8', True)
 
     # 変更したやつを反映
-    os.system('ttx -f -m ' + _dst_ttf + ' ' + dst_root + '.ttx')
+    run_ttx('-f', '-m', _dst_ttf, dst_root + '.ttx')
 
     # 後片付け
     if not DEBUG:

@@ -11,7 +11,7 @@
 ## 概要
 
 Ricty生成スクリプトをフォークして生成したプログラミング用の等幅フォント[Cica](https://github.com/miiton/Cica)からさらにフォークしたフォントです。
-[Ubuntu Mono](http://font.ubuntu.com/) と
+[Ubuntu Mono](https://font.ubuntu.com/) と
 [やさしさゴシックボールドV2](https://booth.pm/ja/items/1833993) を合成して少し調整しています。
 
 ```
@@ -27,8 +27,8 @@ o Utatane
 ## ビルド
 
 ### 依存関係
-- FontForge（このリポジトリにサブモジュールとして含まれています）
-- fontTools: `pip install fonttools`
+- FontForge（このリポジトリにサブモジュールとして含まれています。Windowsは公式ビルドを使用）
+- [uv](https://docs.astral.sh/uv/)（fontTools などの Python 依存を `pyproject.toml` で管理）
 - ビルドツール：cmake, ninja-build, build-essential
 - 開発ライブラリ：libjpeg-dev, libtiff5-dev, libpng-dev, libfreetype-dev, libgif-dev, libgtk-3-dev, libxml2-dev, libpango1.0-dev, libcairo2-dev, libspiro-dev, libwoff-dev, python3-dev, gettext
 
@@ -44,8 +44,8 @@ git submodule update --init --recursive
 # 必要な依存関係のインストール（Ubuntu/Debian系の場合）
 sudo apt-get install libjpeg-dev libtiff5-dev libpng-dev libfreetype-dev libgif-dev libgtk-3-dev libxml2-dev libpango1.0-dev libcairo2-dev libspiro-dev libwoff-dev python3-dev ninja-build cmake build-essential gettext
 
-# fontToolsのインストール
-pip install fonttools
+# Python依存（fontTools など）のインストール
+uv sync
 
 # FontForgeのビルド
 cd fontforge
@@ -54,15 +54,19 @@ cd build
 cmake -GNinja ..
 ninja
 
-# フォント生成
+# フォント生成（uv run 経由で ttx を PATH に入れる）
 cd ../..
-./fontforge/build/bin/fontforge -lang=py -script ./utatane.py
+uv run ./fontforge/build/bin/fontforge -lang=py -script ./utatane.py
 ```
 
 **Windows環境の場合:**
+
+[FontForge のリリース](https://github.com/fontforge/fontforge/releases)から Windows 版（64bit）をインストールして使います。
+
 ```ps1
-# デフォルトのインストール先を使用する場合
-& 'c:\Program Files (x86)\FontForgeBuilds\bin\fontforge' -lang=py -script .\utatane.py
+uv sync
+# 既定のインストール先を使用する場合
+uv run 'C:\Program Files\FontForgeBuilds\bin\fontforge.exe' -lang=py -script .\utatane.py
 ```
 
 ### 生成確認
@@ -93,7 +97,7 @@ Utatane/
 ├── utatane.py              # メインのフォント生成スクリプト
 ├── glyph-compare.sh        # グリフ形状比較統合ツール
 ├── sourceFonts/            # ソースフォントファイル
-├── fontforge/              # FontForgeサブモジュール（最新版ソースコード）
+├── fontforge/              # FontForgeサブモジュール（リリース 20251009）
 ├── dist/                   # 生成されたフォントの出力先
 ├── tmp/                    # 一時ファイル・PDF出力先
 ├── test/                   # テスト関連ファイル
@@ -132,6 +136,6 @@ M+ 1mとの文字幅比較、現行版の修正候補、幅ルールの提案は
 Utataneフォントの合成にあたり[フォーク元のCicaフォント作成者](https://github.com/miiton)に感謝します。
 また、以下の素晴らしいフォントを作成してくださった方々もありがとうございます。ありがたく使わせていただきます。
 
-- [Ubuntu Font Family](http://font.ubuntu.com/)
+- [Ubuntu Font Family](https://font.ubuntu.com/)
 - [やさしさゴシックボールドV2](https://booth.pm/ja/items/1833993)
-- [M+ FONTS](https://mplus-fonts.osdn.jp/)
+- [M+ FONTS](https://mplusfonts.github.io/)

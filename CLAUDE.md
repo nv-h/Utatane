@@ -58,15 +58,20 @@ ls -la bin/fontforge
 ```
 
 ### フォント生成
+`uv run` 経由で実行します。`uv run` が `.venv` の `ttx`（fontTools）を PATH に入れるため、FontForge から呼ぶ `ttx` が見つかります。`ttx` が無い場合、`utatane.py` は起動時に止まります。
+
 ```bash
-# FontForge でフォント生成（Windows）
-& 'c:\Program Files (x86)\FontForgeBuilds\bin\fontforge' -lang=py -script .\utatane.py
+# Python 依存（fonttools, matplotlib）のインストール
+uv sync
+
+# FontForge でフォント生成（Windows、64bit版インストーラーの既定の場所）
+uv run 'C:\Program Files\FontForgeBuilds\bin\fontforge.exe' -lang=py -script .\utatane.py
 
 # FontForge でフォント生成（Unix系、サブモジュール版）
-./fontforge/build/bin/fontforge -lang=py -script ./utatane.py
+uv run ./fontforge/build/bin/fontforge -lang=py -script ./utatane.py
 
 # FontForge でフォント生成（Unix系、標準版）
-fontforge -lang=py -script ./utatane.py
+uv run fontforge -lang=py -script ./utatane.py
 ```
 
 ### グリフ形状比較ツール
@@ -94,12 +99,14 @@ M+、やさしさゴシック、Utataneの3フォントでグリフ形状を詳�
 
 ### 重要な実行時の注意
 - `import fontforge`を含むPythonスクリプトは、必ず`fontforge -lang=py -script`で実行してください
-- 現在は`./fontforge/build/bin/fontforge`にサブモジュールの最新ソースコードでビルドした実行ファイルを使用
+- Unix系では`./fontforge/build/bin/fontforge`にサブモジュール（FontForge 20251009）からビルドした実行ファイルを使用
+- Windowsでは FontForge 20251009 の公式ビルド（`C:\Program Files\FontForgeBuilds`）を使用
 
 ### 依存関係
-- FontForge がサブモジュールとして含まれています（ビルドが必要）
-- `fonttools`パッケージ: `pip install fonttools`
-- `matplotlib`パッケージ: グリフ形状比較用（`uv add matplotlib`で自動インストール）
+- FontForge がサブモジュールとして含まれています（Unix系はビルドが必要）
+- Python パッケージは `pyproject.toml` で管理し、`uv sync` でインストールします
+  - `fonttools`: xAvgCharWidth 修正の `ttx`、分析スクリプト
+  - `matplotlib`: グリフ形状比較用
 - 生成されたフォントは`dist/`ディレクトリに保存されます
 
 ### テスト
@@ -113,14 +120,14 @@ python test/font_compare.py --visual -f1 v1.2.1_Utatane-Regular -f2 v1.3.0_Utata
 
 ## 重要な実装詳細
 
-### フォント後処理（utatane.py:276-290）
+### フォント後処理（`post_process()`）
 `post_process()`関数で座標値の最適化を実行:
 - `removeOverlap()`: 重複する輪郭を削除
 - `round()`: 座標を整数値に丸める  
 - `autoHint()`, `autoInstr()`: ヒンティング情報を自動生成
 
-### xAvgCharWidth修正（utatane.py:440-469）
-FontForgeで生成されたフォントのxAvgCharWidthが不正になる問題を、`ttx`コマンドを使用して修正します。
+### xAvgCharWidth修正（`fix_xAvgCharWidth()`）
+FontForgeで生成されたフォントのxAvgCharWidthが不正になる問題を、`ttx`コマンドを使用して修正します。`ttx`が失敗した場合はその場でエラーになります。
 
 ### デバッグモード
 `DEBUG = True`に設定すると:
@@ -132,7 +139,7 @@ FontForgeで生成されたフォントのxAvgCharWidthが不正になる問題�
 - `sourceFonts/`: ソースフォントファイル
 - `dist/`: 生成されたフォントの出力先
 - `tmp/`: 一時ファイル保存先
-- `fontforge/`: FontForgeのサブモジュール（最新版のソースコード）
+- `fontforge/`: FontForgeのサブモジュール（リリース 20251009 のソースコード）
 - `test/`: テスト関連ファイル
   - `font_disp.txt`: フォント表示テスト用の文字セット（欧文、日本語、罫線、ブロック要素等）
   - `font_compare.py`: 統一フォント比較ツール（FontForge/matplotlib両対応）
