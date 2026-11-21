@@ -117,7 +117,7 @@ Utatane/
 ## 開発者向け情報
 
 ### 文字幅問題について
-M+ 1mフォントとの文字幅互換性に関する詳細な調査と改善提案は `docs/character_width_comprehensive_analysis.md` を参照してください。
+M+ 1mとの文字幅比較、現行版の修正候補、幅ルールの提案は[文字幅監査と設計方針案](docs/character_width_audit.md)を参照してください。
 
 ### 分析ツール
 文字幅の詳細分析を行うスクリプトは `analysis/` ディレクトリに格納されています。使用方法は `analysis/README.md` を参照してください。
