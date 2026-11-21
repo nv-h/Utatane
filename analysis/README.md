@@ -99,6 +99,7 @@ FontForge の Python で実行してください。
 - `compare_with_noto_sans_mono_vf.py` / `detailed_noto_comparison_analysis.py`（Notoとの詳細比較検証）
 - `accurate_width_transformation_analysis.py` / `trace_processing_path.py`（処理経路・変換検証）
 - `investigate_polars_usage.py` / `investigate_yasashisa_gothic_influence.py`（周辺検証）
+- `win_clipping_report.py` / `visualize_win_clipping.py`（Windows の GDI で欠けるグリフの一覧と実測。fontTools と matplotlib を使うので `uv run python analysis/win_clipping_report.py` で実行。GDI の実測は Windows のみ）
 
 ## よくある問題
 
