@@ -8,3 +8,12 @@ dependencies = [
     "fonttools>=4.68.0",
     "matplotlib>=3.10.5",
 ]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.17.6",
+]
+
+[tool.ruff]
+# fontforge/ はサブモジュール、tmp/ は作業用
+extend-exclude = ["fontforge", "tmp"]

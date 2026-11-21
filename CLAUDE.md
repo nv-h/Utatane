@@ -104,9 +104,10 @@ M+、やさしさゴシック、Utataneの3フォントでグリフ形状を詳�
 
 ### 依存関係
 - FontForge がサブモジュールとして含まれています（Unix系はビルドが必要）
-- Python パッケージは `pyproject.toml` で管理し、`uv sync` でインストールします
+- Python パッケージは `pyproject.toml` と `uv.lock` で管理し、`uv sync` でインストールします
   - `fonttools`: xAvgCharWidth 修正の `ttx`、分析スクリプト
   - `matplotlib`: グリフ形状比較用
+  - `ruff`（開発用）: リンター。`uv run ruff check` で実行（設定は `pyproject.toml` の `[tool.ruff]`）
 - 生成されたフォントは`dist/`ディレクトリに保存されます
 
 ### テスト

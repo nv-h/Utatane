@@ -126,6 +126,14 @@ M+ 1mとの文字幅比較、現行版の修正候補、幅ルールの提案は
 ### 分析ツール
 文字幅の詳細分析を行うスクリプトは `analysis/` ディレクトリに格納されています。使用方法は `analysis/README.md` を参照してください。
 
+### リント
+Python の依存は `pyproject.toml` と `uv.lock` で管理しています。リンターの ruff も開発用依存に含まれています。
+
+```bash
+uv sync
+uv run ruff check
+```
+
 ## ライセンス
 
 フォント本体は、[Ubuntu Font License](https://ubuntu.com/legal/font-licence)で、生成スクリプトなどはMITライセンスとしています。
