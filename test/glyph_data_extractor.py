@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 """
 グリフデータ抽出ツール (FontForge専用)
@@ -8,12 +7,13 @@
 JSONファイルに出力する。後で別のスクリプトで可視化する。
 """
 
-import fontforge
-import sys
-import os
 import argparse
 import json
+import os
+import sys
 from pathlib import Path
+
+import fontforge
 
 # 判定ロジック副作用の184件グリフリスト
 PROBLEMATIC_GLYPHS = {
@@ -56,7 +56,7 @@ def load_font_safely(font_path):
             return None, f"フォントファイルが見つかりません: {font_path}"
         font = fontforge.open(str(font_path))
         return font, None
-    except Exception as e:
+    except OSError as e:
         return None, f"フォント読み込みエラー: {e}"
 
 def get_glyph_data(font, unicode_val):
@@ -68,7 +68,7 @@ def get_glyph_data(font, unicode_val):
     
     try:
         bbox = glyph.boundingBox()
-    except:
+    except (TypeError, ValueError):
         bbox = [0, 0, 0, 0]
     
     # 輪郭データを取得
@@ -79,7 +79,7 @@ def get_glyph_data(font, unicode_val):
             points = [[float(point.x), float(point.y)] for point in contour]
             if points:
                 contours.append(points)
-    except:
+    except (TypeError, ValueError, KeyError):
         contours = []
     
     return {
@@ -134,7 +134,7 @@ def read_test_file_chars(test_file_path, section=None):
                 for char in line:
                     if char.isprintable() and ord(char) > 32:  # 制御文字除外
                         chars.add(ord(char))
-    except Exception as e:
+    except (OSError, UnicodeDecodeError) as e:
         print(f"テストファイル読み込みエラー: {e}")
         return []
     
@@ -163,10 +163,7 @@ def get_glyph_selection(args):
     if args.unicode:
         for unicode_str in args.unicode:
             try:
-                if unicode_str.startswith('U+'):
-                    unicode_val = int(unicode_str[2:], 16)
-                else:
-                    unicode_val = int(unicode_str, 16)
+                unicode_val = int(unicode_str.removeprefix('U+'), 16)
                 selected_glyphs.add(unicode_val)
             except ValueError:
                 print(f"警告: 不正なUnicode指定 '{unicode_str}' をスキップ")
@@ -180,16 +177,10 @@ def get_glyph_selection(args):
                     start_str, end_str = range_str.split('-', 1)
                     
                     # 開始値
-                    if start_str.startswith('U+'):
-                        start_val = int(start_str[2:], 16)
-                    else:
-                        start_val = int(start_str, 16)
+                    start_val = int(start_str.removeprefix('U+'), 16)
                     
                     # 終了値
-                    if end_str.startswith('U+'):
-                        end_val = int(end_str[2:], 16)
-                    else:
-                        end_val = int(end_str, 16)
+                    end_val = int(end_str.removeprefix('U+'), 16)
                     
                     # 範囲内のすべてのコードポイントを追加
                     for code in range(start_val, end_val + 1):

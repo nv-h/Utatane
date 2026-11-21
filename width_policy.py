@@ -2,7 +2,6 @@
 
 import unicodedata
 
-
 TERMINAL_ONE_CELL = frozenset(range(0x2500, 0x2580)) | {
     0x2015,  # HORIZONTAL BAR
     0x2026,  # HORIZONTAL ELLIPSIS

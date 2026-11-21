@@ -4,15 +4,14 @@ import argparse
 import base64
 import html
 import io
-from pathlib import Path
 import unicodedata
+from pathlib import Path
 
 from fontTools import subset
 from fontTools.misc.roundTools import otRound
 from fontTools.pens.recordingPen import DecomposingRecordingPen
 from fontTools.ttLib import TTFont
 from fontTools.varLib.instancer import instantiateVariableFont
-
 
 SAMPLES = (
     ('単独の上付き', 'x\u0301', (0x0301,)),

@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 import fontforge
-import sys
+
 
 def trace_processing_path():
     """問題グリフがどの処理パスを通るかを詳細分析"""
@@ -19,7 +18,7 @@ def trace_processing_path():
     
     try:
         yasashisa_font = fontforge.open(yasashisa_path)
-    except Exception as e:
+    except OSError as e:
         print(f"やさしさゴシックフォントを開けませんでした: {e}")
         return
     

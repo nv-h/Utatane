@@ -1,16 +1,16 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 """
 FontForgeを使用したフォント比較ツール
 文字幅、メトリクス、グリフの詳細な比較を行います
 """
 
-import fontforge
+import argparse
 import os
 import sys
-import argparse
 from collections import OrderedDict
+
+import fontforge
 
 
 def load_font_safely(font_path):
@@ -21,7 +21,7 @@ def load_font_safely(font_path):
     try:
         font = fontforge.open(font_path)
         return font, None
-    except Exception as e:
+    except OSError as e:
         return None, f"フォント読み込みエラー: {e}"
 
 
@@ -79,7 +79,7 @@ def read_test_strings(filepath):
                     current_section = "ハイフン・ダッシュ"
                     sections[current_section] = []
                     continue
-                elif line.startswith('    ') or line.startswith('U+25') or line.startswith('U+26'):
+                elif line.startswith(('    ', 'U+25', 'U+26')):
                     # 表の行はスキップ
                     continue
                 elif '▀▁▂▃▄▅▆▇█' in line or '┌──────────┬' in line:
@@ -89,7 +89,7 @@ def read_test_strings(filepath):
                 
                 sections[current_section].append(line)
     
-    except Exception as e:
+    except (OSError, UnicodeDecodeError) as e:
         print(f"テストファイル読み込みエラー: {e}")
         return {"エラー": []}
     

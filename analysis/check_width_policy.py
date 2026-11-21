@@ -5,8 +5,8 @@ Run from the repository root with FontTools installed:
 """
 
 import argparse
-from pathlib import Path
 import unicodedata
+from pathlib import Path
 
 from fontTools.ttLib import TTFont
 

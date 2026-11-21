@@ -1,18 +1,14 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
-from __future__ import division
-from __future__ import print_function
-# from __future__ import unicode_literals # Windowsで文字化けするのでコメントアウト
-
-import fontforge
-import psMat
+import datetime
+import math
 import os
 import sys
-import math
-import datetime
 import unicodedata
 
+import psMat
+
+import fontforge
 from width_policy import expected_cells
 
 VERSION = '1.3.2'
@@ -102,8 +98,10 @@ SOURCE = './sourceFonts'
 DIST = './dist'
 JP_TEMP = './tmp/jp_font.sfd'
 EN_TEMP = './tmp/en_font.sfd'
-LICENSE = open('./LICENSE.txt', encoding='utf-8').read()
-COPYRIGHT = open('./COPYRIGHT.txt', encoding='utf-8').read()
+with open('./LICENSE.txt', encoding='utf-8') as _license_file:
+    LICENSE = _license_file.read()
+with open('./COPYRIGHT.txt', encoding='utf-8') as _copyright_file:
+    COPYRIGHT = _copyright_file.read()
 
 # 出力をデコるときに使う文字
 DECO_CHAR = '-'
@@ -147,7 +145,7 @@ fonts = [
 ]
 
 def deco_print(_str):
-    print('')
+    print()
     print(DECO_CHAR*len(_str))
     print(_str)
     print(DECO_CHAR*len(_str))
@@ -310,7 +308,7 @@ def position_latin_above_marks(font):
 
 
 def indent_print(_str):
-    print('')
+    print()
     print('++ ' + _str)
 
 
@@ -323,15 +321,15 @@ def check_files():
     err = 0
     for f in fonts:
         if not os.path.isfile(SOURCE + '/{}'.format(f.get('latin'))):
-            print('{} not exists.'.format(f))
+            print(f'{f} not exists.')
             err = 1
 
         if not os.path.isfile(SOURCE + '/{}'.format(f.get('japanese'))):
-            print('{} not exists.'.format(f))
+            print(f'{f} not exists.')
             err = 1
 
         if not os.path.isfile(SOURCE + '/{}'.format(f.get('mplus'))):
-            print('{} not exists.'.format(f))
+            print(f'{f} not exists.')
             err = 1
 
     if err > 0:
@@ -659,7 +657,7 @@ def fix_xAvgCharWidth(_src_ttf, _dst_ttf):
     '''
     import xml.etree.ElementTree as ET
 
-    deco_print('fix xAvgCharWidth: {} to {}'.format(_src_ttf, _dst_ttf))
+    deco_print(f'fix xAvgCharWidth: {_src_ttf} to {_dst_ttf}')
 
     # 元のフォントからxAvgCharWidth読み出し
     src_root, _ = os.path.splitext(_src_ttf)
@@ -671,7 +669,7 @@ def fix_xAvgCharWidth(_src_ttf, _dst_ttf):
     dst_root, _ = os.path.splitext(_dst_ttf)
     os.system('ttx -f -t OS/2 ' + _dst_ttf)
     dst_tree = ET.parse(dst_root + '.ttx')
-    dst_tree.find('OS_2').find('xAvgCharWidth').set('value', '{}'.format(src_AvgCharWidth))
+    dst_tree.find('OS_2').find('xAvgCharWidth').set('value', f'{src_AvgCharWidth}')
     dst_tree.write(dst_root + '.ttx', 'utf-8', True)
 
     # 変更したやつを反映

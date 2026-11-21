@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 import fontforge
-import sys
+
 
 def detailed_noto_comparison_analysis():
     """Noto Sans Mono CJK VFとの詳細比較分析（特に問題グリフに焦点）"""
@@ -15,7 +14,7 @@ def detailed_noto_comparison_analysis():
         noto_font = fontforge.open(noto_path)
         utatane_font = fontforge.open(utatane_path)
         mplus_font = fontforge.open(mplus_path)
-    except Exception as e:
+    except OSError as e:
         print(f"フォントを開けませんでした: {e}")
         return
     
@@ -78,7 +77,7 @@ def detailed_noto_comparison_analysis():
                 char_name = unicodedata.name(chr(code), "UNKNOWN")[:40]
             else:
                 char_display = f"[U+{code:04X}]"
-        except:
+        except (ValueError, OverflowError):
             char_display = "[表示不可]"
         
         # Unicode範囲分類
@@ -121,7 +120,7 @@ def detailed_noto_comparison_analysis():
     # フィルタリング：3つのフォント全てに存在するもの
     valid_comparisons = [d for d in comparison_data if d['noto_exists'] and d['utatane_exists'] and d['mplus_exists']]
     
-    print(f"【比較対象】")
+    print("【比較対象】")
     print(f"問題グリフ総数: {len(problem_glyphs_codes)}件")
     print(f"3フォント共通: {len(valid_comparisons)}件")
     print()

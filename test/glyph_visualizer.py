@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 """
 グリフ可視化ツール
@@ -8,18 +7,18 @@ JSONファイルから読み込んだグリフデータを用いて、
 3フォント比較のPDFを生成する。
 """
 
+import argparse
 import json
 import sys
-import argparse
 from pathlib import Path
 
 try:
     import matplotlib
     matplotlib.use('Agg')
-    import matplotlib.pyplot as plt
-    from matplotlib.backends.backend_pdf import PdfPages
-    import matplotlib.patches as patches
     import matplotlib.font_manager as fm
+    import matplotlib.pyplot as plt
+    from matplotlib import patches
+    from matplotlib.backends.backend_pdf import PdfPages
     MATPLOTLIB_AVAILABLE = True
     
     # Utataneフォントを日本語表示用に設定
@@ -44,7 +43,7 @@ try:
             else:
                 print("警告: Utataneフォントが見つかりません。デフォルトフォントを使用します。")
                 return None
-        except Exception as e:
+        except (OSError, RuntimeError, ValueError) as e:
             print(f"警告: フォント設定でエラーが発生: {e}。デフォルトフォントを使用します。")
             return None
     
@@ -134,7 +133,7 @@ def create_glyph_comparison_plot(data, output_pdf):
     for key in ['mplus', 'yasashisa', 'utatane']:
         try:
             font_display_names[key] = fonts_data.get(key, {}).get('fontname') or default_display_names[key]
-        except Exception:
+        except AttributeError:
             font_display_names[key] = default_display_names.get(key, key)
     
     # PDF出力の準備
@@ -222,7 +221,7 @@ def main():
     try:
         with open(args.json_file, 'r', encoding='utf-8') as f:
             data = json.load(f)
-    except Exception as e:
+    except (OSError, ValueError) as e:
         print(f"エラー: JSONファイル読み込み失敗: {e}")
         return 1
     

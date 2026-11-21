@@ -1,9 +1,8 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 import unittest
-import fontforge
 
+import fontforge
 
 REGULAR_FONT = 'Utatane-Regular.ttf'
 BOLD_FONT = 'Utatane-Bold.ttf'

@@ -6,9 +6,9 @@ FontForgeベースのフォント分析用共通ユーティリティ関数群
 使用方法: fontforge -lang=py -script analysis_script.py
 """
 
-import sys
 import os
-from typing import Dict, List, Tuple, Optional, Any, Set, Union
+import sys
+from typing import Any
 
 try:
     import fontforge
@@ -21,7 +21,7 @@ except ImportError:
 class FontAnalyzer:
     """フォント分析用のメインクラス"""
     
-    def __init__(self, font_paths: Dict[str, str]):
+    def __init__(self, font_paths: dict[str, str]):
         """
         Args:
             font_paths: フォント名とパスの辞書 {"name": "path/to/font.ttf"}
@@ -43,12 +43,12 @@ class FontAnalyzer:
     
     def close_fonts(self):
         """開いているフォントをすべて閉じる"""
-        for name, font in self.fonts.items():
+        for font in self.fonts.values():
             if font:
                 font.close()
         self.fonts.clear()
     
-    def get_font_info(self, font_name: str) -> Dict[str, Any]:
+    def get_font_info(self, font_name: str) -> dict[str, Any]:
         """フォントの基本情報を取得"""
         if font_name not in self.fonts:
             raise ValueError(f"フォント '{font_name}' が見つかりません")
@@ -62,7 +62,7 @@ class FontAnalyzer:
             'glyph_count': len([g for g in font.glyphs() if g.isWorthOutputting])
         }
     
-    def get_glyph_set(self, font_name: str) -> Set[int]:
+    def get_glyph_set(self, font_name: str) -> set[int]:
         """フォント内のグリフのエンコーディング一覧を取得"""
         if font_name not in self.fonts:
             raise ValueError(f"フォント '{font_name}' が見つかりません")
@@ -70,7 +70,7 @@ class FontAnalyzer:
         font = self.fonts[font_name]
         return {g.encoding for g in font.glyphs() if g.isWorthOutputting and g.encoding >= 0}
     
-    def get_glyph_width(self, font_name: str, char_code: int) -> Optional[int]:
+    def get_glyph_width(self, font_name: str, char_code: int) -> int | None:
         """指定した文字コードの幅を取得"""
         if font_name not in self.fonts:
             raise ValueError(f"フォント '{font_name}' が見つかりません")
@@ -80,7 +80,7 @@ class FontAnalyzer:
             return font[char_code].width
         return None
     
-    def compare_widths(self, char_codes: List[int], font_names: List[str] = None) -> List[Dict]:
+    def compare_widths(self, char_codes: list[int], font_names: list[str] | None = None) -> list[dict]:
         """複数フォント間で文字幅を比較"""
         if font_names is None:
             font_names = list(self.fonts.keys())
@@ -109,7 +109,7 @@ class FontAnalyzer:
         
         return results
     
-    def analyze_unicode_ranges(self, font_names: List[str] = None) -> Dict[str, List[Dict]]:
+    def analyze_unicode_ranges(self, font_names: list[str] | None = None) -> dict[str, list[dict]]:
         """Unicode範囲別に文字を分析"""
         if font_names is None:
             font_names = list(self.fonts.keys())
@@ -129,7 +129,7 @@ class FontAnalyzer:
         return results
     
     @staticmethod
-    def get_unicode_ranges() -> Dict[str, Tuple[int, int]]:
+    def get_unicode_ranges() -> dict[str, tuple[int, int]]:
         """Unicode範囲の定義を取得"""
         return {
             "ASCII制御": (0x0000, 0x001F),
@@ -166,7 +166,7 @@ class FontAnalyzer:
         }
     
     @staticmethod
-    def get_symbol_categories() -> Dict[str, List[int]]:
+    def get_symbol_categories() -> dict[str, list[int]]:
         """記号カテゴリの定義を取得"""
         return {
             "幾何図形": [
@@ -198,7 +198,7 @@ class FontAnalyzer:
                 return chr(char_code)
             else:
                 return f"[U+{char_code:04X}]"
-        except:
+        except (ValueError, OverflowError):
             return "[表示不可]"
 
 
@@ -216,7 +216,7 @@ class ReportGenerator:
         print(f"  グリフ数: {info['glyph_count']}")
     
     @staticmethod
-    def print_width_comparison_summary(comparison_results: List[Dict], title: str = "文字幅比較結果"):
+    def print_width_comparison_summary(comparison_results: list[dict], title: str = "文字幅比較結果"):
         """文字幅比較結果のサマリーを出力"""
         total = len(comparison_results)
         inconsistencies = [r for r in comparison_results if r['has_inconsistency']]
@@ -232,7 +232,7 @@ class ReportGenerator:
         return inconsistencies
     
     @staticmethod
-    def print_width_details(inconsistencies: List[Dict], max_display: int = 20):
+    def print_width_details(inconsistencies: list[dict], max_display: int = 20):
         """文字幅不一致の詳細を出力"""
         if not inconsistencies:
             return
@@ -259,7 +259,7 @@ class ReportGenerator:
             print(f"... 他{len(inconsistencies) - max_display}件")
     
     @staticmethod
-    def print_range_analysis(range_results: Dict[str, List[Dict]], show_details: bool = False):
+    def print_range_analysis(range_results: dict[str, list[dict]], show_details: bool = False):
         """Unicode範囲別分析結果を出力"""
         print("\n【Unicode範囲別分析】")
         
@@ -275,7 +275,7 @@ class ReportGenerator:
             print(f"{status} {range_name}: {consistent}/{total} ({consistent/total*100:.1f}%)")
             
             if show_details and inconsistencies:
-                print(f"  不一致文字: ", end="")
+                print("  不一致文字: ", end="")
                 for i, result in enumerate(inconsistencies[:5]):
                     if i > 0:
                         print(", ", end="")
@@ -285,7 +285,7 @@ class ReportGenerator:
                 print()
 
 
-def get_default_font_paths() -> Dict[str, str]:
+def get_default_font_paths() -> dict[str, str]:
     """デフォルトのフォントパス設定を取得（固定パス）"""
     return {
         'mplus': './sourceFonts/mplus-1m-regular.ttf',
@@ -298,7 +298,7 @@ def get_default_font_paths() -> Dict[str, str]:
         'utatane_bold': './dist/Utatane-Bold.ttf'
     }
 
-def find_available_fonts() -> Dict[str, str]:
+def find_available_fonts() -> dict[str, str]:
     """利用可能なフォントファイルを動的に検索"""
     import glob
     
@@ -328,7 +328,7 @@ def find_available_fonts() -> Dict[str, str]:
     return fonts
 
 
-def get_all_font_paths() -> Dict[str, str]:
+def get_all_font_paths() -> dict[str, str]:
     """固定パス + 動的検索の全フォントパスを取得"""
     default_fonts = get_default_font_paths()
     discovered_fonts = find_available_fonts()
@@ -366,7 +366,7 @@ def list_available_fonts() -> None:
     print(f"\n合計: {len(existing_fonts)} 個のフォントが利用可能")
 
 
-def create_analyzer_with_error_handling(font_selection: List[str] = None) -> Optional[FontAnalyzer]:
+def create_analyzer_with_error_handling(font_selection: list[str] | None = None) -> FontAnalyzer | None:
     """エラーハンドリング付きでFontAnalyzerを作成"""
     if font_selection is None:
         font_selection = ['mplus', 'ubuntu', 'yasashisa']
@@ -404,7 +404,7 @@ def create_analyzer_with_error_handling(font_selection: List[str] = None) -> Opt
     
     try:
         return FontAnalyzer(selected_paths)
-    except Exception as e:
+    except OSError as e:
         print(f"FontAnalyzerの初期化に失敗しました: {e}")
         return None
 
