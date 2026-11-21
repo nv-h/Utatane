@@ -54,10 +54,10 @@ def accurate_width_transformation_analysis():
         mplus_width = None
         yasashisa_width = None
 
-        if code in mplus_font and mplus_font[code].isWorthOutputting:
+        if code in mplus_font and mplus_font[code].isWorthOutputting():
             mplus_width = mplus_font[code].width
 
-        if code in yasashisa_font and yasashisa_font[code].isWorthOutputting:
+        if code in yasashisa_font and yasashisa_font[code].isWorthOutputting():
             yasashisa_width = yasashisa_font[code].width
 
         # JP_REDUCTION_MATによる変換

@@ -38,9 +38,11 @@ def find_available_fonts():
 
 def get_fontforge_command():
     """FontForgeコマンドのパスを取得"""
+    repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     candidates = [
-        "../fontforge/build/bin/fontforge",
+        os.path.join(repo_root, "fontforge", "build", "bin", "fontforge"),
         "fontforge",
+        "C:\\Program Files\\FontForgeBuilds\\bin\\fontforge.exe",
         "C:\\Program Files (x86)\\FontForgeBuilds\\bin\\fontforge.exe",
     ]
 

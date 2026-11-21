@@ -59,7 +59,7 @@ class FontAnalyzer:
             "em_square": font.em,
             "ascent": font.ascent,
             "descent": font.descent,
-            "glyph_count": len([g for g in font.glyphs() if g.isWorthOutputting]),
+            "glyph_count": len([g for g in font.glyphs() if g.isWorthOutputting()]),
         }
 
     def get_glyph_set(self, font_name: str) -> set[int]:
@@ -69,7 +69,9 @@ class FontAnalyzer:
 
         font = self.fonts[font_name]
         return {
-            g.encoding for g in font.glyphs() if g.isWorthOutputting and g.encoding >= 0
+            g.encoding
+            for g in font.glyphs()
+            if g.isWorthOutputting() and g.encoding >= 0
         }
 
     def get_glyph_width(self, font_name: str, char_code: int) -> int | None:
@@ -78,7 +80,7 @@ class FontAnalyzer:
             raise ValueError(f"フォント '{font_name}' が見つかりません")
 
         font = self.fonts[font_name]
-        if char_code in font and font[char_code].isWorthOutputting:
+        if char_code in font and font[char_code].isWorthOutputting():
             return font[char_code].width
         return None
 

@@ -72,7 +72,7 @@ def trace_processing_path():
     for code, char, category in problem_glyphs:
         # やさしさゴシックでの幅をチェック
         yasashisa_width = None
-        if code in yasashisa_font and yasashisa_font[code].isWorthOutputting:
+        if code in yasashisa_font and yasashisa_font[code].isWorthOutputting():
             yasashisa_width = yasashisa_font[code].width
 
         # どの処理パスを通るかを判定
@@ -132,7 +132,7 @@ def trace_processing_path():
 
     yasashisa_widths = []
     for code, char, category in problem_glyphs:
-        if code in yasashisa_font and yasashisa_font[code].isWorthOutputting:
+        if code in yasashisa_font and yasashisa_font[code].isWorthOutputting():
             yasashisa_widths.append(yasashisa_font[code].width)
 
     if yasashisa_widths:
@@ -148,7 +148,7 @@ def trace_processing_path():
 
         print("推定縮小後幅（JP_REDUCTION_MAT適用後）:")
         for code, char, category in problem_glyphs[:5]:  # 最初の5件
-            if code in yasashisa_font and yasashisa_font[code].isWorthOutputting:
+            if code in yasashisa_font and yasashisa_font[code].isWorthOutputting():
                 original_width = yasashisa_font[code].width
                 estimated_width = original_width * JP_A_RAT
                 exceeds_threshold = estimated_width > 700

@@ -146,9 +146,9 @@ def detailed_noto_comparison_analysis():
 
     for code in problem_glyphs_codes:
         # 各フォントでの存在・幅チェック
-        noto_exists = code in noto_font and noto_font[code].isWorthOutputting
-        utatane_exists = code in utatane_font and utatane_font[code].isWorthOutputting
-        mplus_exists = code in mplus_font and mplus_font[code].isWorthOutputting
+        noto_exists = code in noto_font and noto_font[code].isWorthOutputting()
+        utatane_exists = code in utatane_font and utatane_font[code].isWorthOutputting()
+        mplus_exists = code in mplus_font and mplus_font[code].isWorthOutputting()
 
         noto_width = noto_font[code].width if noto_exists else None
         utatane_width = utatane_font[code].width if utatane_exists else None

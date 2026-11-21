@@ -207,7 +207,7 @@ def read_mplus_widths():
     widths = {
         codepoint: glyph.width // half
         for glyph in reference.glyphs()
-        if glyph.isWorthOutputting and glyph.width in (half, 2 * half)
+        if glyph.isWorthOutputting() and glyph.width in (half, 2 * half)
         for codepoint in unicode_mappings(glyph)
     }
     reference.close()
@@ -246,7 +246,7 @@ def fit_grid_outline(glyph, codepoints, target_width, x_min, x_max):
 def apply_width_policy(font, mplus_cells, latin_codepoints):
     pending = []
     for glyph in font.glyphs():
-        if not glyph.isWorthOutputting:
+        if not glyph.isWorthOutputting():
             continue
         codepoints = tuple(unicode_mappings(glyph))
         widths = {expected_cells(codepoint, mplus_cells) for codepoint in codepoints}
@@ -314,7 +314,7 @@ def position_latin_above_marks(font):
     gap = 50
     above_marks = []
     for glyph in font.glyphs():
-        if glyph.unicode < 0 or not glyph.isWorthOutputting:
+        if glyph.unicode < 0 or not glyph.isWorthOutputting():
             continue
         character = chr(glyph.unicode)
         if glyph.width == 0 and unicodedata.combining(character) == 230:
@@ -348,7 +348,7 @@ def use_dotless_before_above_marks(font, above_marks, scripts):
         glyph.unicode: glyph
         for glyph in font.glyphs()
         if glyph.unicode in DOTLESS_FORMS.keys() | DOTLESS_FORMS.values()
-        and glyph.isWorthOutputting
+        and glyph.isWorthOutputting()
     }
     pairs = [
         (glyphs[dotted], glyphs[dotless])
@@ -564,7 +564,7 @@ def modify_and_save_latin(_f, _savepath):
     latin_font = set_height(latin_font)
 
     for g in latin_font.glyphs():
-        if not g.isWorthOutputting:
+        if not g.isWorthOutputting():
             # 不要っぽいやつを削除
             latin_font.selection.select(g)
             latin_font.clear()
@@ -588,7 +588,7 @@ def modify_and_save_latin(_f, _savepath):
     codepoints = {
         codepoint
         for glyph in latin_font.glyphs()
-        if glyph.isWorthOutputting
+        if glyph.isWorthOutputting()
         for codepoint in unicode_mappings(glyph)
     }
     cap_height = latin_font.capHeight
@@ -667,7 +667,7 @@ def modify_and_save_jp(_f, _savepath, _latin_cap_height):
     mplus_font.close()
 
     for g in jp_font.glyphs():
-        if not g.isWorthOutputting:
+        if not g.isWorthOutputting():
             # 不要っぽいやつは消しちゃう
             jp_font.selection.select(g)
             jp_font.clear()

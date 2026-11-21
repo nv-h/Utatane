@@ -38,15 +38,15 @@ def compare_with_noto_sans_mono_vf():
     mplus_glyphs = set()
 
     for glyph in noto_font.glyphs():
-        if glyph.isWorthOutputting and glyph.encoding >= 0:
+        if glyph.isWorthOutputting() and glyph.encoding >= 0:
             noto_glyphs.add(glyph.encoding)
 
     for glyph in utatane_font.glyphs():
-        if glyph.isWorthOutputting and glyph.encoding >= 0:
+        if glyph.isWorthOutputting() and glyph.encoding >= 0:
             utatane_glyphs.add(glyph.encoding)
 
     for glyph in mplus_font.glyphs():
-        if glyph.isWorthOutputting and glyph.encoding >= 0:
+        if glyph.isWorthOutputting() and glyph.encoding >= 0:
             mplus_glyphs.add(glyph.encoding)
 
     # 共通グリフ
