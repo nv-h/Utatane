@@ -17,3 +17,7 @@ dev = [
 [tool.ruff]
 # fontforge/ はサブモジュール、tmp/ は作業用
 extend-exclude = ["fontforge", "tmp"]
+
+[tool.ruff.format]
+# docs/ の調査資料は当時のコードをそのまま引用しているので整形しない
+exclude = ["*.md"]

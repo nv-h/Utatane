@@ -107,7 +107,7 @@ M+、やさしさゴシック、Utataneの3フォントでグリフ形状を詳�
 - Python パッケージは `pyproject.toml` と `uv.lock` で管理し、`uv sync` でインストールします
   - `fonttools`: xAvgCharWidth 修正の `ttx`、分析スクリプト
   - `matplotlib`: グリフ形状比較用
-  - `ruff`（開発用）: リンター。`uv run ruff check` で実行（設定は `pyproject.toml` の `[tool.ruff]`）
+  - `ruff`（開発用）: リンター・フォーマッター。`uv run ruff check` と `uv run ruff format` で実行（設定は `pyproject.toml` の `[tool.ruff]`。Markdown内のコードは整形しない）
 - 生成されたフォントは`dist/`ディレクトリに保存されます
 
 ### テスト
