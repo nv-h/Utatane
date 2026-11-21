@@ -717,7 +717,8 @@ def fix_xAvgCharWidth(_src_ttf, _dst_ttf):
     '''AvgCharWidthがおかしくなるので、元のフォントの値に書き換える
     require: fontToolsのttx (`uv sync` でインストールし、`uv run` 経由で実行する)
 
-    refer: https://ja.osdn.net/projects/mplus-fonts/lists/archive/dev/2011-July/000619.html
+    refer: https://web.archive.org/web/20240205173549/https://osdn.net/projects/mplus-fonts/lists/archive/dev/2011-July/000619.html
+           (OSDN終了のためWayback Machineのアーカイブ)
     '''
     import xml.etree.ElementTree as ET
 
