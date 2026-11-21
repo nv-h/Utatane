@@ -100,6 +100,7 @@ FontForge の Python で実行してください。
 - `accurate_width_transformation_analysis.py` / `trace_processing_path.py`（処理経路・変換検証）
 - `investigate_polars_usage.py` / `investigate_yasashisa_gothic_influence.py`（周辺検証）
 - `win_clipping_report.py` / `visualize_win_clipping.py`（Windows の GDI で欠けるグリフの一覧と実測。fontTools と matplotlib を使うので `uv run python analysis/win_clipping_report.py` で実行。GDI の実測は Windows のみ）
+- `compare_builds_report.py`（生成したフォントの版どうしを GDI・ブラウザーの描画と字形の差で比べる HTML。`--variant ラベル=ディレクトリ` を並べて指定）
 
 ## よくある問題
 

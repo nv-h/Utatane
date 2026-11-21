@@ -119,6 +119,9 @@ DEBUG = False
 # Windows の GDI で欠けないよう、win の範囲からはみ出す文字を縮める（fit_within_win_metrics）。
 # False にするか、コマンドライン引数に --no-fit-win-metrics を付けると、縮めずに元の字形のまま生成する。
 FIT_WIN_METRICS = "--no-fit-win-metrics" not in sys.argv[1:]
+# TrueType のヒンティング命令を自動生成して付ける（既定は付けない。従来の配布フォントも命令なし）。
+# True にするか、コマンドライン引数に --ttf-hinting を付けると有効になる。
+TTF_HINTING = "--ttf-hinting" in sys.argv[1:]
 # 縮めた後の丸めやヒンティングで端が1〜2単位はみ出すので、範囲の内側に少し余裕を取る
 FIT_MARGIN = 4
 # これ以下の大きさ（縦横とも）の輪郭は描画に寄与しないので取り除く（16pxで約0.03px）
@@ -635,10 +638,14 @@ def post_process(_font):
     # 重なりの除去・丸め・変換で、描画に寄与しない輪郭ができることがある
     removed = sum(remove_degenerate_contours(g) for g in _font.glyphs())
     indent_print(f"removed {removed} degenerate contours after removeOverlap/round")
-    # TrueType のヒンティング命令（autoHint / autoInstr）は付けない。
+    # TrueType のヒンティング命令（autoHint / autoInstr）は既定では付けない。
     # これまでは3次曲線のまま autoInstr() を呼んでいたため何も生成されず、
     # 配布フォントは命令なしだった。2次曲線にすると命令が付いて小さいサイズの
-    # 見た目が変わるので、従来どおり命令なしで出力する。
+    # 見た目が変わるので、従来どおり命令なしで出力する（TTF_HINTING で付けられる）。
+    if TTF_HINTING:
+        indent_print("adding TrueType hinting instructions")
+        _font.autoHint()
+        _font.autoInstr()
     _font.selection.none()
 
     return _font

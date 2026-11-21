@@ -72,6 +72,7 @@ uv run 'C:\Program Files\FontForgeBuilds\bin\fontforge.exe' -lang=py -script .\u
 ### オプション
 - `--no-fit-win-metrics`：Windows（GDI）で欠けないようにする縮小をせず、元の字形のまま生成します。
   既定では、行の上下（usWinAscent / usWinDescent）からはみ出すベトナム語の大文字などを縮めて収めています。
+- `--ttf-hinting`：TrueType のヒンティング命令を自動生成して付けます（既定は付けません。従来の配布フォントも命令なしです）。
 
 ### 生成確認
 生成が成功すると、`dist/`ディレクトリに以下のファイルが作成されます：
