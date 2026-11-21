@@ -45,7 +45,7 @@ def open_fonts():
 
 def get_width(font, codepoint):
     try:
-        if codepoint in font and font[codepoint].isWorthOutputting:
+        if codepoint in font and font[codepoint].isWorthOutputting():
             return font[codepoint].width
     except (TypeError, ValueError, KeyError):
         return None

@@ -116,11 +116,11 @@ def investigate_yasashisa_gothic_influence():
             char_display = "[表示不可]"
 
         # 各フォントでの存在・幅チェック
-        mplus_exists = code in mplus_font and mplus_font[code].isWorthOutputting
+        mplus_exists = code in mplus_font and mplus_font[code].isWorthOutputting()
         yasashisa_exists = (
-            code in yasashisa_font and yasashisa_font[code].isWorthOutputting
+            code in yasashisa_font and yasashisa_font[code].isWorthOutputting()
         )
-        utatane_exists = code in utatane_font and utatane_font[code].isWorthOutputting
+        utatane_exists = code in utatane_font and utatane_font[code].isWorthOutputting()
 
         mplus_width = mplus_font[code].width if mplus_exists else None
         yasashisa_width = yasashisa_font[code].width if yasashisa_exists else None

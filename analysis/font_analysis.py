@@ -380,7 +380,7 @@ def cmd_diagnose(args):
         glyphs = []
         for g in font.glyphs():
             total += 1
-            if g.isWorthOutputting:
+            if g.isWorthOutputting():
                 worth += 1
                 if g.encoding >= 0:
                     enc += 1
