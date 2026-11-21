@@ -5,7 +5,9 @@ import unicodedata
 TERMINAL_ONE_CELL = frozenset(range(0x2500, 0x2580)) | {
     0x2015,  # HORIZONTAL BAR
     0x2026,  # HORIZONTAL ELLIPSIS
-    0x2591, 0x2592, 0x2593,  # Shade characters
+    0x2591,
+    0x2592,
+    0x2593,  # Shade characters
 }
 
 SPACE_CELLS = {0x2002: 1, 0x2003: 2}  # EN SPACE, EM SPACE

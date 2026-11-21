@@ -14,62 +14,64 @@ from fontTools.ttLib import TTFont
 from fontTools.varLib.instancer import instantiateVariableFont
 
 SAMPLES = (
-    ('単独の上付き', 'x\u0301', (0x0301,)),
-    ('単独の下付き', 'x\u0323', (0x0323,)),
-    ('上付き2つ', 'x\u0301\u0308', (0x0301, 0x0308)),
-    ('合成済み文字への追加', '\u1E8D\u0301', (0x0301,)),
-    ('2文字にまたがる記号', 'a\u0361b', (0x0361,)),
-    ('結合濁点', 'あ\u3099', (0x3099,)),
-    ('結合半濁点', 'あ\u309A', (0x309A,)),
-    ('合成できる濁点', 'か\u3099', (0x3099,)),
-    ('合成済みの「が」', 'が', ()),
+    ("単独の上付き", "x\u0301", (0x0301,)),
+    ("単独の下付き", "x\u0323", (0x0323,)),
+    ("上付き2つ", "x\u0301\u0308", (0x0301, 0x0308)),
+    ("合成済み文字への追加", "\u1e8d\u0301", (0x0301,)),
+    ("2文字にまたがる記号", "a\u0361b", (0x0361,)),
+    ("結合濁点", "あ\u3099", (0x3099,)),
+    ("結合半濁点", "あ\u309a", (0x309A,)),
+    ("合成できる濁点", "か\u3099", (0x3099,)),
+    ("合成済みの「が」", "が", ()),
 )
 
 OVERVIEW_SAMPLES = (
-    ('英数字と記号', '0O1Il'),
-    ('英数と日本語', 'A漢B'),
-    ('アクセント付きラテン文字', 'áḾ'),
-    ('罫線', '┌─┐'),
-    ('網掛け', '░▒▓'),
-    ('矢印', '←→'),
-    ('全角英数', 'Ａ０'),
-    ('全角スペース', '\u3000'),
-    ('ひらがな・カタカナ', 'あア'),
-    ('半角カナと濁点', 'ｶﾞ'),
-    ('和文の括弧', '「文」'),
-    ('和文の句読点', '。、'),
-    ('ギリシャ文字', 'αΩ'),
-    ('キリル文字', 'ЯЖ'),
-    ('省略記号', '…'),
-    ('横棒', '―'),
-    ('番号記号', '№'),
-    ('ウォン記号', '₩'),
-    ('空白可視化', '␣'),
-    ('山括弧 U+2329/U+232A', '〈文〉'),
-    ('山括弧 U+3008/U+3009', '〈文〉'),
+    ("英数字と記号", "0O1Il"),
+    ("英数と日本語", "A漢B"),
+    ("アクセント付きラテン文字", "áḾ"),
+    ("罫線", "┌─┐"),
+    ("網掛け", "░▒▓"),
+    ("矢印", "←→"),
+    ("全角英数", "Ａ０"),
+    ("全角スペース", "\u3000"),
+    ("ひらがな・カタカナ", "あア"),
+    ("半角カナと濁点", "ｶﾞ"),
+    ("和文の括弧", "「文」"),
+    ("和文の句読点", "。、"),
+    ("ギリシャ文字", "αΩ"),
+    ("キリル文字", "ЯЖ"),
+    ("省略記号", "…"),
+    ("横棒", "―"),
+    ("番号記号", "№"),
+    ("ウォン記号", "₩"),
+    ("空白可視化", "␣"),
+    ("山括弧 U+2329/U+232A", "〈文〉"),
+    ("山括弧 U+3008/U+3009", "〈文〉"),
 )
 
 
 def is_mark(cp):
-    return unicodedata.category(chr(cp)) in {'Mn', 'Me'}
+    return unicodedata.category(chr(cp)) in {"Mn", "Me"}
 
 
 def mark_sample(cp):
     if cp in (0x3099, 0x309A):
-        base = 'あ'
+        base = "あ"
     elif 0x0483 <= cp <= 0x0489:
-        base = 'а'
+        base = "а"
     elif 0x0590 <= cp <= 0x05FF:
-        base = 'א'
+        base = "א"
     else:
-        base = 'x'
-    return base + chr(cp) + ('b' if 0x035C <= cp <= 0x0362 else '')
+        base = "x"
+    return base + chr(cp) + ("b" if 0x035C <= cp <= 0x0362 else "")
 
 
 def font_advances(font, weight):
-    location = {'wght': weight} if 'fvar' in font else None
+    location = {"wght": weight} if "fvar" in font else None
     glyphs = font.getGlyphSet(location=location)
-    return {cp: otRound(glyphs[glyph].width) for cp, glyph in font.getBestCmap().items()}
+    return {
+        cp: otRound(glyphs[glyph].width) for cp, glyph in font.getBestCmap().items()
+    }
 
 
 def width_comparison(groups):
@@ -99,103 +101,186 @@ def width_comparison(groups):
     reference_delta = set()
     for index, after in enumerate(advances[1]):
         for reference in (advances[2][index], advances[3][index]):
-            reference_delta.update(cp for cp in after.keys() & reference.keys()
-                                   if after[cp] != reference[cp])
+            reference_delta.update(
+                cp
+                for cp in after.keys() & reference.keys()
+                if after[cp] != reference[cp]
+            )
 
     def glyph_row(cp, reason):
-        name = unicodedata.name(chr(cp), '')
-        return (f'U+{cp:04X}', f'{name} · {reason}', mark_sample(cp) if is_mark(cp) else chr(cp), (cp,))
+        name = unicodedata.name(chr(cp), "")
+        return (
+            f"U+{cp:04X}",
+            f"{name} · {reason}",
+            mark_sample(cp) if is_mark(cp) else chr(cp),
+            (cp,),
+        )
 
     changed = changed_width | changed_outline | changed_coverage
-    changes = [glyph_row(cp, '送り幅を変更' if cp in changed_width else
-                         '輪郭を変更' if cp in changed_outline else '収録範囲を変更') for cp in sorted(changed)]
-    references = [glyph_row(cp, '参照先と送り幅が異なる') for cp in sorted(reference_delta)]
-    return changes, references, len(changed_width), len(changed_outline), len(changed_coverage)
+    changes = [
+        glyph_row(
+            cp,
+            "送り幅を変更"
+            if cp in changed_width
+            else "輪郭を変更"
+            if cp in changed_outline
+            else "収録範囲を変更",
+        )
+        for cp in sorted(changed)
+    ]
+    references = [
+        glyph_row(cp, "参照先と送り幅が異なる") for cp in sorted(reference_delta)
+    ]
+    return (
+        changes,
+        references,
+        len(changed_width),
+        len(changed_outline),
+        len(changed_coverage),
+    )
 
 
 def build_face(path, weight, characters, family):
     with TTFont(path) as font:
         options = subset.Options()
-        if 'fvar' in font:
-            options.layout_features = ['ccmp', 'locl', 'mark', 'mkmk', 'liga']
+        if "fvar" in font:
+            options.layout_features = ["ccmp", "locl", "mark", "mkmk", "liga"]
         sub = subset.Subsetter(options)
         sub.populate(text=characters)
         sub.subset(font)
-        if 'fvar' in font:
-            instantiateVariableFont(font, {'wght': weight}, inplace=True)
-        if font['head'].unitsPerEm != 1000:
-            raise ValueError(f'{path} must use 1000 units per em')
-        metrics = {cp: font['hmtx'][glyph][0] for cp, glyph in font.getBestCmap().items()}
-        font.flavor = 'woff'
+        if "fvar" in font:
+            instantiateVariableFont(font, {"wght": weight}, inplace=True)
+        if font["head"].unitsPerEm != 1000:
+            raise ValueError(f"{path} must use 1000 units per em")
+        metrics = {
+            cp: font["hmtx"][glyph][0] for cp, glyph in font.getBestCmap().items()
+        }
+        font.flavor = "woff"
         output = io.BytesIO()
         font.save(output)
-    data = base64.b64encode(output.getvalue()).decode('ascii')
-    rule = f'@font-face{{font-family:{family};font-weight:{weight};src:url(data:font/woff;base64,{data})}}'
+    data = base64.b64encode(output.getvalue()).decode("ascii")
+    rule = f"@font-face{{font-family:{family};font-weight:{weight};src:url(data:font/woff;base64,{data})}}"
     return metrics, rule
 
 
 def review_cell(font_faces, candidate_faces, family, sample, targets, metric_label):
     boxes = []
     for weight, widths, candidate in zip((400, 700), font_faces, candidate_faces):
-        missing = sorted({ord(character) for character in sample if ord(character) not in widths})
+        missing = sorted(
+            {ord(character) for character in sample if ord(character) not in widths}
+        )
         if missing:
-            label = '・'.join(f'U+{cp:04X}' for cp in missing)
+            label = "・".join(f"U+{cp:04X}" for cp in missing)
             box = f'<span class="muted">未収録 {label}</span>'
         else:
-            nominal = ' + '.join(str(widths[cp]) for cp in targets) or '—'
+            nominal = " + ".join(str(widths[cp]) for cp in targets) or "—"
             if any(cp in candidate and widths[cp] != candidate[cp] for cp in targets):
                 nominal = f'<strong class="different">{nominal}</strong>'
-            box = (f'<div class="grid" style="font-family:{family}"><span class="run" dir="auto">'
-                   f'{html.escape(sample)}</span><span class="edge" aria-hidden="true"></span></div>'
-                   f'<div class="numbers">{metric_label} {nominal} · 文字列 <output></output></div>')
-        hidden = '' if weight == 400 else ' hidden'
+            box = (
+                f'<div class="grid" style="font-family:{family}"><span class="run" dir="auto">'
+                f'{html.escape(sample)}</span><span class="edge" aria-hidden="true"></span></div>'
+                f'<div class="numbers">{metric_label} {nominal} · 文字列 <output></output></div>'
+            )
+        hidden = "" if weight == 400 else " hidden"
         boxes.append(f'<div data-weight="{weight}"{hidden}>{box}</div>')
-    return '<td>' + ''.join(boxes) + '</td>'
+    return "<td>" + "".join(boxes) + "</td>"
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--previous', nargs=2, required=True, type=Path, metavar=('REGULAR', 'BOLD'))
-    parser.add_argument('--utatane', nargs=2, required=True, type=Path, metavar=('REGULAR', 'BOLD'))
-    parser.add_argument('--noto', required=True, type=Path)
-    parser.add_argument('--mplus', required=True, type=Path)
-    parser.add_argument('--output', required=True, type=Path)
-    parser.add_argument('--overview', action='store_true', help='include baseline glyph changes and reference-width differences')
-    parser.add_argument('--baseline', help='revision label in the before column')
+    parser.add_argument(
+        "--previous", nargs=2, required=True, type=Path, metavar=("REGULAR", "BOLD")
+    )
+    parser.add_argument(
+        "--utatane", nargs=2, required=True, type=Path, metavar=("REGULAR", "BOLD")
+    )
+    parser.add_argument("--noto", required=True, type=Path)
+    parser.add_argument("--mplus", required=True, type=Path)
+    parser.add_argument("--output", required=True, type=Path)
+    parser.add_argument(
+        "--overview",
+        action="store_true",
+        help="include baseline glyph changes and reference-width differences",
+    )
+    parser.add_argument("--baseline", help="revision label in the before column")
     args = parser.parse_args()
-    before_label = 'Utatane 修正前' if args.overview else 'Utatane 前回案'
-    groups = ((before_label, args.previous), ('Utatane 修正後', args.utatane),
-              ('Noto Sans Mono CJK JP', [args.noto] * 2), ('M PLUS 1 Code', [args.mplus] * 2))
-    samples = [(label, ' · '.join(f'U+{cp:04X}' for cp in marks), sample, marks)
-               for label, sample, marks in SAMPLES]
+    before_label = "Utatane 修正前" if args.overview else "Utatane 前回案"
+    groups = (
+        (before_label, args.previous),
+        ("Utatane 修正後", args.utatane),
+        ("Noto Sans Mono CJK JP", [args.noto] * 2),
+        ("M PLUS 1 Code", [args.mplus] * 2),
+    )
+    samples = [
+        (label, " · ".join(f"U+{cp:04X}" for cp in marks), sample, marks)
+        for label, sample, marks in SAMPLES
+    ]
     if args.overview:
-        changes, references, width_count, outline_count, coverage_count = width_comparison(groups)
-        ordinary = [(label, ' '.join(f'U+{ord(char):04X}' for char in sample), sample, tuple(map(ord, sample)))
-                    for label, sample in OVERVIEW_SAMPLES]
-        sections = [('samples', '普段使う文字・フォント差の見本', ordinary),
-                    ('marks', '結合記号の配置', samples),
-                    ('changes', f'Utataneの変更 {len(changes):,}字', changes),
-                    ('references', f'参照フォントとの幅差 {len(references):,}字', references)]
-        title = 'Utatane 文字幅と字形の比較'
-        summary = (f'<p>修正前後で送り幅が変わった文字 <b>{width_count:,}字</b>、'
-                   f'送り幅が同じで輪郭が変わった文字 <b>{outline_count:,}字</b>、'
-                   f'収録の追加・削除 <b>{coverage_count:,}字</b>。結合時の配置は専用の見本で確認できます。</p>')
-        navigation = '<nav>' + ' '.join(f'<a href="#{anchor}">{label}</a>' for anchor, label, _ in sections) + '</nav>'
+        changes, references, width_count, outline_count, coverage_count = (
+            width_comparison(groups)
+        )
+        ordinary = [
+            (
+                label,
+                " ".join(f"U+{ord(char):04X}" for char in sample),
+                sample,
+                tuple(map(ord, sample)),
+            )
+            for label, sample in OVERVIEW_SAMPLES
+        ]
+        sections = [
+            ("samples", "普段使う文字・フォント差の見本", ordinary),
+            ("marks", "結合記号の配置", samples),
+            ("changes", f"Utataneの変更 {len(changes):,}字", changes),
+            ("references", f"参照フォントとの幅差 {len(references):,}字", references),
+        ]
+        title = "Utatane 文字幅と字形の比較"
+        summary = (
+            f"<p>修正前後で送り幅が変わった文字 <b>{width_count:,}字</b>、"
+            f"送り幅が同じで輪郭が変わった文字 <b>{outline_count:,}字</b>、"
+            f"収録の追加・削除 <b>{coverage_count:,}字</b>。結合時の配置は専用の見本で確認できます。</p>"
+        )
+        navigation = (
+            "<nav>"
+            + " ".join(
+                f'<a href="#{anchor}">{label}</a>' for anchor, label, _ in sections
+            )
+            + "</nav>"
+        )
     else:
         with TTFont(args.utatane[0]) as font:
             codes = sorted(cp for cp in font.getBestCmap() if is_mark(cp))
-        cases = [(f'U+{cp:04X}', unicodedata.name(chr(cp), ''), mark_sample(cp), (cp,)) for cp in codes]
-        sections = [('samples', '代表例', samples), ('all-marks', f'収録している結合記号 {len(cases)}字', cases)]
-        title, summary, navigation = 'Utatane 結合記号の比較', '', ''
-    characters = ''.join(sorted({char for _, _, rows in sections for _, _, sample, _ in rows for char in sample}))
+        cases = [
+            (f"U+{cp:04X}", unicodedata.name(chr(cp), ""), mark_sample(cp), (cp,))
+            for cp in codes
+        ]
+        sections = [
+            ("samples", "代表例", samples),
+            ("all-marks", f"収録している結合記号 {len(cases)}字", cases),
+        ]
+        title, summary, navigation = "Utatane 結合記号の比較", "", ""
+    characters = "".join(
+        sorted(
+            {
+                char
+                for _, _, rows in sections
+                for _, _, sample, _ in rows
+                for char in sample
+            }
+        )
+    )
     columns, rules, headers = [], [], []
     for index, (label, paths) in enumerate(groups):
-        family = f'AuditMarks{index}'
+        family = f"AuditMarks{index}"
         with TTFont(paths[0]) as font:
-            version = font['name'].getDebugName(5).split(';')[0].removeprefix('Version ')
+            version = (
+                font["name"].getDebugName(5).split(";")[0].removeprefix("Version ")
+            )
         if index == 0 and args.baseline:
-            version += f' · {args.baseline}'
-        headers.append(f'<th scope="col">{html.escape(label)}<small>{html.escape(version)}</small></th>')
+            version += f" · {args.baseline}"
+        headers.append(
+            f'<th scope="col">{html.escape(label)}<small>{html.escape(version)}</small></th>'
+        )
         faces = []
         for path, weight in zip(paths, (400, 700)):
             metrics, rule = build_face(path, weight, characters, family)
@@ -206,22 +291,43 @@ def main():
     def table(rows, heading, anchor):
         lines = []
         for label, description, sample, targets in rows:
-            metric_label = '記号' if not args.overview or anchor == 'marks' or any(map(is_mark, targets)) else '字幅'
-            cells = ''.join(review_cell(faces, columns[1][1], family, sample, targets, metric_label)
-                            for family, faces in columns)
-            lines.append(f'<tr><th scope="row">{html.escape(label)}<small>{html.escape(description)}</small></th>{cells}</tr>')
-        return (f'<section id="{anchor}"><h2>{heading}</h2><div class="table-wrap"><table><colgroup><col class="labels">'
-                '<col span="4"></colgroup><thead><tr><th scope="col">比較文字</th>'
-                + ''.join(headers) + '</tr></thead><tbody>' + '\n'.join(lines) + '</tbody></table></div></section>')
+            metric_label = (
+                "記号"
+                if not args.overview or anchor == "marks" or any(map(is_mark, targets))
+                else "字幅"
+            )
+            cells = "".join(
+                review_cell(faces, columns[1][1], family, sample, targets, metric_label)
+                for family, faces in columns
+            )
+            lines.append(
+                f'<tr><th scope="row">{html.escape(label)}<small>{html.escape(description)}</small></th>{cells}</tr>'
+            )
+        return (
+            f'<section id="{anchor}"><h2>{heading}</h2><div class="table-wrap"><table><colgroup><col class="labels">'
+            '<col span="4"></colgroup><thead><tr><th scope="col">比較文字</th>'
+            + "".join(headers)
+            + "</tr></thead><tbody>"
+            + "\n".join(lines)
+            + "</tbody></table></div></section>"
+        )
 
-    output = (TEMPLATE.replace('PAGE_TITLE', title).replace('SUMMARY', summary)
-              .replace('NAVIGATION', navigation)
-              .replace('FONT_RULES', '\n'.join(rules))
-              .replace('TABLES', '\n'.join(table(rows, heading, anchor) for anchor, heading, rows in sections)))
-    args.output.write_text(output, encoding='utf-8')
+    output = (
+        TEMPLATE.replace("PAGE_TITLE", title)
+        .replace("SUMMARY", summary)
+        .replace("NAVIGATION", navigation)
+        .replace("FONT_RULES", "\n".join(rules))
+        .replace(
+            "TABLES",
+            "\n".join(
+                table(rows, heading, anchor) for anchor, heading, rows in sections
+            ),
+        )
+    )
+    args.output.write_text(output, encoding="utf-8")
 
 
-TEMPLATE = '''<!doctype html><html lang="ja"><meta charset="utf-8">
+TEMPLATE = """<!doctype html><html lang="ja"><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>PAGE_TITLE</title>
 <style>
@@ -299,8 +405,8 @@ if (navigation) {
 } else {
   select('400');
 }
-</script></html>'''
+</script></html>"""
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
