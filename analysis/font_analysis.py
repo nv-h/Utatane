@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Unified Font Analysis CLI for the Utatane project
 
@@ -27,22 +26,16 @@ Examples:
   fontforge -lang=py -script analysis/font_analysis.py check-ranges --ranges Control,Currency --show-chars --show-details
 """
 
-from typing import List, Dict
+import argparse
 import sys
-
-try:
-    import argparse
-except Exception:
-    argparse = None  # Fallback to manual parsing if needed
+import unicodedata
 
 # FontForge is required via font_analysis_utils. Import checks happen there.
-
-
 # Shared utils
 from font_analysis_utils import (
-    create_analyzer_with_error_handling,
-    ReportGenerator,
     FontAnalyzer,
+    ReportGenerator,
+    create_analyzer_with_error_handling,
     list_available_fonts,
 )
 
@@ -71,7 +64,7 @@ def cmd_info(args):
             "ブロック要素": list(range(0x2580, 0x259F + 1)),
         }
 
-        width_stats: Dict[str, Dict] = {}
+        width_stats: dict[str, dict] = {}
         for range_name, codes in ranges.items():
             widths = []
             samples = []
@@ -101,7 +94,7 @@ def cmd_info(args):
                 for code, ch, w in st["samples"]:
                     try:
                         print(f"    U+{code:04X} '{ch}' width={w}")
-                    except Exception:
+                    except UnicodeEncodeError:
                         print(f"    U+{code:04X} [表示不可] width={w}")
 
         if "ASCII" in width_stats and "ひらがな" in width_stats:
@@ -272,7 +265,7 @@ def cmd_symbols(args):
                 elif len(vals) == 0:
                     status = "全フォントに無し"
                 elif len(vals) == 1 and len([v for v in wi.values() if v is not None]) == 1:
-                    only = [fn for fn, v in wi.items() if v is not None][0]
+                    only = next(fn for fn, v in wi.items() if v is not None)
                     status = f"{only}のみ"
                 else:
                     status = "統一済み"
@@ -380,7 +373,7 @@ def cmd_diagnose(args):
                 print(f"  {i+1:3d}. U+{g.encoding:04X} '{ch}' width={g.width} {name}")
 
         # Width distribution
-        widths: Dict[int, int] = {}
+        widths: dict[int, int] = {}
         for g in glyphs:
             widths[g.width] = widths.get(g.width, 0) + 1
         print("\n【幅分布（上位10）】")
@@ -544,12 +537,8 @@ def cmd_check_ranges(args):
 # Helpers
 
 def get_unicode_name(code: int) -> str:
-    try:
-        import unicodedata
-        if code < 0x110000:
-            return unicodedata.name(chr(code), "UNKNOWN")
-    except Exception:
-        pass
+    if 0 <= code < 0x110000:
+        return unicodedata.name(chr(code), "UNKNOWN")
     return "UNKNOWN"
 
 
@@ -593,9 +582,9 @@ def get_unicode_block_name(code: int) -> str:
 
 
 
-def categorize_by_ranges(results: List[Dict]) -> Dict[str, List[Dict]]:
+def categorize_by_ranges(results: list[dict]) -> dict[str, list[dict]]:
     ranges = FontAnalyzer.get_unicode_ranges()
-    out: Dict[str, List[Dict]] = {k: [] for k in ranges.keys()}
+    out: dict[str, list[dict]] = {k: [] for k in ranges}
     out["その他"] = []
     for r in results:
         code = r["code"]
@@ -612,8 +601,6 @@ def categorize_by_ranges(results: List[Dict]) -> Dict[str, List[Dict]]:
 
 
 def build_parser():
-    if argparse is None:
-        return None
     p = argparse.ArgumentParser(description="Utatane Font Analysis CLI")
     sub = p.add_subparsers(dest="cmd")
 
@@ -671,11 +658,6 @@ def build_parser():
 
 def main():
     parser = build_parser()
-    if parser is None:
-        # minimal fallback
-        print("argparseが利用できません。簡易モードで実行してください。")
-        print("例: fontforge -lang=py -script analysis/font_analysis.py list-fonts")
-        return 1
     args = parser.parse_args(sys.argv[1:])
     if not hasattr(args, "func"):
         parser.print_help()

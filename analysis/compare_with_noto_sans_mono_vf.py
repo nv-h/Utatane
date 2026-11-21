@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 import fontforge
-import sys
+
 
 def compare_with_noto_sans_mono_vf():
     """Noto Sans Mono CJK JP VF(可変フォント)とUtataneの文字幅比較"""
@@ -15,7 +14,7 @@ def compare_with_noto_sans_mono_vf():
         noto_font = fontforge.open(noto_path)
         utatane_font = fontforge.open(utatane_path)
         mplus_font = fontforge.open(mplus_path)
-    except Exception as e:
+    except OSError as e:
         print(f"フォントを開けませんでした: {e}")
         return
     
@@ -54,7 +53,7 @@ def compare_with_noto_sans_mono_vf():
     noto_utatane_common = noto_glyphs & utatane_glyphs
     all_common = noto_glyphs & utatane_glyphs & mplus_glyphs
     
-    print(f"【グリフ統計】")
+    print("【グリフ統計】")
     print(f"Noto VFのグリフ数: {len(noto_glyphs)}")
     print(f"Utataneのグリフ数: {len(utatane_glyphs)}")
     print(f"M+ 1mのグリフ数: {len(mplus_glyphs)}")
@@ -95,7 +94,7 @@ def compare_with_noto_sans_mono_vf():
                 char_name = unicodedata.name(chr(code), "UNKNOWN")[:50]
             else:
                 char_display = f"[U+{code:04X}]"
-        except:
+        except (ValueError, OverflowError):
             char_display = "[表示不可]"
         
         comparison_results.append({

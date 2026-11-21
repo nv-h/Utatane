@@ -1,17 +1,16 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 """
 フォント比較統一スクリプト
 FontForgeベースの比較とmatplotlibベースの比較を統合
 """
 
-import os
-import sys
 import argparse
-import subprocess
 import glob
-from pathlib import Path
+import os
+import shutil
+import subprocess
+import sys
 
 
 def find_available_fonts():
@@ -50,15 +49,11 @@ def get_fontforge_command():
     ]
     
     for cmd in candidates:
-        try:
-            if os.path.exists(cmd):
-                return cmd
-            # システムPATH上を確認
-            result = subprocess.run(['which', cmd], capture_output=True, text=True)
-            if result.returncode == 0:
-                return cmd.strip()
-        except:
-            continue
+        if os.path.exists(cmd):
+            return cmd
+        # システムPATH上を確認
+        if shutil.which(cmd):
+            return cmd
     
     return None
 
@@ -79,7 +74,7 @@ def run_fontforge_comparison(args, fontforge_cmd):
     if args.output:
         cmd.extend(['-o', args.output])
     
-    return subprocess.run(cmd)
+    return subprocess.run(cmd, check=False)
 
 
 def run_matplotlib_comparison(args):
@@ -94,7 +89,7 @@ def run_matplotlib_comparison(args):
     try:
         os.chdir(pdf_dir)
         cmd = ['uv', 'run', 'compare_fonts_matplotlib.py']
-        result = subprocess.run(cmd)
+        result = subprocess.run(cmd, check=False)
         return result.returncode
     finally:
         os.chdir(current_dir)
@@ -148,7 +143,7 @@ def main():
         if 'Utatane-Regular' in fonts:
             args.font1 = fonts['Utatane-Regular']
         else:
-            args.font1 = list(fonts.values())[0] if fonts else 'dist/Utatane-Regular.ttf'
+            args.font1 = next(iter(fonts.values())) if fonts else 'dist/Utatane-Regular.ttf'
     
     if not args.font2:
         # v1.3.0を優先

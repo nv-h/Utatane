@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 def investigate_polars_box_drawing():
     """Polars等のライブラリでの罫線文字使用状況を調査"""

@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 import fontforge
-import sys
+
 
 def investigate_yasashisa_gothic_influence():
     """やさしさゴシックの文字幅がM+との判定差異に与える影響を調査"""
@@ -15,7 +14,7 @@ def investigate_yasashisa_gothic_influence():
         mplus_font = fontforge.open(mplus_path)
         yasashisa_font = fontforge.open(yasashisa_path)
         utatane_font = fontforge.open(utatane_path)
-    except Exception as e:
+    except OSError as e:
         print(f"フォントを開けませんでした: {e}")
         return
     
@@ -66,7 +65,7 @@ def investigate_yasashisa_gothic_influence():
                 char_name = unicodedata.name(chr(code), "UNKNOWN")[:50]  # 長すぎる名前を短縮
             else:
                 char_display = f"[U+{code:04X}]"
-        except:
+        except (ValueError, OverflowError):
             char_display = "[表示不可]"
         
         # 各フォントでの存在・幅チェック
@@ -128,7 +127,7 @@ def investigate_yasashisa_gothic_influence():
         for g in patterns['mplus_only'][:10]:  # 最初の10件
             print(f"| U+{g['code']:04X} | {g['char']} | {g['name']} | {g['mplus_width']} | {g['utatane_width']} |")
         if len(patterns['mplus_only']) > 10:
-            print(f"| ... | ... | ... | ... | ... |")
+            print("| ... | ... | ... | ... | ... |")
             print(f"**計{len(patterns['mplus_only'])}件**")
         print()
     

@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 import fontforge
-import sys
+
 
 def accurate_width_transformation_analysis():
     """正確なJP_REDUCTION_MAT変換による幅変化の分析"""
@@ -19,7 +18,7 @@ def accurate_width_transformation_analysis():
     try:
         yasashisa_font = fontforge.open(yasashisa_path)
         mplus_font = fontforge.open(mplus_path)
-    except Exception as e:
+    except OSError as e:
         print(f"フォントを開けませんでした: {e}")
         return
     

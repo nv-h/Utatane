@@ -1,16 +1,15 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
-from __future__ import division
-from __future__ import print_function
-# from __future__ import unicode_literals # Windowsで文字化けするのでコメントアウト
-
-import fontforge
-import psMat
+import datetime
+import math
 import os
 import sys
-import math
-import datetime
+import unicodedata
+
+import psMat
+
+import fontforge
+from width_policy import expected_cells
 
 VERSION = '1.3.2'
 FONTNAME = 'Utatane'
@@ -58,6 +57,12 @@ BLOCK_ELEMENTS = list(range(0x2580, 0x259F+1))
 ROMAN_NUMERALS = list(range(0x2160, 0x2188+1))  # ローマ数字
 ARROWS = list(range(0x2190, 0x21FF+1))  # 矢印
 SPECIAL_PUNCTUATION = [0x2010, 0x2015]  # ‐ ― FIXME: これらは試験的に導入中
+# 半角用に描かれているウォン記号と制御図記号はM+の輪郭を使う。
+MPLUS_NARROW_OUTLINES = {0x20A9, *range(0x2400, 0x2427)}
+SHADE_GLYPHS = {0x2591, 0x2592, 0x2593}
+COMBINING_KANA_MARKS = {0x3099, 0x309A}
+# 上付き結合記号の前で点を外す字形 (i → ı, j → ȷ)
+DOTLESS_FORMS = {0x0069: 0x0131, 0x006A: 0x0237}
 
 FULL_BLOCK_CODE = 0x2588
 # 半角カナとかの半角幅のやつ
@@ -95,8 +100,10 @@ SOURCE = './sourceFonts'
 DIST = './dist'
 JP_TEMP = './tmp/jp_font.sfd'
 EN_TEMP = './tmp/en_font.sfd'
-LICENSE = open('./LICENSE.txt', encoding='utf-8').read()
-COPYRIGHT = open('./COPYRIGHT.txt', encoding='utf-8').read()
+with open('./LICENSE.txt', encoding='utf-8') as _license_file:
+    LICENSE = _license_file.read()
+with open('./COPYRIGHT.txt', encoding='utf-8') as _copyright_file:
+    COPYRIGHT = _copyright_file.read()
 
 # 出力をデコるときに使う文字
 DECO_CHAR = '-'
@@ -140,7 +147,7 @@ fonts = [
 ]
 
 def deco_print(_str):
-    print('')
+    print()
     print(DECO_CHAR*len(_str))
     print(_str)
     print(DECO_CHAR*len(_str))
@@ -177,8 +184,170 @@ def improved_width_adjustment(glyph, target_width):
     return glyph
 
 
+def unicode_mappings(glyph):
+    if glyph.unicode >= 0:
+        yield glyph.unicode
+    for codepoint, selector, _ in glyph.altuni or ():
+        if selector == -1:
+            yield codepoint
+
+
+def read_mplus_widths():
+    reference = fontforge.open(SOURCE + '/' + MPLUS_REGULAR_FONT)
+    half = reference.em // 2
+    widths = {
+        codepoint: glyph.width // half
+        for glyph in reference.glyphs()
+        if glyph.isWorthOutputting and glyph.width in (half, 2 * half)
+        for codepoint in unicode_mappings(glyph)
+    }
+    reference.close()
+    return widths
+
+
+def fit_grid_outline(glyph, codepoints, target_width, x_min, x_max):
+    """Horizontally fit a changed outline into its cell, keeping its height.
+
+    ``codepoints`` holds every Unicode mapping of the glyph, including altuni,
+    so a glyph selected through a secondary mapping gets the same treatment.
+    """
+    old_width = glyph.width
+    if target_width == 0:
+        # Put combining marks over the preceding cell when no positioning
+        # lookup applies. Kana voicing marks belong near the upper right.
+        offset = -old_width
+        if any(cp in COMBINING_KANA_MARKS for cp in codepoints):
+            offset += WIDTH // 4
+        elif any(0x035C <= cp <= 0x0362 for cp in codepoints):
+            # Double diacritics are centered between the two base letters.
+            offset += old_width // 2
+        glyph.transform(psMat.translate(offset, 0))
+    elif any(cp in SHADE_GLYPHS for cp in codepoints):
+        glyph.transform(psMat.scale(target_width / old_width, 1))
+    elif target_width > old_width:
+        glyph.transform(psMat.translate((target_width - old_width) / 2, 0))
+    elif x_min != x_max:
+        # Leave room between narrowed glyphs without shrinking ones that fit.
+        scale = min(1, (target_width * 0.92) / (x_max - x_min))
+        offset = (target_width - scale * (x_min + x_max)) / 2
+        glyph.transform((scale, 0, 0, 1, offset, 0))
+    glyph.width = target_width
+
+
+def apply_width_policy(font, mplus_cells, latin_codepoints):
+    pending = []
+    for glyph in font.glyphs():
+        if not glyph.isWorthOutputting:
+            continue
+        codepoints = tuple(unicode_mappings(glyph))
+        widths = {expected_cells(codepoint, mplus_cells) for codepoint in codepoints}
+        widths.discard(None)
+        if not widths:
+            continue
+        if len(widths) > 1:
+            raise ValueError(f"Conflicting advances for {glyph.glyphname}: {codepoints}")
+
+        target = widths.pop() * (WIDTH // 2)
+        x_min, _, x_max, _ = glyph.boundingBox()
+        # Existing Ubuntu Mono overhang is part of its typography. Correct
+        # halfwidth Japanese-source glyphs that would paint into a neighbor.
+        overhang = (
+            target == WIDTH // 2
+            and not any(codepoint in latin_codepoints for codepoint in codepoints)
+            and (x_min < 0 or x_max > target)
+        )
+        if glyph.width != target or overhang:
+            pending.append((glyph, codepoints, target, x_min, x_max))
+
+    # Freeze the old component outlines before changing any referenced glyphs.
+    for glyph, *_ in pending:
+        glyph.unlinkThisGlyph()
+        glyph.unlinkRef()
+    for glyph, codepoints, target, x_min, x_max in pending:
+        fit_grid_outline(glyph, codepoints, target, x_min, x_max)
+
+
+def match_angle_bracket_outlines(font):
+    # U+2329/U+232A are canonically equivalent to the CJK brackets.
+    # Keep their opening/closing side bearings as well as their outlines.
+    pairs = {0x2329: 0x3008, 0x232A: 0x3009}
+    codes = pairs.keys() | pairs.values()
+    brackets = {cp: glyph for glyph in font.glyphs() for cp in unicode_mappings(glyph) if cp in codes}
+    for legacy, canonical in pairs.items():
+        glyph, source = brackets.get(legacy), brackets.get(canonical)
+        if glyph is None or source is None or glyph.glyphname == source.glyphname:
+            continue
+        glyph.unlinkThisGlyph()
+        glyph.foreground = source.foreground
+        glyph.references = source.references
+        glyph.width = source.width
+
+
+def position_latin_above_marks(font):
+    """Attach an above mark to a Latin letter or an earlier above mark."""
+    base_class = "Latin above base"
+    stack_class = "Latin above stack"
+    scripts = (("latn", ("dflt",)),)
+    font.addLookup(base_class, "gpos_mark2base", (), (("mark", scripts),))
+    font.addLookup(stack_class, "gpos_mark2mark", (), (("mkmk", scripts),), base_class)
+    for name in (base_class, stack_class):
+        subtable = name + " anchors"
+        font.addLookupSubtable(name, subtable)
+        font.addAnchorClass(subtable, name)
+
+    gap = 50
+    above_marks = []
+    for glyph in font.glyphs():
+        if glyph.unicode < 0 or not glyph.isWorthOutputting:
+            continue
+        character = chr(glyph.unicode)
+        if glyph.width == 0 and unicodedata.combining(character) == 230:
+            x_min, y_min, x_max, y_max = glyph.boundingBox()
+            center = round((x_min + x_max) / 2)
+            glyph.addAnchorPoint(base_class, "mark", center, round(y_min))
+            glyph.addAnchorPoint(stack_class, "mark", center, round(y_min))
+            glyph.addAnchorPoint(stack_class, "basemark", center, round(y_max) + gap)
+            above_marks.append(glyph.glyphname)
+        elif (glyph.width == WIDTH // 2 and unicodedata.category(character).startswith("L")
+              and unicodedata.name(character, "").startswith("LATIN ")):
+            x_min, _, x_max, y_max = glyph.boundingBox()
+            center = round((x_min + x_max) / 2)
+            glyph.addAnchorPoint(base_class, "base", center, max(540, round(y_max) + gap))
+
+    use_dotless_before_above_marks(font, above_marks, scripts)
+
+
+def use_dotless_before_above_marks(font, above_marks, scripts):
+    """Replace i/j with their dotless forms before an above mark (ccmp).
+
+    The base anchor of a dotted letter sits above its dot, so the mark would
+    otherwise be stacked on top of the dot instead of replacing it.
+    """
+    glyphs = {
+        glyph.unicode: glyph for glyph in font.glyphs()
+        if glyph.unicode in DOTLESS_FORMS.keys() | DOTLESS_FORMS.values()
+        and glyph.isWorthOutputting
+    }
+    pairs = [(glyphs[dotted], glyphs[dotless]) for dotted, dotless in DOTLESS_FORMS.items()
+             if dotted in glyphs and dotless in glyphs]
+    if not pairs or not above_marks:
+        return
+
+    single = "Dotless before above mark"
+    font.addLookup(single, "gsub_single", (), ())
+    font.addLookupSubtable(single, single + " subtable")
+    for dotted, dotless in pairs:
+        dotted.addPosSub(single + " subtable", dotless.glyphname)
+
+    context = "Dotless context"
+    font.addLookup(context, "gsub_contextchain", (), (("ccmp", scripts),))
+    rule = "| [{}] @<{}> | [{}]".format(
+        " ".join(dotted.glyphname for dotted, _ in pairs), single, " ".join(above_marks))
+    font.addContextualSubtable(context, context + " subtable", "coverage", rule)
+
+
 def indent_print(_str):
-    print('')
+    print()
     print('++ ' + _str)
 
 
@@ -191,15 +360,15 @@ def check_files():
     err = 0
     for f in fonts:
         if not os.path.isfile(SOURCE + '/{}'.format(f.get('latin'))):
-            print('{} not exists.'.format(f))
+            print(f'{f} not exists.')
             err = 1
 
         if not os.path.isfile(SOURCE + '/{}'.format(f.get('japanese'))):
-            print('{} not exists.'.format(f))
+            print(f'{f} not exists.')
             err = 1
 
         if not os.path.isfile(SOURCE + '/{}'.format(f.get('mplus'))):
-            print('{} not exists.'.format(f))
+            print(f'{f} not exists.')
             err = 1
 
     if err > 0:
@@ -357,7 +526,7 @@ def modify_and_save_latin(_f, _savepath):
             # 不要っぽいやつを削除
             latin_font.selection.select(g)
             latin_font.clear()
-            break
+            continue
 
         if _f.get('italic'):
             # FIXME: 動作確認未
@@ -369,11 +538,17 @@ def modify_and_save_latin(_f, _savepath):
             g.stroke("circular", _f.get('latin_weight_reduce'), 'butt', 'round', 'removeexternal')
 
 
+    codepoints = {
+        codepoint for glyph in latin_font.glyphs() if glyph.isWorthOutputting
+        for codepoint in unicode_mappings(glyph)
+    }
+    cap_height = latin_font.capHeight
     latin_font.save(_savepath)
     latin_font.close()
+    return codepoints, cap_height
 
 
-def modify_and_save_jp(_f, _savepath):
+def modify_and_save_jp(_f, _savepath, _latin_cap_height):
     deco_print('modify jp : {}'.format(_f.get('japanese')))
 
     jp_font = fontforge.open(SOURCE + '/{}'.format(_f.get('japanese')))
@@ -386,6 +561,12 @@ def modify_and_save_jp(_f, _savepath):
 
 
     mplus_font = fontforge.open(SOURCE + '/{}'.format(_f.get('mplus')))
+    # 半角用のM+輪郭は欧文の大文字高さに合わせ、ベースラインとセル中央を基準に縮小する
+    narrow_scale = _latin_cap_height / mplus_font.capHeight
+    narrow_mat = psMat.compose(
+        psMat.compose(psMat.translate(-WIDTH//4, 0), psMat.scale(narrow_scale)),
+        psMat.translate(WIDTH//4, 0))
+    mplus_narrow_pasted = set()
 
     for g in mplus_font.glyphs():
         # 罫線はM+へ置き換えて半角にする(コンソール表示などで半角を期待されることが多かった)
@@ -419,6 +600,17 @@ def modify_and_save_jp(_f, _savepath):
             # Utatane座標系に合わせて下移動
             jp_font[g.encoding].transform(psMat.translate(0, -(DESCENT-MPLUS_DESCENT)))
 
+        elif g.encoding in MPLUS_NARROW_OUTLINES and g.encoding in jp_font:
+            # ベースラインに乗る字形なので下移動はしない
+            mplus_font.selection.select(g.encoding)
+            mplus_font.copy()
+            jp_font.selection.select(g.encoding)
+            jp_font.paste()
+            jp_font[g.encoding].transform(narrow_mat)
+            # transformは送り幅も動かすので、セル中央に置いたまま半角幅へ戻す
+            jp_font[g.encoding].width = WIDTH // 2
+            mplus_narrow_pasted.add(g.encoding)
+
     mplus_font.close()
 
 
@@ -427,7 +619,7 @@ def modify_and_save_jp(_f, _savepath):
             # 不要っぽいやつは消しちゃう
             jp_font.selection.select(g)
             jp_font.clear()
-            break
+            continue
 
         # 太さ調整
         if _f.get('japanese_weight_add') != 0:
@@ -447,6 +639,9 @@ def modify_and_save_jp(_f, _savepath):
             width = WIDTH
         elif g.encoding in RULED_LINES:
             width = int(WIDTH//2)
+        elif g.encoding in mplus_narrow_pasted:
+            # M+から貼った半角字形は縮小済み
+            width = int(WIDTH//2)
         elif g.encoding in BLOCK_ELEMENTS:
             # NOTE: M+で全角幅だったやつをいったん全角にしている
             #       ░ LIGHT SHADE, ▒ MEDIUM SHADE, ▓ DARK SHADE
@@ -464,6 +659,7 @@ def modify_and_save_jp(_f, _savepath):
             width = WIDTH
         else:
             g.transform(JP_REDUCTION_MAT)  # いい塩梅で縮小
+            # 元の輪郭配置と参照グリフ用の幅。Unicodeの既定送りは合成後に確定する。
             if g.width > WIDTH * 0.7:
                 width = WIDTH
             else:
@@ -515,7 +711,7 @@ def fix_xAvgCharWidth(_src_ttf, _dst_ttf):
     '''
     import xml.etree.ElementTree as ET
 
-    deco_print('fix xAvgCharWidth: {} to {}'.format(_src_ttf, _dst_ttf))
+    deco_print(f'fix xAvgCharWidth: {_src_ttf} to {_dst_ttf}')
 
     # 元のフォントからxAvgCharWidth読み出し
     src_root, _ = os.path.splitext(_src_ttf)
@@ -527,7 +723,7 @@ def fix_xAvgCharWidth(_src_ttf, _dst_ttf):
     dst_root, _ = os.path.splitext(_dst_ttf)
     os.system('ttx -f -t OS/2 ' + _dst_ttf)
     dst_tree = ET.parse(dst_root + '.ttx')
-    dst_tree.find('OS_2').find('xAvgCharWidth').set('value', '{}'.format(src_AvgCharWidth))
+    dst_tree.find('OS_2').find('xAvgCharWidth').set('value', f'{src_AvgCharWidth}')
     dst_tree.write(dst_root + '.ttx', 'utf-8', True)
 
     # 変更したやつを反映
@@ -540,10 +736,10 @@ def fix_xAvgCharWidth(_src_ttf, _dst_ttf):
         os.remove(dst_root + '.ttx')
 
 
-def build_font(_f):
+def build_font(_f, mplus_cells):
 
-    modify_and_save_latin(_f, EN_TEMP)
-    modify_and_save_jp(_f, JP_TEMP)
+    latin_codepoints, latin_cap_height = modify_and_save_latin(_f, EN_TEMP)
+    modify_and_save_jp(_f, JP_TEMP, latin_cap_height)
 
     deco_print('merge modified {} and modified {}'.format(_f.get('latin'), _f.get('japanese')))
 
@@ -571,7 +767,10 @@ def build_font(_f):
     # target_font = emdash_to_broken_dash(target_font) # あまり必要性を感じないので削除
     # 全角をいじるのはマージ前に行う
 
+    apply_width_policy(target_font, mplus_cells, latin_codepoints)
+    match_angle_bracket_outlines(target_font)
     target_font = post_process(target_font)
+    position_latin_above_marks(target_font)
 
     fontpath = DIST + '/{}'.format(_f.get('filename'))
     if DEBUG:
@@ -589,8 +788,9 @@ def main():
     check_files()
     deco_print('Generating ' + FONTNAME + ' started.')
 
+    mplus_cells = read_mplus_widths()
     for _f in fonts:
-        build_font(_f)
+        build_font(_f, mplus_cells)
 
     deco_print('Succeeded!!')
 

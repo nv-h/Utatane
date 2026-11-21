@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 """
 グリフ形状可視化ツール
@@ -11,17 +10,17 @@ M+、やさしさゴシック、Utataneの3フォントでグリフ形状を比�
     fontforge -lang=py -script glyph_shape_viewer.py [options]
 """
 
-import fontforge
-import sys
-import os
 import argparse
+import os
+import sys
 from pathlib import Path
-import math
+
+import fontforge
 
 # matplotlibとPDF出力用ライブラリ
 try:
-    import sys
     import os
+    import sys
     
     # uv環境のパッケージを追加（numpy競合対策）
     venv_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '.venv', 'lib')
@@ -43,8 +42,8 @@ try:
     import matplotlib
     matplotlib.use('Agg')  # バックエンドをAggに設定（GUI不要）
     import matplotlib.pyplot as plt
+    from matplotlib import patches
     from matplotlib.backends.backend_pdf import PdfPages
-    import matplotlib.patches as patches
     MATPLOTLIB_AVAILABLE = True
 except ImportError as e:
     MATPLOTLIB_AVAILABLE = False
@@ -126,7 +125,7 @@ def load_font_safely(font_path):
         
         font = fontforge.open(str(font_path))
         return font, None
-    except Exception as e:
+    except OSError as e:
         return None, f"フォント読み込みエラー: {e}"
 
 def get_glyph_data(font, unicode_val):
@@ -138,7 +137,7 @@ def get_glyph_data(font, unicode_val):
     
     try:
         bbox = glyph.boundingBox()
-    except:
+    except (TypeError, ValueError):
         bbox = (0, 0, 0, 0)
     
     # 輪郭データを取得
@@ -149,7 +148,7 @@ def get_glyph_data(font, unicode_val):
             points = [(point.x, point.y) for point in contour]
             if points:
                 contours.append(points)
-    except:
+    except (TypeError, ValueError, KeyError):
         contours = []
     
     return {
@@ -333,7 +332,7 @@ def read_test_file_chars(test_file_path, section=None):
                 for char in line:
                     if char.isprintable() and ord(char) > 32:  # 制御文字除外
                         chars.add(ord(char))
-    except Exception as e:
+    except (OSError, UnicodeDecodeError) as e:
         print(f"テストファイル読み込みエラー: {e}")
         return []
     
@@ -367,10 +366,7 @@ def get_glyph_selection(args):
     if args.unicode:
         for unicode_str in args.unicode:
             try:
-                if unicode_str.startswith('U+'):
-                    unicode_val = int(unicode_str[2:], 16)
-                else:
-                    unicode_val = int(unicode_str, 16)
+                unicode_val = int(unicode_str.removeprefix('U+'), 16)
                 selected_glyphs.add(unicode_val)
             except ValueError:
                 print(f"警告: 不正なUnicode指定 '{unicode_str}' をスキップ")

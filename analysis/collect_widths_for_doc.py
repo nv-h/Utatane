@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 指定のコードポイント群について、各フォント（M+, やさしさ, Utatane v1.3.1, Noto Sans Mono CJK jp VF）の文字幅を収集し、
 Markdownテーブルとして出力する補助スクリプト。
@@ -8,8 +7,8 @@ Markdownテーブルとして出力する補助スクリプト。
   ./fontforge/build/bin/fontforge -lang=py -script analysis/collect_widths_for_doc.py
 """
 
-import sys
 import os
+import sys
 
 try:
     import fontforge
@@ -38,7 +37,7 @@ def open_fonts():
         try:
             opened[name] = fontforge.open(path)
             print(f"✓ {name} 読み込み: {path}")
-        except Exception as e:
+        except OSError as e:
             print(f"✗ {name} の読み込みに失敗: {path}\n  {e}")
             sys.exit(3)
     return opened
@@ -48,17 +47,14 @@ def get_width(font, codepoint):
     try:
         if codepoint in font and font[codepoint].isWorthOutputting:
             return font[codepoint].width
-    except Exception:
+    except (TypeError, ValueError, KeyError):
         return None
     return None
 
 
 def fmt_char(codepoint):
-    try:
-        if 0 <= codepoint <= 0x10FFFF:
-            return chr(codepoint) if codepoint <= 0xFFFF else f"[U+{codepoint:05X}]"
-    except Exception:
-        pass
+    if 0 <= codepoint <= 0x10FFFF:
+        return chr(codepoint) if codepoint <= 0xFFFF else f"[U+{codepoint:05X}]"
     return "[?]"
 
 
@@ -69,7 +65,7 @@ def print_table(title, codepoints):
     print("|" + "-|-".join(["-" for _ in headers]) + "|")
     for cp in codepoints:
         row = [f"U+{cp:04X}", fmt_char(cp)]
-        for name in FONTS.keys():
+        for name in FONTS:
             w = get_width(FONTS_OPENED[name], cp)
             row.append("-" if w is None else str(w))
         print("| " + " | ".join(row) + " |")
@@ -138,10 +134,7 @@ def main():
 
     # 後始末
     for f in FONTS_OPENED.values():
-        try:
-            f.close()
-        except Exception:
-            pass
+        f.close()
 
 
 if __name__ == "__main__":
