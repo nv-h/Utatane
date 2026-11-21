@@ -112,8 +112,11 @@ M+、やさしさゴシック、Utataneの3フォントでグリフ形状を詳�
 
 ### テスト
 ```bash
-# フォント表示テスト（test/ディレクトリ内）
-python test/test_glyphs.py
+# 生成済みフォント（dist/）のグリフ検査（FontForge の Python で実行）
+fontforge -lang=py -script test/test_glyphs.py
+
+# 送り幅の方針チェック（fontTools）
+uv run python analysis/check_width_policy.py dist/Utatane-Regular.ttf dist/Utatane-Bold.ttf
 
 # フォントバージョン間比較（FontForgeベース）
 python test/font_compare.py --visual -f1 v1.2.1_Utatane-Regular -f2 v1.3.0_Utatane-Regular
