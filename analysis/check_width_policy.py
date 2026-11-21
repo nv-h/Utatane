@@ -25,7 +25,8 @@ def read_advances(path):
             raise ValueError(f"{path}: expected an even unitsPerEm, got {upm}")
         metrics = font["hmtx"].metrics
         return upm // 2, {
-            codepoint: metrics[glyph][0] for codepoint, glyph in font.getBestCmap().items()
+            codepoint: metrics[glyph][0]
+            for codepoint, glyph in font.getBestCmap().items()
         }
 
 
@@ -41,25 +42,43 @@ def main():
 
     reference_path = REPO_ROOT / "sourceFonts/mplus-1m-regular.ttf"
     mplus_half, mplus_advances = read_advances(reference_path)
-    mplus_cells = {cp: width // mplus_half for cp, width in mplus_advances.items()
-                   if width in (mplus_half, 2 * mplus_half)}
+    mplus_cells = {
+        cp: width // mplus_half
+        for cp, width in mplus_advances.items()
+        if width in (mplus_half, 2 * mplus_half)
+    }
 
     regular_half, regular = read_advances(args.regular)
     bold_half, bold = read_advances(args.bold)
     problems = []
-    for path, half, advances in [(args.regular, regular_half, regular), (args.bold, bold_half, bold)]:
+    for path, half, advances in [
+        (args.regular, regular_half, regular),
+        (args.bold, bold_half, bold),
+    ]:
         for codepoint, actual in sorted(advances.items()):
             cells = expected_cells(codepoint, mplus_cells)
-            if actual not in (0, half, 2 * half) or (cells is not None and actual != cells * half):
-                expected = str(cells * half) if cells is not None else f"0, {half}, or {2 * half}"
-                problems.append(f"{path.name}: {describe(codepoint)} expected {expected}, got {actual}")
+            if actual not in (0, half, 2 * half) or (
+                cells is not None and actual != cells * half
+            ):
+                expected = (
+                    str(cells * half)
+                    if cells is not None
+                    else f"0, {half}, or {2 * half}"
+                )
+                problems.append(
+                    f"{path.name}: {describe(codepoint)} expected {expected}, got {actual}"
+                )
 
     for codepoint in sorted(regular.keys() | bold.keys()):
         regular_width, bold_width = regular.get(codepoint), bold.get(codepoint)
         if regular_width is None or bold_width is None:
-            problems.append(f"{describe(codepoint)} coverage: Regular {regular_width}, Bold {bold_width}")
+            problems.append(
+                f"{describe(codepoint)} coverage: Regular {regular_width}, Bold {bold_width}"
+            )
         elif regular_width * bold_half != bold_width * regular_half:
-            problems.append(f"{describe(codepoint)} advance: Regular {regular_width}, Bold {bold_width}")
+            problems.append(
+                f"{describe(codepoint)} advance: Regular {regular_width}, Bold {bold_width}"
+            )
 
     if problems:
         print("\n".join(problems))

@@ -1,9 +1,23 @@
 [project]
 name = "utatane-tools"
 version = "0.1.0"
-description = "Add your description here"
+description = "Utataneフォントの生成・検証用ツール"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "fonttools>=4.68.0",
     "matplotlib>=3.10.5",
 ]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.17.6",
+]
+
+[tool.ruff]
+# fontforge/ はサブモジュール、tmp/ は作業用
+extend-exclude = ["fontforge", "tmp"]
+
+[tool.ruff.format]
+# docs/ の調査資料は当時のコードをそのまま引用しているので整形しない
+exclude = ["*.md"]

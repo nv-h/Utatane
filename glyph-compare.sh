@@ -53,8 +53,7 @@ check_environment() {
     # uv環境チェック
     if [ ! -d ".venv" ]; then
         echo_warning "uv仮想環境が見つかりません。作成します..."
-        uv venv
-        uv add matplotlib
+        uv sync
         echo_success "uv環境を作成しました"
     fi
     

@@ -4,8 +4,8 @@ import unittest
 
 import fontforge
 
-REGULAR_FONT = 'Utatane-Regular.ttf'
-BOLD_FONT = 'Utatane-Bold.ttf'
+REGULAR_FONT = "Utatane-Regular.ttf"
+BOLD_FONT = "Utatane-Bold.ttf"
 
 
 def check_overflow(ttfpath):
@@ -20,22 +20,19 @@ def check_overflow(ttfpath):
     return True
 
 
-
 class TestGlyphs(unittest.TestCase):
-    """test glyph
-    """
+    """test glyph"""
 
     def test_regular(self):
-        """check_overflow for regular
-        """
+        """check_overflow for regular"""
         actual = check_overflow(REGULAR_FONT)
         self.assertEqual(True, actual)
 
     def test_bold(self):
-        """check_overflow for bold
-        """
+        """check_overflow for bold"""
         actual = check_overflow(BOLD_FONT)
         self.assertEqual(True, actual)
+
 
 if __name__ == "__main__":
     unittest.main()

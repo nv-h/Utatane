@@ -1,0 +1,5 @@
+# git blame で無視する整形だけのコミット
+# 使い方: git config blame.ignoreRevsFile .git-blame-ignore-revs
+
+# ruff formatで整形する
+80b05e05bf9062d03aa93271867be8b68d57cf0c

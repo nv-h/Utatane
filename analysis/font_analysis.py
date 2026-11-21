@@ -105,7 +105,7 @@ def cmd_info(args):
             print("\n【全角/半角基準の推定】")
             print(f"  ASCII幅: {ascii_w}  ひらがな幅: {hira_w}")
             if ascii_w and hira_w:
-                print(f"  全角/半角比率: {hira_w/ascii_w:.3f}")
+                print(f"  全角/半角比率: {hira_w / ascii_w:.3f}")
             else:
                 if len(ascii_u) > 1:
                     print(f"  ASCII幅のばらつき: {ascii_u}")
@@ -144,7 +144,10 @@ def cmd_compare(args):
         if not inconsistencies:
             return 0
         print("\n【幅不一致グリフ（抜粋）】")
-        print(f"{'文字':<8} {'コード':<12} {base.upper()+'幅':<8} {target.upper()+'幅':<8} 差分" + ("  文字名" if names else ""))
+        print(
+            f"{'文字':<8} {'コード':<12} {base.upper() + '幅':<8} {target.upper() + '幅':<8} 差分"
+            + ("  文字名" if names else "")
+        )
         print("-" * (70 + (40 if names else 0)))
         shown = 0
         for r in inconsistencies:
@@ -156,13 +159,13 @@ def cmd_compare(args):
             tw = r["widths"].get(target)
             if bw is None or tw is None:
                 continue
-            row = f"{ch:<8} U+{code:04X}     {bw:<8} {tw:<8} {tw-bw:+d}"
+            row = f"{ch:<8} U+{code:04X}     {bw:<8} {tw:<8} {tw - bw:+d}"
             if names:
                 row += f"  {get_unicode_name(code)}"
             print(row)
             shown += 1
         if len(inconsistencies) > shown:
-            print(f"... 他{len(inconsistencies)-shown}件")
+            print(f"... 他{len(inconsistencies) - shown}件")
 
         # Range breakdown
         print("\n【Unicode範囲別の不一致サマリ】")
@@ -188,7 +191,9 @@ def cmd_ranges(args):
             ReportGenerator.print_font_info(analyzer, fn)
         unicode_ranges = FontAnalyzer.get_unicode_ranges()
         if range_names:
-            unicode_ranges = {k: v for k, v in unicode_ranges.items() if k in range_names}
+            unicode_ranges = {
+                k: v for k, v in unicode_ranges.items() if k in range_names
+            }
 
         total = 0
         mismatches = 0
@@ -196,9 +201,13 @@ def cmd_ranges(args):
             codes = list(range(start, end + 1))
             presence = {}
             for fn in fonts:
-                present = [c for c in codes if analyzer.get_glyph_width(fn, c) is not None]
+                present = [
+                    c for c in codes if analyzer.get_glyph_width(fn, c) is not None
+                ]
                 presence[fn] = set(present)
-                print(f"\n【{rn}】(U+{start:04X}-U+{end:04X})  {fn}: {len(present)}文字")
+                print(
+                    f"\n【{rn}】(U+{start:04X}-U+{end:04X})  {fn}: {len(present)}文字"
+                )
 
             common = list(set.intersection(*presence.values())) if fonts else []
             print(f"  共通文字: {len(common)}文字")
@@ -213,7 +222,13 @@ def cmd_ranges(args):
                 if show_samples:
                     print(f"  不整合サンプル(最大{max_samples}件):")
                     for r in inc[:max_samples]:
-                        parts = ", ".join([f"{fn}={r['widths'].get(fn)}" for fn in fonts if r['widths'].get(fn) is not None])
+                        parts = ", ".join(
+                            [
+                                f"{fn}={r['widths'].get(fn)}"
+                                for fn in fonts
+                                if r["widths"].get(fn) is not None
+                            ]
+                        )
                         print(f"    U+{r['code']:04X} '{r['char']}': {parts}")
             else:
                 print(f"  ✓ 全て一致: {len(common)}文字")
@@ -222,7 +237,9 @@ def cmd_ranges(args):
         print("\n" + "=" * 70)
         print("【総合結果】")
         if total:
-            print(f"分析文字数: {total}  幅不整合: {mismatches} ({mismatches/total*100:.1f}%)")
+            print(
+                f"分析文字数: {total}  幅不整合: {mismatches} ({mismatches / total * 100:.1f}%)"
+            )
         else:
             print("分析対象なし")
     finally:
@@ -264,7 +281,10 @@ def cmd_symbols(args):
                     mism += 1
                 elif len(vals) == 0:
                     status = "全フォントに無し"
-                elif len(vals) == 1 and len([v for v in wi.values() if v is not None]) == 1:
+                elif (
+                    len(vals) == 1
+                    and len([v for v in wi.values() if v is not None]) == 1
+                ):
                     only = next(fn for fn, v in wi.items() if v is not None)
                     status = f"{only}のみ"
                 else:
@@ -320,6 +340,7 @@ def cmd_mismatch(args):
                 # escape commas
                 def esc(s: str) -> str:
                     return s.replace(",", "\\,")
+
                 print(f"U+{code:04X},{esc(ch)},{esc(name)},{esc(block)},{bw},{tw}")
             elif fmt == "text":
                 print(f"U+{code:04X} '{ch}' {name} [{block}] {bw}->{tw}")
@@ -349,7 +370,9 @@ def cmd_diagnose(args):
         print(f"{font_name.upper()} フォント診断")
         print("=" * 80)
         print(f"パス: {info['path']}")
-        print(f"em: {info['em_square']}  ascent: {info['ascent']}  descent: {info['descent']}")
+        print(
+            f"em: {info['em_square']}  ascent: {info['ascent']}  descent: {info['descent']}"
+        )
 
         total = 0
         worth = 0
@@ -367,10 +390,12 @@ def cmd_diagnose(args):
 
         if enc and show_samples:
             print("\n【サンプル】")
-            for i, g in enumerate(sorted(glyphs, key=lambda x: x.encoding)[:max_samples]):
+            for i, g in enumerate(
+                sorted(glyphs, key=lambda x: x.encoding)[:max_samples]
+            ):
                 ch = FontAnalyzer._format_char(g.encoding)
                 name = get_unicode_name(g.encoding)
-                print(f"  {i+1:3d}. U+{g.encoding:04X} '{ch}' width={g.width} {name}")
+                print(f"  {i + 1:3d}. U+{g.encoding:04X} '{ch}' width={g.width} {name}")
 
         # Width distribution
         widths: dict[int, int] = {}
@@ -382,42 +407,47 @@ def cmd_diagnose(args):
     finally:
         analyzer.close_fonts()
 
+
 def cmd_check_ranges(args):
     """指定したUnicode範囲でUbuntu、M+、やさしさゴシックの存在文字と幅を比較"""
     # 範囲定義
     target_ranges = {
         "Greek and Coptic": (0x0370, 0x03FF),
-        "Control Pictures": (0x2400, 0x243F), 
+        "Control Pictures": (0x2400, 0x243F),
         "Currency Symbols": (0x20A0, 0x20CF),
         "Mathematical Operators": (0x2200, 0x22FF),
         "Latin Extended-B": (0x1E00, 0x1EFF),
         "General Punctuation": (0x2000, 0x206F),
         "Letterlike Symbols": (0x2100, 0x214F),
-        "Alphabetic Presentation Forms": (0xFB00, 0xFB4F)
+        "Alphabetic Presentation Forms": (0xFB00, 0xFB4F),
     }
-    
+
     # 範囲フィルタリング
     if args.ranges:
         selected_ranges = args.ranges.split(",")
-        target_ranges = {k: v for k, v in target_ranges.items() if any(sr in k for sr in selected_ranges)}
-    
+        target_ranges = {
+            k: v
+            for k, v in target_ranges.items()
+            if any(sr in k for sr in selected_ranges)
+        }
+
     fonts = ["ubuntu", "mplus", "yasashisa"]
     analyzer = create_analyzer_with_error_handling(fonts)
     if not analyzer:
         return 1
-        
+
     try:
         print("【Ubuntu除外でのM+・やさしさゴシック幅比較】")
         print("=" * 80)
-        
+
         total_chars = 0
         total_candidates = 0
         all_candidates = []
-        
+
         for range_name, (start, end) in target_ranges.items():
             print(f"\n■ {range_name} (U+{start:04X}-U+{end:04X})")
             print("-" * 60)
-            
+
             # 各フォントでの存在文字を取得
             presence = {}
             for font in fonts:
@@ -428,119 +458,140 @@ def cmd_check_ranges(args):
                         present_chars.append((code, width))
                 presence[font] = present_chars
                 print(f"  {font:12}: {len(present_chars):3d}文字")
-            
+
             # Ubuntu、M+、やさしさゴシックの存在文字コードを取得
             ubuntu_codes = {c for c, w in presence["ubuntu"]}
             mplus_codes = {c for c, w in presence["mplus"]}
             yasashisa_codes = {c for c, w in presence["yasashisa"]}
-            
+
             # M+またはやさしさゴシックに存在し、Ubuntuには存在しない文字を抽出
             mplus_or_yasashisa = mplus_codes | yasashisa_codes
             not_in_ubuntu = mplus_or_yasashisa - ubuntu_codes
-            
+
             if not not_in_ubuntu:
                 print("  → Ubuntu除外後: 対象文字なし")
                 continue
-                
+
             print(f"  M+またはやさしさゴシックに存在: {len(mplus_or_yasashisa)}文字")
             print(f"  Ubuntu除外後の対象文字: {len(not_in_ubuntu)}文字")
-            
+
             # 対象文字の詳細情報を収集
             range_candidates = []
             for code in sorted(not_in_ubuntu):
                 char = chr(code)
                 mplus_width = analyzer.get_glyph_width("mplus", code)
                 yasashisa_width = analyzer.get_glyph_width("yasashisa", code)
-                
+
                 candidate = {
-                    'code': code,
-                    'char': char,
-                    'range': range_name,
-                    'mplus_width': mplus_width,
-                    'yasashisa_width': yasashisa_width
+                    "code": code,
+                    "char": char,
+                    "range": range_name,
+                    "mplus_width": mplus_width,
+                    "yasashisa_width": yasashisa_width,
                 }
                 range_candidates.append(candidate)
-            
+
             # M+・やさしさゴシックの幅パターンを分析
             width_patterns = {}
             for candidate in range_candidates:
-                mplus_w = candidate['mplus_width']
-                yasashisa_w = candidate['yasashisa_width']
-                pattern = (mplus_w if mplus_w is not None else 'None', 
-                          yasashisa_w if yasashisa_w is not None else 'None')
+                mplus_w = candidate["mplus_width"]
+                yasashisa_w = candidate["yasashisa_width"]
+                pattern = (
+                    mplus_w if mplus_w is not None else "None",
+                    yasashisa_w if yasashisa_w is not None else "None",
+                )
                 if pattern not in width_patterns:
                     width_patterns[pattern] = []
                 width_patterns[pattern].append(candidate)
-            
+
             # パターン別に表示
             def pattern_sort_key(item):
                 pattern, _ = item
-                return tuple(str(w) if w != 'None' else 'zzz' for w in pattern)
-            
+                return tuple(str(w) if w != "None" else "zzz" for w in pattern)
+
             for pattern, chars in sorted(width_patterns.items(), key=pattern_sort_key):
                 mplus_w, yasashisa_w = pattern
-                print(f"  [M+={mplus_w:>4} | やさしさ={yasashisa_w:>4}] {len(chars)}文字")
-                
+                print(
+                    f"  [M+={mplus_w:>4} | やさしさ={yasashisa_w:>4}] {len(chars)}文字"
+                )
+
                 if args.show_chars and len(chars) <= args.max_chars:
-                    char_list = " ".join([f"U+{c['code']:04X}({c['char']})" for c in chars[:20]])
+                    char_list = " ".join(
+                        [f"U+{c['code']:04X}({c['char']})" for c in chars[:20]]
+                    )
                     if len(chars) > 20:
-                        char_list += f" ...({len(chars)-20}more)"
+                        char_list += f" ...({len(chars) - 20}more)"
                     print(f"      {char_list}")
-            
-            all_candidates.extend(range_candidates) 
+
+            all_candidates.extend(range_candidates)
             total_chars += end - start + 1
             total_candidates += len(not_in_ubuntu)
-        
+
         # 総合統計
         print("\n" + "=" * 80)
         print("【総合結果】")
         print(f"検査範囲: {len(target_ranges)}範囲, {total_chars}文字")
         print(f"Ubuntu除外後の対象文字: {total_candidates}文字")
-        
+
         # M+とやさしさゴシック両方に存在する文字
-        both_exist = [c for c in all_candidates 
-                     if c['mplus_width'] is not None and c['yasashisa_width'] is not None]
-        
+        both_exist = [
+            c
+            for c in all_candidates
+            if c["mplus_width"] is not None and c["yasashisa_width"] is not None
+        ]
+
         if both_exist and args.show_details:
             print(f"\n【詳細一覧】M+・やさしさ両方に存在: {len(both_exist)}文字")
-            for candidate in both_exist[:args.max_chars]:
-                print(f"  U+{candidate['code']:04X} '{candidate['char']}' "
-                      f"M+={candidate['mplus_width']} やさしさ={candidate['yasashisa_width']} "
-                      f"({candidate['range']})")
-        
+            for candidate in both_exist[: args.max_chars]:
+                print(
+                    f"  U+{candidate['code']:04X} '{candidate['char']}' "
+                    f"M+={candidate['mplus_width']} やさしさ={candidate['yasashisa_width']} "
+                    f"({candidate['range']})"
+                )
+
         # M+のみに存在する文字
-        mplus_only = [c for c in all_candidates 
-                     if c['mplus_width'] is not None and c['yasashisa_width'] is None]
+        mplus_only = [
+            c
+            for c in all_candidates
+            if c["mplus_width"] is not None and c["yasashisa_width"] is None
+        ]
         if mplus_only:
             print(f"\n【M+のみ存在】{len(mplus_only)}文字")
             if args.show_details:
-                for candidate in mplus_only[:args.max_chars]:
-                    print(f"  U+{candidate['code']:04X} '{candidate['char']}' "
-                          f"M+={candidate['mplus_width']} ({candidate['range']})")
-        
+                for candidate in mplus_only[: args.max_chars]:
+                    print(
+                        f"  U+{candidate['code']:04X} '{candidate['char']}' "
+                        f"M+={candidate['mplus_width']} ({candidate['range']})"
+                    )
+
         # やさしさゴシックのみに存在する文字
-        yasashisa_only = [c for c in all_candidates 
-                         if c['mplus_width'] is None and c['yasashisa_width'] is not None]
+        yasashisa_only = [
+            c
+            for c in all_candidates
+            if c["mplus_width"] is None and c["yasashisa_width"] is not None
+        ]
         if yasashisa_only:
             print(f"\n【やさしさのみ存在】{len(yasashisa_only)}文字")
             if args.show_details:
-                for candidate in yasashisa_only[:args.max_chars]:
-                    print(f"  U+{candidate['code']:04X} '{candidate['char']}' "
-                          f"やさしさ={candidate['yasashisa_width']} ({candidate['range']})")
-        
+                for candidate in yasashisa_only[: args.max_chars]:
+                    print(
+                        f"  U+{candidate['code']:04X} '{candidate['char']}' "
+                        f"やさしさ={candidate['yasashisa_width']} ({candidate['range']})"
+                    )
+
     finally:
         analyzer.close_fonts()
-    
+
     return 0
 
 
 # Helpers
 
+
 def get_unicode_name(code: int) -> str:
     if 0 <= code < 0x110000:
         return unicodedata.name(chr(code), "UNKNOWN")
     return "UNKNOWN"
-
 
 
 def get_unicode_block_name(code: int) -> str:
@@ -581,7 +632,6 @@ def get_unicode_block_name(code: int) -> str:
     return "その他"
 
 
-
 def categorize_by_ranges(results: list[dict]) -> dict[str, list[dict]]:
     ranges = FontAnalyzer.get_unicode_ranges()
     out: dict[str, list[dict]] = {k: [] for k in ranges}
@@ -597,7 +647,6 @@ def categorize_by_ranges(results: list[dict]) -> dict[str, list[dict]]:
         if not placed:
             out["その他"].append(r)
     return {k: v for k, v in out.items() if v}
-
 
 
 def build_parser():
@@ -648,12 +697,11 @@ def build_parser():
     s = sub.add_parser("check-ranges", help="Ubuntu除外でのM+・やさしさゴシック幅比較")
     s.add_argument("--ranges", help="カンマ区切り範囲名フィルタ（部分一致）")
     s.add_argument("--show-chars", action="store_true", help="各パターンの文字例を表示")
-    s.add_argument("--show-details", action="store_true", help="詳細な文字一覧を表示") 
+    s.add_argument("--show-details", action="store_true", help="詳細な文字一覧を表示")
     s.add_argument("--max-chars", type=int, default=50, help="文字表示の最大数")
     s.set_defaults(func=cmd_check_ranges)
 
     return p
-
 
 
 def main():
