@@ -116,6 +116,12 @@ DECO_CHAR = "-"
 
 DEBUG = False
 
+# Windows の GDI で欠けないよう、win の範囲からはみ出す文字を縮める（fit_within_win_metrics）。
+# False にするか、コマンドライン引数に --no-fit-win-metrics を付けると、縮めずに元の字形のまま生成する。
+FIT_WIN_METRICS = "--no-fit-win-metrics" not in sys.argv[1:]
+# 縮めた後の丸めやヒンティングで端が1〜2単位はみ出すので、範囲の内側に少し余裕を取る
+FIT_MARGIN = 4
+
 # 設定可能な罫線描画モードを実装予定
 BOX_DRAWING_MODE = "console_optimized"  # default (現在仕様)
 # BOX_DRAWING_MODE = "mplus_compatible"  # M+完全準拠
@@ -297,6 +303,45 @@ def match_angle_bracket_outlines(font):
         glyph.foreground = source.foreground
         glyph.references = source.references
         glyph.width = source.width
+
+
+def fit_within_win_metrics(font):
+    """Windows の GDI で欠けないよう、win の範囲からはみ出す文字を縮める
+
+    GDI は usWinAscent / usWinDescent（ASCENT / DESCENT）の外側を描かない。
+    行の高さを変えないため、win は広げずにはみ出す字形の側を縮める。
+    対象は入力できる文字（cmap のグリフ）。cmap に無いグリフは縦書き用か
+    合成グリフの部品で、横書きで直接は描かれない。
+    ベースラインと字面の中心を基準に等倍で縮め、送り幅は変えない。
+    """
+    targets = {}
+    for glyph in font.glyphs():
+        if not glyph.isWorthOutputting() or next(unicode_mappings(glyph), None) is None:
+            continue
+        _, y_min, _, y_max = glyph.boundingBox()
+        scale = min(
+            (ASCENT - FIT_MARGIN) / y_max if y_max > ASCENT else 1,
+            (DESCENT - FIT_MARGIN) / -y_min if y_min < -DESCENT else 1,
+        )
+        if scale < 1:
+            targets[glyph.glyphname] = scale
+
+    # 縮める字形を部品に使う合成グリフは、形が変わらないよう先に輪郭へ展開する
+    for glyph in font.glyphs():
+        if glyph.glyphname in targets or any(
+            ref[0] in targets for ref in glyph.references
+        ):
+            glyph.unlinkRef()
+
+    for name, scale in targets.items():
+        glyph = font[name]
+        x_min, _, x_max, _ = glyph.boundingBox()
+        center = (x_min + x_max) / 2
+        width = glyph.width
+        glyph.transform((scale, 0, 0, scale, center * (1 - scale), 0))
+        # transform は送り幅も動かすので元に戻す
+        glyph.width = width
+    return targets
 
 
 def position_latin_above_marks(font):
@@ -845,6 +890,11 @@ def build_font(_f, mplus_cells):
 
     apply_width_policy(target_font, mplus_cells, latin_codepoints)
     match_angle_bracket_outlines(target_font)
+    if FIT_WIN_METRICS:
+        shrunk = fit_within_win_metrics(target_font)
+        indent_print(f"fit {len(shrunk)} glyphs within win ascent/descent")
+    else:
+        indent_print("skip fitting glyphs within win ascent/descent")
     target_font = post_process(target_font)
     position_latin_above_marks(target_font)
 

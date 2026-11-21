@@ -133,6 +133,11 @@ python test/font_compare.py --visual -f1 v1.2.1_Utatane-Regular -f2 v1.3.0_Utata
 ### xAvgCharWidth修正（`fix_xAvgCharWidth()`）
 FontForgeで生成されたフォントのxAvgCharWidthが不正になる問題を、`ttx`コマンドを使用して修正します。`ttx`が失敗した場合はその場でエラーになります。
 
+### Windows（GDI）で欠けないための縮小（`fit_within_win_metrics()`）
+GDI は usWinAscent / usWinDescent（800 / 200）の外側を描かないため、その範囲からはみ出す入力可能な文字（ベトナム語の大文字など約400字）を、ベースラインと字面の中心を基準に等倍で縮めます。行の高さ（win の値）は変えません。
+- 縮めずに元の字形のまま生成するには、`utatane.py` の `FIT_WIN_METRICS` を `False` にするか、`--no-fit-win-metrics` を付けて実行します（例: `uv run fontforge -lang=py -script ./utatane.py --no-fit-win-metrics`）
+- はみ出しの一覧は `uv run python analysis/win_clipping_report.py`（`tmp/win-clip/win_clipping.html`）で確認できます
+
 ### デバッグモード
 `DEBUG = True`に設定すると:
 - 中間ファイル（`.sfd`, `.ttx`）が保持されます
