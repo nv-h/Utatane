@@ -1,14 +1,19 @@
 """Check a generated Regular/Bold pair against the Utatane width policy.
 
-Run from the repository root with FontTools installed:
-    python -m analysis.check_width_policy dist/Utatane-Regular.ttf dist/Utatane-Bold.ttf
+Run with FontTools installed:
+    python analysis/check_width_policy.py dist/Utatane-Regular.ttf dist/Utatane-Bold.ttf
 """
 
 import argparse
+import sys
 import unicodedata
 from pathlib import Path
 
 from fontTools.ttLib import TTFont
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
 
 from width_policy import expected_cells
 
@@ -34,7 +39,7 @@ def main():
     parser.add_argument("bold", type=Path)
     args = parser.parse_args()
 
-    reference_path = Path(__file__).resolve().parents[1] / "sourceFonts/mplus-1m-regular.ttf"
+    reference_path = REPO_ROOT / "sourceFonts/mplus-1m-regular.ttf"
     mplus_half, mplus_advances = read_advances(reference_path)
     mplus_cells = {cp: width // mplus_half for cp, width in mplus_advances.items()
                    if width in (mplus_half, 2 * mplus_half)}
