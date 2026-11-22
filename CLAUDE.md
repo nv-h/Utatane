@@ -136,7 +136,8 @@ python test/font_compare.py --visual -f1 v1.2.1_Utatane-Regular -f2 v1.3.0_Utata
 `YasashisaGothicBold-V2_-30.ttf` には、作成時の FontForge の Change Weight（-30）で残った1点だけの輪郭が約7万5千個あります（元の `YasashisaGothicBold-V2.ttf` には無い。同じ処理で再現する）。描画はされませんが、グリフの範囲を押し広げ、ファイルを大きくするため、和文の取り込み時と後処理で取り除いています。
 
 ### xAvgCharWidth修正（`fix_xAvgCharWidth()`）
-FontForgeで生成されたフォントのxAvgCharWidthが不正になる問題を、`ttx`コマンドを使用して修正します。`ttx`が失敗した場合はその場でエラーになります。
+OS/2 の xAvgCharWidth を、`ttx`コマンドで半角幅（500）に書き換えます。`ttx`が失敗した場合はその場でエラーになります。
+Windows の GDI は、日本語フォントで xAvgCharWidth が半角幅でないと、Shift_JIS で2バイトになる文字（かな・漢字、罫線・±・× など）をすべて xAvgCharWidth の2倍の幅で送るためです（500 にすると hmtx どおりに並ぶ）。FontForge が書く値は約870、以前コピーしていたやさしさゴシックの値は 463 / 510 で、どちらも GDI で間隔がずれます。
 
 ### Windows（GDI）で欠けないための縮小（`fit_within_win_metrics()`）
 GDI は usWinAscent / usWinDescent（800 / 200）の外側を描かないため、その範囲からはみ出す入力可能な文字（ベトナム語の大文字など約400字）を、ベースラインと字面の中心を基準に等倍で縮めます。行の高さ（win の値）は変えません。

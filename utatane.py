@@ -872,36 +872,35 @@ def run_ttx(*args):
     subprocess.run([shutil.which("ttx"), *args], check=True)
 
 
-def fix_xAvgCharWidth(_src_ttf, _dst_ttf):
-    """AvgCharWidthがおかしくなるので、元のフォントの値に書き換える
+def fix_xAvgCharWidth(_dst_ttf):
+    """OS/2 の xAvgCharWidth を半角幅（WIDTH // 2 = 500）にする
     require: fontToolsのttx (`uv sync` でインストールし、`uv run` 経由で実行する)
+
+    Windows の GDI は、日本語フォントで xAvgCharWidth が半角幅でないと、Shift_JIS で
+    2バイトになる文字（かな・漢字、罫線・±・× など）をすべて xAvgCharWidth の2倍の幅で送る。
+    半角幅にすると、各文字の送り幅（hmtx）どおりに並ぶ。
+    FontForge はグリフの平均に近い値（約870）を書くので、生成後に書き換える。
+    以前はやさしさゴシックの値（Regular 463 / Bold 510）をコピーしており、GDI では
+    2バイト文字の間隔が 926 / 1020 になっていた。
 
     refer: https://web.archive.org/web/20240205173549/https://osdn.net/projects/mplus-fonts/lists/archive/dev/2011-July/000619.html
            (OSDN終了のためWayback Machineのアーカイブ)
     """
     import xml.etree.ElementTree as ET
 
-    deco_print(f"fix xAvgCharWidth: {_src_ttf} to {_dst_ttf}")
+    value = WIDTH // 2
+    deco_print(f"fix xAvgCharWidth: {_dst_ttf} to {value}")
 
-    # 元のフォントからxAvgCharWidth読み出し
-    src_root, _ = os.path.splitext(_src_ttf)
-    run_ttx("-f", "-t", "OS/2", _src_ttf)
-    src_tree = ET.parse(src_root + ".ttx")
-    src_AvgCharWidth = src_tree.find("OS_2").find("xAvgCharWidth").get("value")
-
-    # 作成したフォントへxAvgCharWidthを設定
     dst_root, _ = os.path.splitext(_dst_ttf)
     run_ttx("-f", "-t", "OS/2", _dst_ttf)
     dst_tree = ET.parse(dst_root + ".ttx")
-    dst_tree.find("OS_2").find("xAvgCharWidth").set("value", f"{src_AvgCharWidth}")
+    dst_tree.find("OS_2").find("xAvgCharWidth").set("value", str(value))
     dst_tree.write(dst_root + ".ttx", "utf-8", True)
 
     # 変更したやつを反映
     run_ttx("-f", "-m", _dst_ttf, dst_root + ".ttx")
 
     # 後片付け
-    if not DEBUG:
-        os.remove(src_root + ".ttx")
     if not DEBUG:
         os.remove(dst_root + ".ttx")
 
@@ -958,7 +957,7 @@ def build_font(_f, mplus_cells):
     target_font.generate(fontpath)
     target_font.close()
 
-    fix_xAvgCharWidth(SOURCE + "/{}".format(_f.get("japanese")), fontpath)
+    fix_xAvgCharWidth(fontpath)
 
     deco_print("Generate {} completed.".format(_f.get("name")))
 

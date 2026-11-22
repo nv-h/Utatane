@@ -55,6 +55,13 @@ def main():
         (args.regular, regular_half, regular),
         (args.bold, bold_half, bold),
     ]:
+        # Windows の GDI は、xAvgCharWidth が半角幅でないと2バイト文字をその2倍の幅で送る
+        with TTFont(path) as font:
+            average = font["OS/2"].xAvgCharWidth
+        if average != half:
+            problems.append(
+                f"{path.name}: OS/2 xAvgCharWidth expected {half}, got {average}"
+            )
         for codepoint, actual in sorted(advances.items()):
             cells = expected_cells(codepoint, mplus_cells)
             if actual not in (0, half, 2 * half) or (

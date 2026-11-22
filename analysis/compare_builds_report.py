@@ -122,6 +122,7 @@ def summarize(path):
     )
     return {
         "size": path.stat().st_size,
+        "avg": os2.xAvgCharWidth,
         "instructed": instructed_glyphs(font),
         "degenerate": degenerate_contours(font),
         "outside": outside,
@@ -198,6 +199,18 @@ def png(rgb):
     return base64.b64encode(buffer.getvalue()).decode("ascii")
 
 
+def pad_to_same_size(images):
+    """白で右と下を埋めて、全画像を同じ大きさにする（版で文字の間隔が違うことがあるため）"""
+    height = max(image.shape[0] for image in images)
+    width = max(image.shape[1] for image in images)
+    padded = []
+    for image in images:
+        canvas = np.full((height, width, 3), 255, dtype=np.uint8)
+        canvas[: image.shape[0], : image.shape[1]] = image
+        padded.append(canvas)
+    return padded
+
+
 def diff_image(previous, current):
     """違うピクセルを赤、同じところを薄い灰色で示す"""
     changed = (np.abs(previous.astype(int) - current.astype(int)) > 16).any(axis=2)
@@ -229,10 +242,14 @@ def gdi_section(variants):
             cells_html = {i: [] for i in range(len(variants))}
             for weight in WEIGHTS:
                 for quality_key, (_, quality) in QUALITIES.items():
-                    images = [
-                        render_gdi(f"UtaCmp {i} {weight}", weight, px, lines, quality)
-                        for i in range(len(variants))
-                    ]
+                    images = pad_to_same_size(
+                        [
+                            render_gdi(
+                                f"UtaCmp {i} {weight}", weight, px, lines, quality
+                            )
+                            for i in range(len(variants))
+                        ]
+                    )
                     attrs = f'data-weight="{CSS_WEIGHT[weight]}" data-quality="{quality_key}"'
                     for i, image in enumerate(images):
                         note = ""
@@ -340,6 +357,10 @@ def main():
         ("ヒンティング命令のあるグリフ", lambda s: f"{s['instructed']:,}"),
         ("描画されない輪郭（迷子の点など）", lambda s: f"{s['degenerate']:,}"),
         ("win の範囲からはみ出す文字", lambda s: f"{s['outside']:,}"),
+        (
+            "xAvgCharWidth（500 以外は GDI で2バイト文字がずれる）",
+            lambda s: str(s["avg"]),
+        ),
     ):
         summary_rows.append(
             f"<tr><th scope='row'>{label}</th>"
@@ -453,9 +474,9 @@ svg .baseline{stroke:#afc5bf;stroke-width:5;stroke-dasharray:24 18}svg text{font
 <p>フォントの版どうしを並べて比べる。GDI の画像は Windows の GDI（TextOut）で実際に描いたもの。
 各列の「差」は左隣の列とのピクセル差で、「差分を表示」で違う場所を赤く示す。
 ヒンティング命令は、GDI ではグレースケール・ClearType とも、どのサイズでも描画を変える。</p>
-<p class="muted">注意: GDI は日本語フォントの2バイト文字（かな・漢字、Shift_JIS で2バイトになる罫線・±・× など）を
-OS/2 の xAvgCharWidth の2倍の幅で送る。Utatane は xAvgCharWidth がやさしさゴシックの値（Regular 463 / Bold 510）なので、
-GDI ではこれらの文字の間隔が 926 / 1020 になり、罫線が途切れて見える。どの版にも共通する以前からの問題。</p>
+<p class="muted">注意: GDI は日本語フォントで xAvgCharWidth が半角幅（500）でないと、2バイト文字（かな・漢字、
+Shift_JIS で2バイトになる罫線・±・× など）をすべて xAvgCharWidth の2倍の幅で送る。概要の xAvgCharWidth が 500 でない版では、
+GDI でこれらの文字の間隔がずれ、罫線が途切れて見える。</p>
 <div class="controls">
 <button type="button" data-weight-select="400" aria-pressed="true">Regular</button>
 <button type="button" data-weight-select="700" aria-pressed="false">Bold</button>
